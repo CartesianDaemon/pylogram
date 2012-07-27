@@ -1,7 +1,7 @@
 
-
 class Num:
-    pass
+    def constrain(self, other):
+        self._constraints.append(other)
 
 class Object:
     pass
@@ -10,6 +10,6 @@ class Object:
 a = Num()
 b = Num()
 
-a = b * 2
+a.constrain( b * 2 )
 
 print a
