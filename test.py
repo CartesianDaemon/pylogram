@@ -97,10 +97,10 @@ class TestPylogram(unittest.TestCase):
         self.assertRaises( AssertionError, system.evaluate, pylogram.Equ(a,b) )
         self.assertTrue( pylogram.Equ( a, a ) )
         self.assertTrue( pylogram.Equ( a + b, b + a ) )
-        # self.assertTrue( a == a )
-        # self.assertTrue( a + b == b + a )
-        # self.assertEqual( a, a )
-        # self.assertEqual( a + b, b + a )
+        self.assertTrue( a == a )
+        self.assertTrue( a + b == b + a )
+        self.assertEqual( a, a )
+        self.assertEqual( a + b, b + a )
 
     def test_simple_evaluations(self):
         system = pylogram.System()
@@ -114,8 +114,9 @@ class TestPylogram(unittest.TestCase):
         self.assertEqual( system.evaluate(a/2), 1 )
         self.assertEqual( system.evaluate(1*2), 2 )
         with self.assertRaises( TypeError): 1/b
-        # self.assertEqual( system.evaluate(a/2), 1 )
-        # self.assertEqual( system.evaluate(b*2), 2 )
+        self.assertEqual( system.evaluate(a/2), 1 )
+        self.assertEqual( system.evaluate(b*2), 6 )
+        self.assertEqual( system.evaluate( a*5 + b/3 -2*(a+b) - (-0.1) ), 1.1 )
         
     def test_solve(self):
         system = pylogram.System()
