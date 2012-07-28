@@ -15,16 +15,17 @@ class NormaliseError(Exception):
     pass
 
 class _Var:
-    def __init__(self):
+    def __init__(self, name = None):
         global _next_var_idx
         self._idx = _next_var_idx
         _next_var_idx += 1
+        self._name = name if name is not None else "[" + chr(ord('a')+self._idx) + "]"
 
     def __hash__(self):
         return self._idx
         
     def __repr__(self):
-        return "var" + str(self._idx)
+        return self._name
         
     def evaluate(self, system):
         return system._evaluate_var(self)
@@ -82,6 +83,9 @@ class Expr:
     def const(self):
         return self._const;
         
+    def coefficient(self,variable):
+        return self._coeffs[variable]
+
     def variables(self):
         return set(self._coeffs.keys())
 
@@ -122,25 +126,31 @@ class Expr:
         return self._const + sum( coeff * term.evaluate(system) for term,coeff in self._coeffs.iteritems() )
         
     def __repr__(self):
-        return "<Expr " + repr(self._coeffs) + " + " + str(self._const) + ">"
+        return " + ".join( repr(coeff) + "*" + repr(var) for var, coeff in self._coeffs.iteritems() ) + " + " + str(self._const)
 
 def is_term(term):
     return isinstance(term,Number) or isinstance(term,_Var) or isinstance(term,Expr)
 
 class EquZero:
     def __init__( self, lhs ):
-        self._expr_equals_zero = Expr(lhs)
+        self._zero_expr = Expr(lhs)
         
     def __nonzero__(self):
         # TODO: Only checks for trivial cases, needed to check things like a==a in hashes
         # need to evaluate variables to check real values
-        return self._expr_equals_zero.is_null()
-        
+        return self._zero_expr.is_null()
+    
+    def coefficient(self,variable):
+        return self._zero_expr.coefficient(variable)
+    
     def variables(self):
-        return self._expr_equals_zero.variables()
+        return self._zero_expr.variables()
         
     def rhs_constant(self):
-        return -self._expr_equals_zero.const()
+        return -self._zero_expr.const()
+        
+    def __repr__(self):
+        return "{ " + repr(self._zero_expr) + " == 0 }"
 
 def Equ(lhs,rhs):
     return EquZero(lhs-rhs)
@@ -177,7 +187,8 @@ class System:
         return tuple( Expr(var) for var in self._variables )
         
     def A(self):
-        pass
+        print tuple( equ for equ in self._constraints )
+        tuple( tuple( equ.coefficient(var) for var in self.variables() ) for equ in self._constraints )
     
     def b(self):
         return tuple( equ.rhs_constant() for equ in self._constraints )

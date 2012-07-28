@@ -83,7 +83,7 @@ class TestPylogram(unittest.TestCase):
         self.assertEquals( system.x()[0], a )
         self.assertEquals( system.x()[1], b )
         self.assertEquals( system.b(), (0,0,0,3) )
-        # self.assertEquals( system.A(), ((-2,1),(-2,1),(2,-1),(1,0)) )
+        self.assertEquals( system.A(), ((-2,1),(-2,1),(2,-1),(1,0)) )
         # self.assertTrue( system.solved() )
         # 
         # # Check results
