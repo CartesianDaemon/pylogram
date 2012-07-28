@@ -83,6 +83,7 @@ class TestPylogram(unittest.TestCase):
         a == 2 
         b == a * 2
         (a + b) * 2
+        (a + b) / 2
 
     def test_null_evaluations(self):
         system = pylogram.System()
@@ -117,7 +118,16 @@ class TestPylogram(unittest.TestCase):
         self.assertEqual( system.evaluate(b*2), 6 )
         self.assertEqual( system.evaluate((a+b)*2), 10 )
         self.assertEqual( system.evaluate( a*5 + b/3 -2*(a+b) - (-0.1) ), 1.1 )
-        
+    
+    def test_equ(self):
+        system = pylogram.System()
+        a = pylogram.Var()
+        b = pylogram.Var()
+        # self.assertEqual( a==b, b==a )
+        self.assertNotEqual( a==a, a==b )
+        self.assertEqual( a==a, pylogram.Expr(0)==0 )
+        self.assertNotEqual( a==a, 0 )
+    
     def test_solve(self):
         system = pylogram.System()
         a = pylogram.Var()
