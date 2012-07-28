@@ -44,7 +44,25 @@ class TestPylogram(unittest.TestCase):
         self.assertEquals( undef * 0, 0 ) 
         self.assertEquals( 0 * undef, 0 ) 
         self.assertRaises( AttributeError, getattr, undef, '__div__' )
+
+    def test_interface(self):
+        system = pylogram.default_system()
+        a = pylogram.Var()
+        system.constrain( 3==a*2 )
+        # self.assertEquals( system.evaluate(a), 1.5 )
         
+    def test_arithmetic(self):
+        system = pylogram.System()
+        a = pylogram.Var()
+        b = pylogram.Var()
+        system.constrain( a== 2)
+        system.constrain( b== 3)
+        self.assertEquals( system.evaluate(2/2), 1 )
+        self.assertEquals( system.evaluate(1*2), 2 )
+        with self.assertRaises( TypeError): 1/b
+        # self.assertEquals( system.evaluate(a/2), 1 )
+        # self.assertEquals( system.evaluate(b*2), 2 )
+
     def test_system(self):
     
         # Variables

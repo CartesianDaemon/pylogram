@@ -21,6 +21,9 @@ def is_x(term, i):
         return True
     else:
         return False
+        
+def is_num(term):
+    return isinstance(term,Number)
 
 class nonzero_dict( defaultdict ):
     def __init__(self):

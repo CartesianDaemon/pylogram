@@ -53,33 +53,14 @@ class Expr:
     def __hash__(self):
         return id(self)
 
-    def __eq__(self,other):
-        assert is_term( other )
-        return EquZero( self - Expr(other) )
-
-    def __add__(self,term):
-        assert is_term( term )
-        return self.copy()._add_term( term )
-
-    def __mul__(self,term):
-        assert is_term( term )
-        return self.copy()._mul_term(term)
-        
-    def __sub__(self,term):
-        assert is_term( term )
-        return self + ( term * -1 )
-        
-    def __rsub__(self,term):
-        assert is_term( term )
-        return ( self * -1 ) + term
-    
-    def __radd__(self,term):
-        assert is_term( term )
-        return self + term
-        
-    def __rmul__(self,term):
-        assert is_term( term )
-        return self * term
+    def __eq__  (self,other):assert is_term(other); return EquZero( self - Expr(other) )
+    def __add__ (self,term): assert is_term(term); return self.copy()._add_term( term )
+    def __mul__ (self,term): assert is_term(term); return self.copy()._mul_term(term)
+    def __sub__ (self,term): assert is_term(term); return self + ( term * -1 )
+    def __rsub__(self,term): assert is_term(term); return ( self * -1 ) + term
+    def __radd__(self,term): assert is_term(term); return self + term
+    def __rmul__(self,term): assert is_term(term); return self * term
+    def __div__ (self,term): assert is_num(term); return self * (1/term)
         
     def copy(self):
         return Expr(self)
@@ -141,7 +122,7 @@ class EquZero:
         
     def __bool__(self):
         # TODO: Only checks for trivial cases, needed to check things like a==a in hashes
-        # need to evaluate variables to check real values
+        # use system.evaluate() to check actual values
         return self._zero_expr.is_null()
     
     def coefficient(self,variable):
@@ -197,6 +178,7 @@ class System:
         return tuple( equ.rhs_constant() for equ in self._constraints )
         
     def evaluate(self,expr):
+        # TODO: evaluate equations as well as expressions
         assert is_term(expr)
         val = Expr(expr).evaluate(self)
         return None if isinstance(val, _Undefined) else val
@@ -207,6 +189,10 @@ class System:
         else:
             # TODO: do matrix inversion, return value or _Undefined() if unconstrained
             return _Undefined()
+
+_default_system = System()
+def default_system():
+    return _default_system
 
 class _Undefined:
     def __add__ (self,other): return self
