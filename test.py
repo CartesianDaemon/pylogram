@@ -55,6 +55,8 @@ class TestMatrixSolve(unittest.TestCase):
         variables_abc = (a+b+c).variables()
         self.assertEqual( solve.canonical_form( [ 2*a==1 ], variables_ab ), [ a==0.5 ] )
         self.assertEqual( solve.canonical_form( [ 2*a==1, 1*b==0 ], variables_ab ), [ a==0.5, b==0 ] )
+        self.assertEqual( solve.canonical_form( [ 2*a==1, 1*b==0 ], variables_abc ), [ a==0.5, b==0 ] )
+        self.assertEqual( solve.canonical_form( [ 2*a+b==5, a+b==4 ], variables_abc ), [ a==1, b==3 ] )
 
 class TestHelpers(unittest.TestCase):
     def test_nonzero_dict(self):
@@ -114,11 +116,10 @@ class TestPylogram(unittest.TestCase):
         b = pylogram.Var('b')
         self.assertEqual( system.evaluate( 3) , 3 )
         self.assertEqual( system.evaluate( 3*a +2 -2*a -a ) , 2 )
-        self.assertTrue( (a-a).is_null() )
-        self.assertFalse( a.is_null() )
-        self.assertTrue( pylogram.Expr(0).is_null() )
-        self.assertRaises( pylogram.Contradiction, lambda:pylogram.Expr(4).is_null() )
-        self.assertRaises( AssertionError, system.evaluate, pylogram.Equ(a,b) )
+        self.assertTrue( (a-a).is_tautologically_zero() )
+        self.assertFalse( a.is_tautologically_zero() )
+        self.assertTrue( pylogram.Expr(0).is_tautologically_zero() )
+        self.assertRaises( pylogram.NormaliseError, system.evaluate, pylogram.Equ(a,b) )
         self.assertTrue( pylogram.Equ( a, a ) )
         self.assertTrue( pylogram.Equ( a + b, b + a ) )
         self.assertTrue( a == a )
@@ -142,6 +143,12 @@ class TestPylogram(unittest.TestCase):
         self.assertEqual( system.evaluate((a+b)*2), 10 )
         self.assertEqual( system.evaluate( a*5 + b/3 -2*(a+b) - (-0.1) ), 1.1 )
     
+    def test_contradictions(self):
+        system = pylogram.System()
+        a = pylogram.Var('a')
+        self.assertFalse( system.evaluate( a-a==2 ) )
+        self.assertRaises( pylogram.Contradiction, system.constrain, a-a==2 )
+
     def test_equ(self):
         system = pylogram.System()
         a = pylogram.Var()

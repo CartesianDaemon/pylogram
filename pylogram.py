@@ -73,14 +73,12 @@ class Expr:
 
     def variables(self):
         return set(self._coeffs.keys())
+        
+    def is_tautologically_nonzero(self):
+        return self._coeffs == {} and self._const != 0
 
-    def is_null(self):
-        if len(self._coeffs)==0 and self._const == 0:
-            return True
-        elif self._coeffs == {} and self._const != 0:
-            raise Contradiction
-        else:
-            return False
+    def is_tautologically_zero(self):
+        return len(self._coeffs)==0 and self._const == 0
         
     def is_normalised(self):
         assert isinstance(self._const,Number)
@@ -113,8 +111,17 @@ class Expr:
     def __repr__(self):
         return " + ".join( repr(coeff) + "*" + repr(var) for var, coeff in self._coeffs.items() ) + " + " + str(self._const)
 
-def is_term(term):
-    return isinstance(term,Number) or isinstance(term,_Var) or isinstance(term,Expr)
+def is_term(val):
+    return isinstance(val,Number) or isinstance(val,_Var) or isinstance(val,Expr)
+
+def is_equ(val):
+    return isinstance(val,EquZero)
+
+def is_undef(val):
+    return isinstance(val, _Undefined) 
+    
+def is_def(val):
+    return not is_undef(val)
 
 class EquZero:
     def __init__( self, lhs ):
@@ -125,7 +132,7 @@ class EquZero:
     def __bool__(self):
         # TODO: Only checks for trivial cases, needed to check things like a==a in hashes
         # use system.evaluate() to check actual values
-        return self._zero_expr.is_null()
+        return self.is_tautology()
     
     def __eq__(self,other): return isinstance(other,EquZero) and self._zero_expr == other._zero_expr
     
@@ -135,6 +142,16 @@ class EquZero:
     def __rmul__(self, other): assert isinstance(other,Number); return EquZero( self._zero_expr * other )
     def __truediv__ (self, other): assert isinstance(other,Number); return EquZero( self._zero_expr / other )
     
+    def is_tautology(self):
+        return self._zero_expr.is_tautologically_zero()
+    
+    def is_contradiction(self):
+        return self._zero_expr.is_tautologically_nonzero()
+        
+    def evaluate(self, system):
+        val = self._zero_expr.evaluate(system)
+        return (val) if is_undef(val) else (val==0)
+
     def copy(self):
         return EquZero(self._zero_expr.copy())
     
@@ -165,8 +182,10 @@ class System:
     
     def constrain(self,equ):
         assert isinstance(equ, EquZero)
-        # TODO: Raise Contradiction if this constraint is one too many
         self._constraints.append(equ)
+        # TODO: Change this...
+        if equ.is_contradiction(): raise Contradiction
+        # ... to calling solve.solve_constraints and ignoring result.
 
     def constrain_equals(self,lhs,rhs):
         self.constrain( EquZero(lhs-rhs) )
@@ -190,10 +209,12 @@ class System:
         return tuple( equ.rhs_constant() for equ in self._constraints )
         
     def evaluate(self,expr):
-        # TODO: evaluate equations as well as expressions
-        assert is_term(expr)
-        val = Expr(expr).evaluate(self)
-        return None if isinstance(val, _Undefined) else val
+        assert is_term(expr) or is_equ(expr)
+        if is_equ(expr):
+            val = expr.evaluate(self)
+        else:
+            val = Expr(expr).evaluate(self)
+        return val if is_def(val) else None
 
     def variable_values(self):
         return solve_matrix( self.A(), self.b() )
