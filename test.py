@@ -22,7 +22,8 @@ class TestMatrixSolve(unittest.TestCase):
         self.assertTrue( all( linalg.solve(A,b)==x ) )
         self.assertTrue( all( linalg.solve(A_,b)==x ) )
         # TODO: Test with superfluous and unsolvable lines
-    
+
+    @unittest.expectedFailure
     def test_canonical(self):
         a = pylogram.Var('a')
         b = pylogram.Var('b')
@@ -30,7 +31,7 @@ class TestMatrixSolve(unittest.TestCase):
         variables_ab = (a+b).variables()
         variables_abc = (a+b+c).variables()
         self.assertEqual( solve.canonical_form( [ 2*a==1 ], variables_ab ), [ a==0.5 ] )
-        #self.assertEqual( solve.canonical_form( [ 2*a==1, 1*b=0 ], variables_ab ), [ a==0.5 ] )
+        self.assertEqual( solve.canonical_form( [ 2*a==1, 1*b==0 ], variables_ab ), [ a==0.5, b==0 ] )
 
 class TestHelpers(unittest.TestCase):
     def test_nonzero_dict(self):
@@ -68,8 +69,39 @@ class TestPylogram(unittest.TestCase):
         system = pylogram.System()
         a = pylogram.Var()
         b = pylogram.Var()
+        # Check compiles
+        a + 2  
+        a * 2
+        a * -1
+        1 * a
+        -1 * a
+        a + b
+        a - 1
+        a - b
+        1 - a
+        -1 * b == 0 - (2 * a)
+        a == 2 
+        b == a * 2
+
+        # Check null evaluations
+        self.assertEqual( system.evaluate( 3) , 3 )
+        self.assertEqual( system.evaluate( 3*a +2 -2*a -a ) , 2 )
+        self.assertTrue( (a-a).is_null() )
+        self.assertFalse( a.is_null() )
+        self.assertTrue( pylogram.Expr(0).is_null() )
+        self.assertRaises( pylogram.Contradiction, lambda:pylogram.Expr(4).is_null() )
+        self.assertRaises( AssertionError, system.evaluate, pylogram.Equ(a,b) )
+        self.assertTrue( pylogram.Equ( a, a ) )
+        self.assertTrue( pylogram.Equ( a + b, b + a ) )
+        # self.assertTrue( a == a )
+        # self.assertTrue( a + b == b + a )
+        # self.assertEqual( a, a )
+        # self.assertEqual( a + b, b + a )
+
+        # Apply constraints to test evaluation of variables with values
         system.constrain( a== 2)
         system.constrain( b== 3)
+        
         self.assertEqual( system.evaluate(pylogram.Expr(2)/2), 1 )
         self.assertEqual( system.evaluate(a/2), 1 )
         self.assertEqual( system.evaluate(1*2), 2 )
@@ -99,35 +131,6 @@ class TestPylogram(unittest.TestCase):
         # self.assertTrue( hash(a) < hash(b) )
         # self.assertTrue( list({ a:1, b:2 }.keys())[0] is a )
         # TODO: Check hash for actual variables, not Expr(variable)
-
-        # Check compiles
-        a + 2  
-        a * 2
-        a * -1
-        1 * a
-        -1 * a
-        a + b
-        a - 1
-        a - b
-        1 - a
-        -1 * b == 0 - (2 * a)
-        a == 2 
-        b == a * 2
-
-        # Check null evaluations
-        self.assertEqual( system.evaluate( 3) , 3 )
-        self.assertEqual( system.evaluate( 3*a +2 -2*a -a ) , 2 )
-        self.assertTrue( (a-a).is_null() )
-        self.assertFalse( a.is_null() )
-        self.assertTrue( pylogram.Expr(0).is_null() )
-        self.assertRaises( pylogram.Contradiction, lambda:pylogram.Expr(4).is_null() )
-        self.assertRaises( AssertionError, system.evaluate, pylogram.Equ(a,b) )
-        self.assertTrue( pylogram.Equ( a, a ) )
-        self.assertTrue( pylogram.Equ( a + b, b + a ) )
-        # self.assertTrue( a == a )
-        # self.assertTrue( a + b == b + a )
-        # self.assertEqual( a, a )
-        # self.assertEqual( a + b, b + a )
 
         # Check we can apply constraints, including duplicates
         system.constrain_equals( b , a * 2 )
