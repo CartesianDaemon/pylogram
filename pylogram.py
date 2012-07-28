@@ -9,8 +9,16 @@ from helpers import *
 from solve import solve_constraints
 from exceptions import *
 
-_next_var_idx = 0 # Used for debugging to make variables appear in hashes in expected order
-
+def is_var(val): return is_instance(val,_Var)
+def is_bare_term(val):return isinstance(val,Number) or isinstance(val,_Var)
+def is_term(val):return is_bare_term(val) or isinstance(val,Expr)
+def is_expr(val): return isinstance(val,Expr)
+def is_equ(val): return isinstance(val,EquZero)
+def is_undef(val): return isinstance(val, _Undefined) 
+def is_def(val): return not is_undef(val)
+def is_num(term):  return isinstance(term,Number)
+def is_evaluatable(term): return is_equ(term) or is_expr(term)
+    
 class _Var:
     def __init__(self, name, idx):
         self._name = name
@@ -28,6 +36,7 @@ class _Var:
     def evaluate(self, system):
         return system._evaluate_var(self)
 
+_next_var_idx = 0 # Used for debugging to make variables appear in hashes in expected order
 def Var(orig_name = None):
     global _next_var_idx
     var = _Var( name = orig_name if orig_name else "var_" + str(_next_var_idx), idx=_next_var_idx )
@@ -109,21 +118,12 @@ class Expr:
     def evaluate(self, system):
         return self._const + sum( coeff * term.evaluate(system) for term,coeff in self._coeffs.items() )
         
+    def is_def(self, system):
+        return is_def( self.evaluate(system) )
+
     def __repr__(self):
         return " + ".join( repr(coeff) + "*" + repr(var) for var, coeff in self._coeffs.items() ) + " + " + str(self._const)
-
-def is_term(val):
-    return isinstance(val,Number) or isinstance(val,_Var) or isinstance(val,Expr)
-
-def is_equ(val):
-    return isinstance(val,EquZero)
-
-def is_undef(val):
-    return isinstance(val, _Undefined) 
-    
-def is_def(val):
-    return not is_undef(val)
-
+        
 class EquZero:
     def __init__( self, lhs ):
         if isinstance(lhs,EquZero):
@@ -159,6 +159,9 @@ class EquZero:
     def evaluate(self, system):
         val = self._zero_expr.evaluate(system)
         return (val) if is_undef(val) else (val==0)
+        
+    def is_def(self, system):
+        return is_def( self.evaluate(system) )
 
     def copy(self):
         return EquZero(self._zero_expr.copy())
@@ -178,31 +181,30 @@ class EquZero:
 def Equ(lhs,rhs):
     return EquZero(lhs-rhs)
         
-# TODO: Can we keep separate lists for each interconnected system of equations?
-
-# Constraints represented as matrix: Ax=b
-#
-# A is n x m where n is number of variables and m is number of equations
-
 class System:
     def __init__(self):
         self._constraints = []
+        
+    def try_constrain(self,equ):
+        try:
+            self.constrain(equ)
+            return True
+        except Contradiction:
+            return False
     
     def constrain(self,equ):
         assert isinstance(equ, EquZero)
+        # Throw Contradiction if new constraint 
         self._constraints.append(equ)
-        # TODO: Change this...
         if equ.is_contradiction(): raise Contradiction
-        # ... to calling solve.solve_constraints and ignoring result.
-
-    def constrain_equals(self,lhs,rhs):
-        self.constrain( EquZero(lhs-rhs) )
-
-    def constrain_zero(self,lhs):
-        self.constrain( EquZero(lhs) )
+        self.test_for_contradictions()
+        
+    def test_for_contradictions(self):
+        # self.solution() throws Contradiction if a conflicting constraint has been added
+        self.solution()
         
     def solved(self):
-        return all( val is not None for val in solve_matrix( self.A(), self.b() ) )
+        return not any( val is None for val in self.solution().values() )
     
     def variables(self):
         return set().union( * ( equ.variables() for equ in self._constraints ) )
@@ -216,27 +218,18 @@ class System:
     def b(self):
         return tuple( equ.rhs_constant() for equ in self._constraints )
         
-    def evaluate(self,expr):
-        assert is_term(expr) or is_equ(expr)
-        if is_equ(expr):
-            val = expr.evaluate(self)
-        else:
-            val = Expr(expr).evaluate(self)
-        return val if is_def(val) else None
-
-    def variable_values(self):
-        return solve_matrix( self.A(), self.b() )
-
-    def variable_dict(self):
-        #assert len(self.variables())==len(self.variable_values())
-        # return dict( zip( self.variables(), self.variable_values() ) )
-        return solve_constraints( self._constraints, self.variables() )
+    def evaluate(self,evaluand):
+        if is_bare_term(evaluand):
+            evaluand = Expr(evaluand)
+        assert is_evaluatable(evaluand)
+        return evaluand.evaluate(self) if evaluand.is_def(self) else None
+        
+    def solution(self):
+        return solve_constraints(self._constraints,self.variables())
 
     def _evaluate_var(self,var):
-        if var not in self.variables():
-            raise NormaliseError
-        else:
-            return self.variable_dict()[var] or _Undefined()
+        if var not in self.variables(): raise NormaliseError
+        return self.solution()[var] or _Undefined()
 
 _default_system = System()
 

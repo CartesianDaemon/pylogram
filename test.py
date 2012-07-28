@@ -22,15 +22,6 @@ class TestBuiltins(unittest.TestCase):
         # self.assertEqual( d , dict(a=1,c=0) )
 
 class TestMatrixSolve(unittest.TestCase):
-    def test_invert(self):
-        A = [ [1, 1], [2, 0] ]
-        A_ = ( (1, 1), (2, 0) )
-        b = [ 3, 4 ]
-        x = [ 2, 1 ]
-        self.assertTrue( all( linalg.solve(A,b)==x ) )
-        self.assertTrue( all( linalg.solve(A_,b)==x ) )
-        # TODO: Test with superfluous and unsolvable lines
-        
     def test_var(self):
         x = pylogram.Var('fred')
         self.assertEqual(str(x.var()),'fred')
@@ -156,6 +147,7 @@ class TestPylogram(unittest.TestCase):
         system = pylogram.System()
         a = pylogram.Var('a')
         self.assertFalse( system.evaluate( a-a==2 ) )
+        self.assertFalse( system.try_constrain(a-a==2) )
         self.assertRaises( pylogram.Contradiction, system.constrain, a-a==2 )
 
     def test_equ(self):
@@ -191,15 +183,15 @@ class TestPylogram(unittest.TestCase):
         # TODO: Check hash for actual variables, not Expr(variable)
 
         # Check we can apply constraints, including duplicates
-        system.constrain_equals( b , a * 2 )
-        system.constrain_equals( b , 2 * a )
-        system.constrain_equals( -1 * b , 0 - (2 * a) )
+        system.constrain( b == a * 2 )
+        system.constrain( b == 2 * a )
+        system.constrain( -1 * b == 0 - (2 * a) )
 
         self.assertFalse( system.solved() )
         self.assertIsNone( system.evaluate(a), None )
         self.assertIsNone( system.evaluate(b), None )
 
-        system.constrain_equals( a , 3 )
+        system.constrain( a == 3 )
 
         # Check intermediates
         self.assertEqual( tuple(system.x()), (a,b) )

@@ -2,32 +2,11 @@
 from numbers import Number
 from collections import defaultdict
 
-# Numpy libraries
-import numpy as np
-
 class Struct:
     pass
     
 DefaultArg = Struct()
-
-def is_0(term):
-    return is_x(term,0)
-
-def is_1(term):
-    return is_x(term,1)
-
-def is_x(term, i):
-    # return val is 1 works in CPython for -8<=1<=256 but not portable
-    assert isinstance(i,Number)
-    if isinstance(term,Number):
-        assert( term == i )
-        return True
-    else:
-        return False
         
-def is_num(term):
-    return isinstance(term,Number)
-
 class nonzero_dict( defaultdict ): #TODO: Move int onto this line?
     def __init__(self):
         super(nonzero_dict,self)
@@ -51,13 +30,6 @@ class nonzero_dict( defaultdict ): #TODO: Move int onto this line?
         
     def __bool__(self):
         return bool(self.keys())
-
-        
-def solve_matrix(A,b):
-    try:
-        return np.linalg.solve(A,b)
-    except np.linalg.LinAlgError:
-        return tuple( None for _ in b )
 
 def first( it ):
     return next( iter(it) )
