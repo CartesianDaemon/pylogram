@@ -205,18 +205,12 @@ class System:
             return _Undefined()
 
 class _Undefined:
-    def __getattr__(self,attr):
-        if attr in ('__add__', '__mul__', '__radd__', '__rmul__', '__sub__', '__rsub__'):
-            return lambda other: self.do_op(attr,other)
-        else:
-            raise AttributeError
-
-    def do_op(self,attr,other):
-        assert attr in ('__add__', '__mul__', '__radd__', '__rmul__', '__sub__', '__rsub__')
-        if (attr=='__mul__' or attr=='__rmul__') and other==0:
-            return lambda other: 0
-        else:
-            return self
+    def __add__ (self,other): return self
+    def __radd__(self,other): return self
+    def __sub__ (self,other): return self
+    def __rsub__(self,other): return self
+    def __mul__ (self,other): return 0 if other==0 else self
+    def __rmul__(self,other): return 0 if other==0 else self
 
 class Obj:
     pass

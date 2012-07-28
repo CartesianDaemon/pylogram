@@ -22,7 +22,19 @@ class TestHelpers(unittest.TestCase):
         self.assertEquals( len(d), 0 )
 
 class TestPylogram(unittest.TestCase):
-    def test_numbers(self):
+    def test_undefined(self):
+        undef = pylogram._Undefined()
+        self.assertIs( undef, undef ) 
+        self.assertIs( undef + 1, undef ) 
+        self.assertIs( undef - 1, undef ) 
+        self.assertIs( undef * 5, undef ) 
+        self.assertIs( undef * -5, undef ) 
+        self.assertIs( undef - undef, undef ) 
+        self.assertEquals( undef * 0, 0 ) 
+        self.assertEquals( 0 * undef, 0 ) 
+        self.assertRaises( AttributeError, getattr, undef, '__div__' )
+        
+    def test_system(self):
     
         # Variables
         a = pylogram.Var()
