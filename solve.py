@@ -15,13 +15,13 @@ def canonical_form(orig_constraints,variables):
         else:
             break
         unused_constraints.remove(equ)
-        equ = normalised_constraint( equ, var)
+        equ = normalised_constraint_for( equ, var)
         for idx in range(len(constraints)):
             constraints[idx] = reduce_constraint_by_equ_at_var(constraints[idx],equ,var)
         constraints.append(equ)
     return constraints
 
-def normalised_constraint(equ, var):
+def normalised_constraint_for(equ, var):
     return equ / equ.coefficient(var)
     
 def reduce_constraint_by_equ_at_var(constraint,equ,var):

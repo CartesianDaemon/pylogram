@@ -30,8 +30,8 @@ class TestMatrixSolve(unittest.TestCase):
     def test_normalised_constraint(self):
         a = pylogram.Var('a')
         b = pylogram.Var('b')
-        # self.assertEqual( solve.normalised_constraint( 2*a + 6*b ), a.var() )
-        # self.assertEqual( solve.normalised_constraint( 6*b - 2*a ), a.var() )
+        self.assertEqual( solve.normalised_constraint_for( 2*a + 6*b , a.var() ), a + 3*b )
+        self.assertEqual( solve.normalised_constraint_for( 6*b - 2*a , a.var() ), a - 3*b )
 
     @unittest.expectedFailure
     def test_canonical(self):
