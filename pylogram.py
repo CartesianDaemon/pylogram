@@ -187,8 +187,7 @@ class System:
         return tuple( Expr(var) for var in self._variables )
         
     def A(self):
-        print tuple( equ for equ in self._constraints )
-        tuple( tuple( equ.coefficient(var) for var in self.variables() ) for equ in self._constraints )
+        return tuple( tuple( equ.coefficient(var) for var in self.variables() ) for equ in self._constraints )
     
     def b(self):
         return tuple( equ.rhs_constant() for equ in self._constraints )
