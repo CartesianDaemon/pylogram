@@ -45,9 +45,8 @@ class TestMatrixSolve(unittest.TestCase):
         a = pylogram.Var('a')
         b = pylogram.Var('b')
         self.assertEqual( solve.reduce_constraint_by_equ_for_var( (2*a+b==0), (b==-1), b.var() ), (2*a==1) )
-        # self.assertEqual( solve.reduce_constraint_by_equ_for_var( (b==-1), (a+b==0), a.var() ), (b==-1) )
+        self.assertEqual( solve.reduce_constraint_by_equ_for_var( (b==-1), (a+b==0), a.var() ), (b==-1) )
         
-    @unittest.expectedFailure
     def test_canonical(self):
         a = pylogram.Var('a')
         b = pylogram.Var('b')
