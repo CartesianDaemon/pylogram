@@ -59,6 +59,9 @@ class TestMatrixSolve(unittest.TestCase):
         self.assertEqual( solve.canonical_form( [ 2*a+b==5, a+b==4 ], variables_abc ), [ a==1, b==3 ] )
         self.assertRaises( pylogram.Contradiction, solve.canonical_form, [ a==1, a==2 ], variables_abc )
         self.assertRaises( pylogram.Contradiction, solve.canonical_form, [ a==b, a==-b, a==1 ], variables_abc )
+        self.assertEqual( solve.canonical_form( [ a==1, a==1 ], variables_ab ), [ a==1 ] )
+        self.assertEqual( solve.canonical_form( [ 3*a==3, 7*a==7 ], variables_ab ), [ a==1 ] )
+        self.assertEqual( solve.canonical_form( [ 2*a+2*c==6, 3*a+3*b==6 ], variables_abc ), [ a+c==3, b-c==-1 ] )
 
 class TestHelpers(unittest.TestCase):
     def test_nonzero_dict(self):
