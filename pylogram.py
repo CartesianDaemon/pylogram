@@ -228,7 +228,8 @@ class System:
 
     def variable_dict(self):
         #assert len(self.variables())==len(self.variable_values())
-        return dict( zip( self.variables(), self.variable_values() ) )
+        # return dict( zip( self.variables(), self.variable_values() ) )
+        return solve_constraints( self._constraints, self.variables() )
 
     def _evaluate_var(self,var):
         if var not in self.variables():
