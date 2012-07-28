@@ -75,7 +75,7 @@ class Expr:
         return set(self._coeffs.keys())
 
     def is_null(self):
-        if self._coeffs == {} and self._const == 0:
+        if len(self._coeffs)==0 and self._const == 0:
             return True
         elif self._coeffs == {} and self._const != 0:
             raise Contradiction

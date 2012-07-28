@@ -13,6 +13,14 @@ import pylogram
 import solve
 from helpers import *
 
+class TestBuiltins(unittest.TestCase):
+    def test_1(self):
+        d = defaultdict(int)
+        d['a'] = 1
+        # self.assertEqual( d , dict(a=1,c=0) )
+        d['b'] = 0
+        # self.assertEqual( d , dict(a=1,c=0) )
+
 class TestMatrixSolve(unittest.TestCase):
     def test_invert(self):
         A = [ [1, 1], [2, 0] ]
@@ -33,6 +41,12 @@ class TestMatrixSolve(unittest.TestCase):
         self.assertEqual( solve.normalised_constraint_for( 2*a + 6*b , a.var() ), a + 3*b )
         self.assertEqual( solve.normalised_constraint_for( 6*b - 2*a , a.var() ), a - 3*b )
 
+    def test_reduce_constraint_by_equ_at_var(self):
+        a = pylogram.Var('a')
+        b = pylogram.Var('b')
+        self.assertEqual( solve.reduce_constraint_by_equ_for_var( (2*a+b==0), (b==-1), b.var() ), (2*a==1) )
+        # self.assertEqual( solve.reduce_constraint_by_equ_for_var( (b==-1), (a+b==0), a.var() ), (b==-1) )
+        
     @unittest.expectedFailure
     def test_canonical(self):
         a = pylogram.Var('a')
