@@ -6,14 +6,9 @@ from numbers import Number
 # Pylogram libraries
 from helpers import *
 from solve import solve_constraints
+from exceptions import *
 
 _next_var_idx = 0 # Used for debugging
-
-class Contradiction(Exception):
-    pass
-    
-class NormaliseError(Exception):
-    pass
 
 class _Var:
     def __init__(self, name, idx):
@@ -51,10 +46,12 @@ class Expr:
     def __eq__  (self,other):assert is_term(other); return EquZero( self - Expr(other) )
     def __add__ (self,term): assert is_term(term); return self.copy()._add_term( term )
     def __mul__ (self,term): assert is_term(term); return self.copy()._mul_term(term)
-    def __sub__ (self,term): assert is_term(term); return self + ( term * -1 )
-    def __rsub__(self,term): assert is_term(term); return ( self * -1 ) + term
+    def __sub__ (self,term): assert is_term(term); return self + -term
+    def __rsub__(self,term): assert is_term(term); return -self + term
     def __radd__(self,term): assert is_term(term); return self + term
     def __rmul__(self,term): assert is_term(term); return self * term
+    def __neg__(self): return -1 * self
+    def __pos__(self): return 1 * self
     def __truediv__ (self,term): assert is_num(term); return self * (1/term)
     
     def var(self):
@@ -75,10 +72,10 @@ class Expr:
         return set(self._coeffs.keys())
         
     def is_tautologically_nonzero(self):
-        return self._coeffs == {} and self._const != 0
+        return not self._coeffs and self._const != 0
 
     def is_tautologically_zero(self):
-        return len(self._coeffs)==0 and self._const == 0
+        return not self._coeffs and self._const == 0
         
     def is_normalised(self):
         assert isinstance(self._const,Number)

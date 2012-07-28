@@ -48,6 +48,9 @@ class nonzero_dict( defaultdict ): #TODO: Move int onto this line?
     def __repr__(self):
         # TODO: delegate to super(super(self))
         return repr(dict(self))
+        
+    def __bool__(self):
+        return bool(self.keys())
 
         
 def solve_matrix(A,b):

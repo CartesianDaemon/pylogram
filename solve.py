@@ -1,4 +1,6 @@
+# Pylogram libraries
 from helpers import *
+from exceptions import *
 
 def solve_constraints(orig_constraints):
     constraints = orig_constraints.copy()
@@ -23,8 +25,10 @@ def canonical_form(orig_constraints,variables):
             unused_constraints[idx] = reduce_constraint_by_equ_for_var( unused_constraints[idx], equ, var)
         constraints.append(equ)
     for equ in unused_constraints:
-        if equ.is_null(): continue
+        if equ.is_tautology(): continue
         if equ.is_contradiction(): raise Contradiction
+        print(equ)
+        raise AssertionError # Should never get here
     return constraints
 
 def normalised_constraint_for(equ, var):
