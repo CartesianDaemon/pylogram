@@ -67,8 +67,8 @@ class TestPylogram(unittest.TestCase):
         
     def test_arithmetic(self):
         system = pylogram.System()
-        a = pylogram.Var()
-        b = pylogram.Var()
+        a = pylogram.Var('a')
+        b = pylogram.Var('b')
         # Check compiles
         a + 2  
         a * 2
@@ -83,6 +83,10 @@ class TestPylogram(unittest.TestCase):
         a == 2 
         b == a * 2
 
+    def test_null_evaluations(self):
+        system = pylogram.System()
+        a = pylogram.Var('a')
+        b = pylogram.Var('b')
         # Check null evaluations
         self.assertEqual( system.evaluate( 3) , 3 )
         self.assertEqual( system.evaluate( 3*a +2 -2*a -a ) , 2 )
@@ -98,6 +102,10 @@ class TestPylogram(unittest.TestCase):
         # self.assertEqual( a, a )
         # self.assertEqual( a + b, b + a )
 
+    def test_simple_evaluations(self):
+        system = pylogram.System()
+        a = pylogram.Var('a')
+        b = pylogram.Var('b')
         # Apply constraints to test evaluation of variables with values
         system.constrain( a== 2)
         system.constrain( b== 3)
