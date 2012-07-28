@@ -50,4 +50,4 @@ def solve(A,b):
     try:
         return np.linalg.solve(A,b)
     except np.linalg.LinAlgError:
-        return ( None for _ in b )
+        return tuple( None for _ in b )

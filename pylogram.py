@@ -23,14 +23,14 @@ class _Var:
         return self._idx
         
     def __repr__(self):
-        return self._name
+        return "Var('" + self._name + "')"
         
     def evaluate(self, system):
         return system._evaluate_var(self)
 
-def Var(orig_name = 'var'):
+def Var(orig_name = None):
     global _next_var_idx
-    var = _Var(name=orig_name + "_" + str(_next_var_idx),idx=_next_var_idx)
+    var = _Var( name = orig_name if orig_name else "var_" + str(_next_var_idx), idx=_next_var_idx )
     _next_var_idx += 1
     return Expr(var)
 
@@ -179,6 +179,7 @@ class System:
         return solve( self.A(), self.b() )
 
     def variable_dict(self):
+        #assert len(self.variables())==len(self.variable_values())
         return dict( zip( self.variables(), self.variable_values() ) )
 
     def _evaluate_var(self,var):
