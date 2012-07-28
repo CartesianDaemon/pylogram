@@ -2,6 +2,7 @@
 
 # Standard libraries
 from numbers import Number
+from fractions import Fraction
 
 # Pylogram libraries
 from helpers import *
@@ -52,7 +53,7 @@ class Expr:
     def __rmul__(self,term): assert is_term(term); return self * term
     def __neg__(self): return -1 * self
     def __pos__(self): return 1 * self
-    def __truediv__ (self,term): assert is_num(term); return self * (1/term)
+    def __truediv__ (self,term): assert is_num(term); return self * Fraction(1,term)
     
     def var(self):
         assert(len(self._coeffs)==1)
