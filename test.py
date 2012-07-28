@@ -51,8 +51,10 @@ class TestMatrixSolve(unittest.TestCase):
         a = pylogram.Var('a')
         b = pylogram.Var('b')
         c = pylogram.Var('c')
+        d = pylogram.Var('d')
         variables_ab = (a+b).variables()
         variables_abc = (a+b+c).variables()
+        variables_abcd = (a+b+c+d).variables()
         self.assertEqual( solve.canonical_form( [ 2*a==1 ], variables_ab ), [ a==0.5 ] )
         self.assertEqual( solve.canonical_form( [ 2*a==1, 1*b==0 ], variables_ab ), [ a==0.5, b==0 ] )
         self.assertEqual( solve.canonical_form( [ 2*a==1, 1*b==0 ], variables_abc ), [ a==0.5, b==0 ] )
@@ -62,6 +64,8 @@ class TestMatrixSolve(unittest.TestCase):
         self.assertEqual( solve.canonical_form( [ a==1, a==1 ], variables_ab ), [ a==1 ] )
         self.assertEqual( solve.canonical_form( [ 3*a==3, 7*a==7 ], variables_ab ), [ a==1 ] )
         self.assertEqual( solve.canonical_form( [ 2*a+2*c==6, 3*a+3*b==6 ], variables_abc ), [ a+c==3, b-c==-1 ] )
+        self.assertEqual( solve.canonical_form( [ a+b+c+d==1, a+b-c-d==2 ], variables_abcd ), [ a+b==1.5, c+d==-0.5 ] )
+        #self.assertEqual( solve.canonical_form( [ a+b+c+d==1,-a+b-c+d==2 ], variables_abcd ), [ c+b==1.5, c+a==-0.5 ] )
 
 class TestHelpers(unittest.TestCase):
     def test_nonzero_dict(self):

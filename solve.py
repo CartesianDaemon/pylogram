@@ -16,7 +16,7 @@ def canonical_form(orig_constraints,variables):
                 break
         else:
             # variable only appeared in constraints already used, ie. is defined non-uniquely in terms of a previous var
-            break
+            continue
         unused_constraints.remove(equ)
         equ = normalised_constraint_for( equ, var)
         for idx in range(len(constraints)):
