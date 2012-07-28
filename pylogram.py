@@ -50,7 +50,7 @@ class Expr:
 
     def __eq__(self,other):
         assert is_term( other )
-        return Equ( self, Expr(other) )
+        return EquZero( self - Expr(other) )
 
     def __add__(self,term):
         assert is_term( term )
@@ -126,10 +126,10 @@ class Expr:
 
 def is_term(term):
     return isinstance(term,Number) or isinstance(term,_Var) or isinstance(term,Expr)
-                
-class Equ:
-    def __init__( self, lhs, rhs ):
-        self._expr_equals_zero = Expr(lhs) - Expr(rhs)
+
+class EquZero:
+    def __init__( self, lhs ):
+        self._expr_equals_zero = Expr(lhs)
         
     def __nonzero__(self):
         # TODO: Only checks for trivial cases, needed to check things like a==a in hashes
@@ -142,6 +142,9 @@ class Equ:
     def rhs_constant(self):
         return -self._expr_equals_zero.const()
 
+def Equ(lhs,rhs):
+    return EquZero(lhs-rhs)
+        
 # TODO: Can we keep separate lists for each interconnected system of equations?
 
 # Constraints represented as matrix: Ax=b
@@ -154,15 +157,15 @@ class System:
         self._variables = set()
     
     def constrain(self,equ):
-        assert isinstance(equ, Equ)
+        assert isinstance(equ, EquZero)
         self._constraints.append(equ)
         self._variables |= equ.variables()
 
     def constrain_equals(self,lhs,rhs):
-        self.constrain( Equ(lhs,rhs) )
+        self.constrain( EquZero(lhs-rhs) )
 
     def constrain_zero(self,lhs):
-        self.constrain( Equ(lhs,0))
+        self.constrain( EquZero(lhs) )
         
     def solved(self):
         return False
