@@ -82,12 +82,12 @@ class TestPylogram(unittest.TestCase):
         -1 * b == 0 - (2 * a)
         a == 2 
         b == a * 2
+        (a + b) * 2
 
     def test_null_evaluations(self):
         system = pylogram.System()
         a = pylogram.Var('a')
         b = pylogram.Var('b')
-        # Check null evaluations
         self.assertEqual( system.evaluate( 3) , 3 )
         self.assertEqual( system.evaluate( 3*a +2 -2*a -a ) , 2 )
         self.assertTrue( (a-a).is_null() )
@@ -106,16 +106,16 @@ class TestPylogram(unittest.TestCase):
         system = pylogram.System()
         a = pylogram.Var('a')
         b = pylogram.Var('b')
-        # Apply constraints to test evaluation of variables with values
         system.constrain( a== 2)
         system.constrain( b== 3)
-        
         self.assertEqual( system.evaluate(pylogram.Expr(2)/2), 1 )
         self.assertEqual( system.evaluate(a/2), 1 )
         self.assertEqual( system.evaluate(1*2), 2 )
         with self.assertRaises( TypeError): 1/b
+        with self.assertRaises( AssertionError): a/b # TODO: make both use same error type
         self.assertEqual( system.evaluate(a/2), 1 )
         self.assertEqual( system.evaluate(b*2), 6 )
+        self.assertEqual( system.evaluate((a+b)*2), 10 )
         self.assertEqual( system.evaluate( a*5 + b/3 -2*(a+b) - (-0.1) ), 1.1 )
         
     def test_solve(self):
