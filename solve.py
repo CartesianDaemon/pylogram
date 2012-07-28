@@ -3,13 +3,15 @@ from helpers import *
 from exceptions import *
 
 def solve_constraints(orig_constraints):
-    constraints = orig_constraints.copy()
     variables = set().union( equ.variables() for equ in constraints )
+    constraints = canonical_equs( orig_constraints, variables )
+
+def canonical_equs(orig_constraints,variables):
+    return list(constrained_variables(orig_constraints,variables).values())
     
-    
-def canonical_form(orig_constraints,variables):
+def constrained_variables(orig_constraints,variables):
     unused_constraints = list( orig_constraints )
-    constraints = []
+    constraints = {}
     for var in variables:
         for equ in unused_constraints:
             if equ.coefficient(var):
@@ -19,11 +21,11 @@ def canonical_form(orig_constraints,variables):
             continue
         unused_constraints.remove(equ)
         equ = normalised_constraint_for( equ, var)
-        for idx in range(len(constraints)):
-            constraints[idx] = reduce_constraint_by_equ_for_var(constraints[idx],equ,var)
+        for prev_var, prev_constraint in constraints.items():
+            constraints[prev_var] = reduce_constraint_by_equ_for_var(prev_constraint,equ,var)
         for idx in range(len(unused_constraints)):
             unused_constraints[idx] = reduce_constraint_by_equ_for_var( unused_constraints[idx], equ, var)
-        constraints.append(equ)
+        constraints[var] = equ
     for equ in unused_constraints:
         if equ.is_tautology(): continue
         if equ.is_contradiction(): raise Contradiction

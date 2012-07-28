@@ -8,7 +8,7 @@ from helpers import *
 from solve import solve_constraints
 from exceptions import *
 
-_next_var_idx = 0 # Used for debugging
+_next_var_idx = 0 # Used for debugging to make variables appear in hashes in expected order
 
 class _Var:
     def __init__(self, name, idx):
