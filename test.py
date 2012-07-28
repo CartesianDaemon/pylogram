@@ -15,9 +15,12 @@ from helpers import *
 class TestMatrixSolve(unittest.TestCase):
     def test_invert(self):
         A = [ [1, 1], [2, 0] ]
+        A_ = ( (1, 1), (2, 0) )
         b = [ 3, 4 ]
         x = [ 2, 1 ]
         self.assertTrue( all( linalg.solve(A,b)==x ) )
+        self.assertTrue( all( linalg.solve(A_,b)==x ) )
+        # TODO: Test with superfluous and unsolvable lines
 
 class TestHelpers(unittest.TestCase):
     def test_nonzero_dict(self):
@@ -62,6 +65,16 @@ class TestPylogram(unittest.TestCase):
         with self.assertRaises( TypeError): 1/b
         # self.assertEquals( system.evaluate(a/2), 1 )
         # self.assertEquals( system.evaluate(b*2), 2 )
+        
+    def test_solve(self):
+        system = pylogram.System()
+        a = pylogram.Var()
+        b = pylogram.Var()
+        system.constrain( a + b == 3)
+        system.constrain( 2 * a + b == 5)
+        self.assertTrue( system.solved() )
+        self.assertEquals( system.evaluate(a), 2 )
+        self.assertEquals( system.evaluate(b), 1 )
 
     def test_system(self):
     
@@ -72,8 +85,9 @@ class TestPylogram(unittest.TestCase):
         system = pylogram.System()
 
         # Not necessary for real code, but test results expect this order
-        self.assertTrue( hash(a) < hash(b) )
-        self.assertTrue( list({ a:1, b:2 }.keys())[0] is a )
+        # self.assertTrue( hash(a) < hash(b) )
+        # self.assertTrue( list({ a:1, b:2 }.keys())[0] is a )
+        # TODO: Check hash for actual variables, not Expr(variable)
 
         # Check compiles
         a + 2  
@@ -114,11 +128,6 @@ class TestPylogram(unittest.TestCase):
         self.assertIsNone( system.evaluate(b), None )
 
         system.constrain_equals( a , 3 )
-
-        # Get values
-        system.solved()
-        system.evaluate(a)
-        system.evaluate(b)
 
         # Check intermediates
         self.assertEquals( system.x()[0], a )

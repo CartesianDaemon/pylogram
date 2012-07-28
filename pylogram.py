@@ -3,10 +3,6 @@
 # Standard libraries
 from numbers import Number
 
-# Numpy libraries
-import numpy as np
-from numpy import linalg
-
 # Pylogram libraries
 from helpers import *
 
@@ -163,7 +159,7 @@ class System:
         self.constrain( EquZero(lhs) )
         
     def solved(self):
-        return False
+        return all( val is not None for val in solve( self.A(), self.b() ) )
     
     def variables(self):
         return self._variables
@@ -182,13 +178,18 @@ class System:
         assert is_term(expr)
         val = Expr(expr).evaluate(self)
         return None if isinstance(val, _Undefined) else val
-        
+
+    def variable_values(self):
+        return solve( self.A(), self.b() )
+
+    def variable_dict(self):
+        return dict( zip( self.variables(), self.variable_values() ) )
+
     def _evaluate_var(self,var):
         if var not in self.variables():
             raise NormaliseError
         else:
-            # TODO: do matrix inversion, return value or _Undefined() if unconstrained
-            return _Undefined()
+            return self.variable_dict()[var] or _Undefined()
 
 _default_system = System()
 def default_system():

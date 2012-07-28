@@ -2,6 +2,9 @@
 from numbers import Number
 from collections import defaultdict
 
+# Numpy libraries
+import numpy as np
+
 class Struct:
     pass
     
@@ -41,3 +44,10 @@ class nonzero_dict( defaultdict ):
     def __repr__(self):
         # TODO: delegate to super(super(self))
         return repr(dict(self))
+
+        
+def solve(A,b):
+    try:
+        return np.linalg.solve(A,b)
+    except np.linalg.LinAlgError:
+        return ( None for _ in b )
