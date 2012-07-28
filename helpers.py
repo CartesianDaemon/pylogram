@@ -1,11 +1,5 @@
-from __future__ import division
-
 # Standard modules
-from itertools import chain, cycle
 from numbers import Number
-from pygame import Rect
-import random
-import collections
 from collections import defaultdict
 
 class Struct:

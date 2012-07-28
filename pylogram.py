@@ -99,7 +99,7 @@ class Expr:
         
     def is_normalised(self):
         assert isinstance(self._const,Number)
-        return all( isinstance(var,_Var) and isinstance(coeff,Number) for var,coeff in self._coeffs.iteritems() )
+        return all( isinstance(var,_Var) and isinstance(coeff,Number) for var,coeff in self._coeffs.items() )
 
     def _mul_term(self,term):
         assert isinstance(term, Number)
@@ -117,16 +117,16 @@ class Expr:
         elif isinstance(term, _Var):
             self._coeffs[term] += coeff
         elif isinstance(term,Expr):
-            for subterm,subcoeff in term._coeffs.iteritems():
+            for subterm,subcoeff in term._coeffs.items():
                 self._add_term( subterm, subcoeff )
             self._const += term._const
         return self
         
     def evaluate(self, system):
-        return self._const + sum( coeff * term.evaluate(system) for term,coeff in self._coeffs.iteritems() )
+        return self._const + sum( coeff * term.evaluate(system) for term,coeff in self._coeffs.items() )
         
     def __repr__(self):
-        return " + ".join( repr(coeff) + "*" + repr(var) for var, coeff in self._coeffs.iteritems() ) + " + " + str(self._const)
+        return " + ".join( repr(coeff) + "*" + repr(var) for var, coeff in self._coeffs.items() ) + " + " + str(self._const)
 
 def is_term(term):
     return isinstance(term,Number) or isinstance(term,_Var) or isinstance(term,Expr)
@@ -135,7 +135,7 @@ class EquZero:
     def __init__( self, lhs ):
         self._zero_expr = Expr(lhs)
         
-    def __nonzero__(self):
+    def __bool__(self):
         # TODO: Only checks for trivial cases, needed to check things like a==a in hashes
         # need to evaluate variables to check real values
         return self._zero_expr.is_null()

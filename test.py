@@ -11,15 +11,15 @@ from helpers import *
 class TestHelpers(unittest.TestCase):
     def test_nonzero_dict(self):
         d = nonzero_dict()
-        self.assertEquals( len(d.keys()), 0 )
+        self.assertEquals( len(d), 0 )
         d[5] = d[5] + 1
-        self.assertEquals( len(d.keys()), 1 )
+        self.assertEquals( len(d), 1 )
         d[5] = d[5] - 1
-        self.assertEquals( len(d.keys()), 0 )
+        self.assertEquals( len(d), 0 )
         d[4] += 1
-        self.assertEquals( len(d.keys()), 1 )
+        self.assertEquals( len(d), 1 )
         d[4] -= 1
-        self.assertEquals( len(d.keys()), 0 )
+        self.assertEquals( len(d), 0 )
 
 class TestPylogram(unittest.TestCase):
     def test_numbers(self):
@@ -32,7 +32,7 @@ class TestPylogram(unittest.TestCase):
 
         # Not necessary for real code, but test results expect this order
         self.assertTrue( hash(a) < hash(b) )
-        self.assertTrue( { a:1, b:2 }.keys()[0] is a )
+        self.assertTrue( list({ a:1, b:2 }.keys())[0] is a )
 
         # Check compiles
         a + 2  
