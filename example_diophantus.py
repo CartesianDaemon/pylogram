@@ -3,14 +3,14 @@ import pylogram
 # He was a boy for one-sixth of his life. After one-twelfth more, he acquired a beard. After another one-seventh, he married. In the fifth year after his marriage his son was born. The son lived half as many as his father. Diophantus died 4 years after his son. How old was Diophantus when he died?
 
 # TODO: Shorter syntax for declaring many variables
-birth      = pylogram.Var()
-eo_boyhood = pylogram.Var()
-beard      = pylogram.Var()
-marriage   = pylogram.Var()
-son        = pylogram.Var()
-son_dies   = pylogram.Var()
-death      = pylogram.Var()
-life       = pylogram.Var()
+birth      = pylogram.Var('birth'     )
+eo_boyhood = pylogram.Var('eo_boyhood')
+beard      = pylogram.Var('beard'     )
+marriage   = pylogram.Var('marriage'  )
+son        = pylogram.Var('son'       )
+son_dies   = pylogram.Var('son_dies'  )
+death      = pylogram.Var('death'     )
+life       = pylogram.Var('life'      )
 
 system = pylogram.System()
 

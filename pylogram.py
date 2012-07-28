@@ -15,11 +15,9 @@ class NormaliseError(Exception):
     pass
 
 class _Var:
-    def __init__(self, name = None):
-        global _next_var_idx
-        self._idx = _next_var_idx
-        _next_var_idx += 1
-        self._name = name if name is not None else "[" + chr(ord('a')+self._idx) + "]"
+    def __init__(self, name, idx):
+        self._name = name
+        self._idx = idx
 
     def __hash__(self):
         return self._idx
@@ -30,14 +28,11 @@ class _Var:
     def evaluate(self, system):
         return system._evaluate_var(self)
 
-    # def __getattr__(self, attr):
-    #     if attr in ('__add__', '__mul__', '__radd__', '__rmul__', '__sub__', '__rsub__'):
-    #         return lambda other: getattr( Expr(self), attr )( other )
-    #     else:
-    #         raise AttributeError
-
-def Var():
-    return Expr(_Var())
+def Var(orig_name = 'var'):
+    global _next_var_idx
+    var = _Var(name=orig_name + "_" + str(_next_var_idx),idx=_next_var_idx)
+    _next_var_idx += 1
+    return Expr(var)
 
 class Expr:
     def __init__(self, term):
