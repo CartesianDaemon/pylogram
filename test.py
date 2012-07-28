@@ -10,6 +10,7 @@ from numpy import linalg
 
 # Pylogram libraries
 import pylogram
+import solve
 from helpers import *
 
 class TestMatrixSolve(unittest.TestCase):
@@ -21,19 +22,26 @@ class TestMatrixSolve(unittest.TestCase):
         self.assertTrue( all( linalg.solve(A,b)==x ) )
         self.assertTrue( all( linalg.solve(A_,b)==x ) )
         # TODO: Test with superfluous and unsolvable lines
+    
+    @unittest.expectedFailure
+    def test_canonical(self):
+        a = pylogram.Var('a')
+        b = pylogram.Var('b')
+        c = pylogram.Var('c')
+        self.assertEqual( solve.canonical_form([ 2*a==1 ]), [ a==0.5 ] )
 
 class TestHelpers(unittest.TestCase):
     def test_nonzero_dict(self):
         d = nonzero_dict()
-        self.assertEquals( len(d), 0 )
+        self.assertEqual( len(d), 0 )
         d[5] = d[5] + 1
-        self.assertEquals( len(d), 1 )
+        self.assertEqual( len(d), 1 )
         d[5] = d[5] - 1
-        self.assertEquals( len(d), 0 )
+        self.assertEqual( len(d), 0 )
         d[4] += 1
-        self.assertEquals( len(d), 1 )
+        self.assertEqual( len(d), 1 )
         d[4] -= 1
-        self.assertEquals( len(d), 0 )
+        self.assertEqual( len(d), 0 )
 
 class TestPylogram(unittest.TestCase):
     def test_undefined(self):
@@ -44,15 +52,15 @@ class TestPylogram(unittest.TestCase):
         self.assertIs( undef * 5, undef ) 
         self.assertIs( undef * -5, undef ) 
         self.assertIs( undef - undef, undef ) 
-        self.assertEquals( undef * 0, 0 ) 
-        self.assertEquals( 0 * undef, 0 ) 
+        self.assertEqual( undef * 0, 0 ) 
+        self.assertEqual( 0 * undef, 0 ) 
         self.assertRaises( AttributeError, getattr, undef, '__div__' )
 
     def test_interface(self):
-        system = pylogram.default_system()
+        system = pylogram.System()
         a = pylogram.Var()
         system.constrain( 3==a*2 )
-        # self.assertEquals( system.evaluate(a), 1.5 )
+        # self.assertEqual( system.evaluate(a), 1.5 )
         
     def test_arithmetic(self):
         system = pylogram.System()
@@ -60,12 +68,12 @@ class TestPylogram(unittest.TestCase):
         b = pylogram.Var()
         system.constrain( a== 2)
         system.constrain( b== 3)
-        self.assertEquals( system.evaluate(pylogram.Expr(2)/2), 1 )
-        self.assertEquals( system.evaluate(a/2), 1 )
-        self.assertEquals( system.evaluate(1*2), 2 )
+        self.assertEqual( system.evaluate(pylogram.Expr(2)/2), 1 )
+        self.assertEqual( system.evaluate(a/2), 1 )
+        self.assertEqual( system.evaluate(1*2), 2 )
         with self.assertRaises( TypeError): 1/b
-        # self.assertEquals( system.evaluate(a/2), 1 )
-        # self.assertEquals( system.evaluate(b*2), 2 )
+        # self.assertEqual( system.evaluate(a/2), 1 )
+        # self.assertEqual( system.evaluate(b*2), 2 )
         
     def test_solve(self):
         system = pylogram.System()
@@ -74,8 +82,8 @@ class TestPylogram(unittest.TestCase):
         system.constrain( a + b == 3)
         system.constrain( 2 * a + b == 5)
         self.assertTrue( system.solved() )
-        self.assertEquals( system.evaluate(a), 2 )
-        self.assertEquals( system.evaluate(b), 1 )
+        self.assertEqual( system.evaluate(a), 2 )
+        self.assertEqual( system.evaluate(b), 1 )
 
     def test_system(self):
     
@@ -105,8 +113,8 @@ class TestPylogram(unittest.TestCase):
         b == a * 2
 
         # Check null evaluations
-        self.assertEquals( system.evaluate( 3) , 3 )
-        self.assertEquals( system.evaluate( 3*a +2 -2*a -a ) , 2 )
+        self.assertEqual( system.evaluate( 3) , 3 )
+        self.assertEqual( system.evaluate( 3*a +2 -2*a -a ) , 2 )
         self.assertTrue( (a-a).is_null() )
         self.assertFalse( a.is_null() )
         self.assertTrue( pylogram.Expr(0).is_null() )
@@ -116,8 +124,8 @@ class TestPylogram(unittest.TestCase):
         self.assertTrue( pylogram.Equ( a + b, b + a ) )
         # self.assertTrue( a == a )
         # self.assertTrue( a + b == b + a )
-        # self.assertEquals( a, a )
-        # self.assertEquals( a + b, b + a )
+        # self.assertEqual( a, a )
+        # self.assertEqual( a + b, b + a )
 
         # Check we can apply constraints, including duplicates
         system.constrain_equals( b , a * 2 )
@@ -131,19 +139,19 @@ class TestPylogram(unittest.TestCase):
         system.constrain_equals( a , 3 )
 
         # Check intermediates
-        self.assertEquals( system.x()[0], a )
-        self.assertEquals( system.x()[1], b )
-        self.assertEquals( system.b(), (0,0,0,3) )
-        self.assertEquals( system.A(), ((-2,1),(-2,1),(2,-1),(1,0)) )
+        self.assertEqual( system.x()[0], a )
+        self.assertEqual( system.x()[1], b )
+        self.assertEqual( system.b(), (0,0,0,3) )
+        self.assertEqual( system.A(), ((-2,1),(-2,1),(2,-1),(1,0)) )
         # self.assertTrue( system.solved() )
         # 
         # # Check results
-        # self.assertEquals( system.evaluate(a), 3 )
-        # self.assertEquals( system.evaluate(b), 6 )
-        # self.assertEquals( system.evaluate(2*b), 12 )
+        # self.assertEqual( system.evaluate(a), 3 )
+        # self.assertEqual( system.evaluate(b), 6 )
+        # self.assertEqual( system.evaluate(2*b), 12 )
         
         a == 2 
         system.constrain( b == a * 2 )
 
 if __name__ == '__main__':
-    unittest.main(verbosity=2)
+    unittest.main()

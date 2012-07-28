@@ -46,7 +46,7 @@ class nonzero_dict( defaultdict ):
         return repr(dict(self))
 
         
-def solve(A,b):
+def solve_matrix(A,b):
     try:
         return np.linalg.solve(A,b)
     except np.linalg.LinAlgError:

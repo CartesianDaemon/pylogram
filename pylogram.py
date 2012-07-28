@@ -5,6 +5,7 @@ from numbers import Number
 
 # Pylogram libraries
 from helpers import *
+from solve import solve_constraints
 
 _next_var_idx = 0 # Used for debugging
 
@@ -109,12 +110,22 @@ def is_term(term):
 
 class EquZero:
     def __init__( self, lhs ):
+        if isinstance(lhs,EquZero):
+            assert False
         self._zero_expr = Expr(lhs)
         
     def __bool__(self):
         # TODO: Only checks for trivial cases, needed to check things like a==a in hashes
         # use system.evaluate() to check actual values
         return self._zero_expr.is_null()
+    
+    def __add__ (self, other): assert isinstance(other,EquZero); return EquZero( self._zero_expr + other._zero_expr )
+    def __sub__ (self, other): assert isinstance(other,EquZero); return EquZero( self._zero_expr - other._zero_expr )
+    def __mul__ (self, other): assert isinstance(other,Number); return EquZero( self._zero_expr * other )
+    def __rmul__(self, other): assert isinstance(other,Number); return EquZero( self._zero_expr * other )
+    
+    def copy(self):
+        return EquZero(self._zero_expr.copy())
     
     def coefficient(self,variable):
         return self._zero_expr.coefficient(variable)
@@ -155,7 +166,7 @@ class System:
         self.constrain( EquZero(lhs) )
         
     def solved(self):
-        return all( val is not None for val in solve( self.A(), self.b() ) )
+        return all( val is not None for val in solve_matrix( self.A(), self.b() ) )
     
     def variables(self):
         return self._variables
@@ -176,7 +187,7 @@ class System:
         return None if isinstance(val, _Undefined) else val
 
     def variable_values(self):
-        return solve( self.A(), self.b() )
+        return solve_matrix( self.A(), self.b() )
 
     def variable_dict(self):
         #assert len(self.variables())==len(self.variable_values())
@@ -189,8 +200,6 @@ class System:
             return self.variable_dict()[var] or _Undefined()
 
 _default_system = System()
-def default_system():
-    return _default_system
 
 class _Undefined:
     def __add__ (self,other): return self
