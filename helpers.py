@@ -40,3 +40,7 @@ class nonzero_dict( defaultdict ):
         elif key in self:
             del self[key]
             # del super(nonzero_dict, self)[key]
+            
+    def __repr__(self):
+        # TODO: delegate to super(super(self))
+        return repr(dict(self))

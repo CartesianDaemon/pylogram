@@ -24,7 +24,7 @@ class _Var:
         return self._idx
         
     def __repr__(self):
-        return "<Pylogram.Var instance with idx " + repr(self._idx) + " at " + repr(id(self)) + ">"
+        return "var" + str(self._idx)
         
     def evaluate(self, system):
         return system._evaluate_var(self)
@@ -48,9 +48,9 @@ class Expr:
     def __hash__(self):
         return id(self)
 
-    # def __eq__(self,other):
-    #     assert is_term( other )
-    #     return Equ( self, Expr(other) )
+    def __eq__(self,other):
+        assert is_term( other )
+        return Equ( self, Expr(other) )
 
     def __add__(self,term):
         assert is_term( term )
@@ -86,9 +86,9 @@ class Expr:
         return set(self._coeffs.keys())
 
     def is_null(self):
-        if self.nonconst_coefficients() == {} and self._const == 0:
+        if self._coeffs == {} and self._const == 0:
             return True
-        elif self.nonconst_coefficients() == {} and self._const != 0:
+        elif self._coeffs == {} and self._const != 0:
             raise Contradiction
         else:
             return False
@@ -113,15 +113,16 @@ class Expr:
         elif isinstance(term, _Var):
             self._coeffs[term] += coeff
         elif isinstance(term,Expr):
-            for subterm,subcoeff in term.coefficients().iteritems():
+            for subterm,subcoeff in term._coeffs.iteritems():
                 self._add_term( subterm, subcoeff )
+            self._const += term._const
         return self
         
     def evaluate(self, system):
-        return _const + sum( coeff * term.evaluate(system) for term,coeff in self._coeffs.iteritems() )
+        return self._const + sum( coeff * term.evaluate(system) for term,coeff in self._coeffs.iteritems() )
         
     def __repr__(self):
-        return repr(self._coeffs) + " + " + self._const
+        return "<Expr " + repr(self._coeffs) + " + " + str(self._const) + ">"
 
 def is_term(term):
     return isinstance(term,Number) or isinstance(term,_Var) or isinstance(term,Expr)
@@ -138,7 +139,7 @@ class Equ:
     def variables(self):
         return self._expr_equals_zero.variables()
         
-    def rhs_constant():
+    def rhs_constant(self):
         return -self._expr_equals_zero.const()
 
 # TODO: Can we keep separate lists for each interconnected system of equations?
@@ -152,15 +153,16 @@ class System:
         self._constraints = []
         self._variables = set()
     
-    # def constrain(self,equ):
-    #     assert isinstance(equ, Equ)
-    #     self._constraints.append(equ)
-    #     self._variables |= equ.variables()
-
-    def constrain_equals(self,lhs,rhs):
-        equ = Equ(lhs,rhs)
+    def constrain(self,equ):
+        assert isinstance(equ, Equ)
         self._constraints.append(equ)
         self._variables |= equ.variables()
+
+    def constrain_equals(self,lhs,rhs):
+        self.constrain( Equ(lhs,rhs) )
+
+    def constrain_zero(self,lhs):
+        self.constrain( Equ(lhs,0))
         
     def solved(self):
         return False
@@ -175,7 +177,7 @@ class System:
         pass
     
     def b(self):
-        return ( equ.rhs_constant() for equ in self._constraints )
+        return tuple( equ.rhs_constant() for equ in self._constraints )
         
     def evaluate(self,expr):
         assert is_term(expr)
