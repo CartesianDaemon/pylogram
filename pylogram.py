@@ -151,13 +151,11 @@ def Equ(lhs,rhs):
 class System:
     def __init__(self):
         self._constraints = []
-        self._variables = set()
     
     def constrain(self,equ):
         assert isinstance(equ, EquZero)
         # TODO: Raise Contradiction if this constraint is one too many
         self._constraints.append(equ)
-        self._variables |= equ.variables()
 
     def constrain_equals(self,lhs,rhs):
         self.constrain( EquZero(lhs-rhs) )
@@ -169,10 +167,10 @@ class System:
         return all( val is not None for val in solve_matrix( self.A(), self.b() ) )
     
     def variables(self):
-        return self._variables
+        return set().union( * ( equ.variables() for equ in self._constraints ) )
     
     def x(self):
-        return tuple( Expr(var) for var in self._variables )
+        return tuple( Expr(var) for var in self.variables() )
         
     def A(self):
         return tuple( tuple( equ.coefficient(var) for var in self.variables() ) for equ in self._constraints )

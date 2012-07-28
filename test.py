@@ -88,8 +88,8 @@ class TestPylogram(unittest.TestCase):
     def test_system(self):
     
         # Variables
-        a = pylogram.Var()
-        b = pylogram.Var()
+        a = pylogram.Var('a')
+        b = pylogram.Var('b')
         
         system = pylogram.System()
 
@@ -139,8 +139,7 @@ class TestPylogram(unittest.TestCase):
         system.constrain_equals( a , 3 )
 
         # Check intermediates
-        self.assertEqual( system.x()[0], a )
-        self.assertEqual( system.x()[1], b )
+        self.assertEqual( tuple(system.x()), (a,b) )
         self.assertEqual( system.b(), (0,0,0,3) )
         self.assertEqual( system.A(), ((-2,1),(-2,1),(2,-1),(1,0)) )
         # self.assertTrue( system.solved() )
