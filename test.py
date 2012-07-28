@@ -197,12 +197,12 @@ class TestPylogram(unittest.TestCase):
         self.assertEqual( tuple(system.x()), (a,b) )
         self.assertEqual( system.b(), (0,0,0,3) )
         self.assertEqual( system.A(), ((-2,1),(-2,1),(2,-1),(1,0)) )
-        # self.assertTrue( system.solved() )
-        # 
-        # # Check results
-        # self.assertEqual( system.evaluate(a), 3 )
-        # self.assertEqual( system.evaluate(b), 6 )
-        # self.assertEqual( system.evaluate(2*b), 12 )
+        self.assertTrue( system.solved() )
+        
+        # Check results
+        self.assertEqual( system.evaluate(a), 3 )
+        self.assertEqual( system.evaluate(b), 6 )
+        self.assertEqual( system.evaluate(2*b), 12 )
         
         a == 2 
         system.constrain( b == a * 2 )
