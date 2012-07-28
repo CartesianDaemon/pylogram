@@ -23,12 +23,12 @@ class TestMatrixSolve(unittest.TestCase):
         self.assertTrue( all( linalg.solve(A_,b)==x ) )
         # TODO: Test with superfluous and unsolvable lines
     
-    @unittest.expectedFailure
+    # @unittest.expectedFailure
     def test_canonical(self):
         a = pylogram.Var('a')
         b = pylogram.Var('b')
         c = pylogram.Var('c')
-        self.assertEqual( solve.canonical_form([ 2*a==1 ]), [ a==0.5 ] )
+        self.assertEqual( solve.canonical_form( [ 2*a==1 ], (a+b).variables() ), [ a==0.5 ] )
 
 class TestHelpers(unittest.TestCase):
     def test_nonzero_dict(self):

@@ -119,10 +119,13 @@ class EquZero:
         # use system.evaluate() to check actual values
         return self._zero_expr.is_null()
     
+    def __eq__(self,other): return self._zero_expr == other._zero_expr
+    
     def __add__ (self, other): assert isinstance(other,EquZero); return EquZero( self._zero_expr + other._zero_expr )
     def __sub__ (self, other): assert isinstance(other,EquZero); return EquZero( self._zero_expr - other._zero_expr )
     def __mul__ (self, other): assert isinstance(other,Number); return EquZero( self._zero_expr * other )
     def __rmul__(self, other): assert isinstance(other,Number); return EquZero( self._zero_expr * other )
+    def __truediv__ (self, other): assert isinstance(other,Number); return EquZero( self._zero_expr / other )
     
     def copy(self):
         return EquZero(self._zero_expr.copy())

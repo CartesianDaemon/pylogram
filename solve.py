@@ -10,8 +10,13 @@ def canonical_form(orig_constraints,variables):
     constraints = []
     for var in variables:
         for equ in unused_constraints:
-            if equ.coefficient(var):break
-        unused_constraints.remove(var)
+            if equ.coefficient(var):
+                break
+        else:
+            break
+        unused_constraints.remove(equ)
         equ = equ / equ.coefficient(var)
-        #for constraints
+        for idx in range(len(constraints)):
+            constraints[idx] = constraints[idx] - constraints[idx].coefficient(var) * equ
+        constraints.append(equ)
     return constraints
