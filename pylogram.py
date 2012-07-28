@@ -3,6 +3,10 @@
 # Standard libraries
 from numbers import Number
 
+# Numpy libraries
+import numpy as np
+from numpy import linalg
+
 # Pylogram libraries
 from helpers import *
 

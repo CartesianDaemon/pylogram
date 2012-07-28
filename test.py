@@ -1,12 +1,23 @@
-#! python
+# TODO: Make run with python, once I've reverted python3 to python
 
 # Standard libraries
 import unittest
 import os
 
+# Numpy libraries
+import numpy as np
+from numpy import linalg
+
 # Pylogram libraries
 import pylogram
 from helpers import *
+
+class TestMatrixSolve(unittest.TestCase):
+    def test_invert(self):
+        A = [ [1, 1], [2, 0] ]
+        b = [ 3, 4 ]
+        x = [ 2, 1 ]
+        self.assertTrue( all( linalg.solve(A,b)==x ) )
 
 class TestHelpers(unittest.TestCase):
     def test_nonzero_dict(self):
