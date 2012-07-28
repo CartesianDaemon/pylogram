@@ -65,7 +65,7 @@ class TestMatrixSolve(unittest.TestCase):
         self.assertEqual( solve.canonical_form( [ 3*a==3, 7*a==7 ], variables_ab ), [ a==1 ] )
         self.assertEqual( solve.canonical_form( [ 2*a+2*c==6, 3*a+3*b==6 ], variables_abc ), [ a+c==3, b-c==-1 ] )
         self.assertEqual( solve.canonical_form( [ a+b+c+d==1, a+b-c-d==2 ], variables_abcd ), [ a+b==1.5, c+d==-0.5 ] )
-        #self.assertEqual( solve.canonical_form( [ a+b+c+d==1,-a+b-c+d==2 ], variables_abcd ), [ c+b==1.5, c+a==-0.5 ] )
+        self.assertEqual( solve.canonical_form( [ a+b+c+d==1,-a+b-c+d==2 ], variables_abcd ), [ c+a==-0.5, d+b==1.5 ] )
 
 class TestHelpers(unittest.TestCase):
     def test_nonzero_dict(self):
