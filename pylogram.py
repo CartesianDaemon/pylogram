@@ -18,11 +18,15 @@ def is_undef(val): return isinstance(val, _Undefined)
 def is_def(val): return not is_undef(val)
 def is_num(term):  return isinstance(term,Number)
 def is_evaluatable(term): return is_equ(term) or is_expr(term)
-    
+
 class _Var:
-    def __init__(self, name, idx):
-        self._name = name
-        self._idx = idx
+    _next_var_idx = 0 # Used for debugging to make variables appear in hashes in expected order
+    def __init__(self, name):
+        self._name = name or "var_" + str(_Var._next_var_idx)
+        self._idx = _Var._next_var_idx
+        _Var._next_var_idx +=1
+        
+    # TODO: define __add__ etc here rather than have constructor return Expr(self)
 
     def __hash__(self):
         return self._idx
@@ -36,12 +40,8 @@ class _Var:
     def evaluate(self, system):
         return system._evaluate_var(self)
 
-_next_var_idx = 0 # Used for debugging to make variables appear in hashes in expected order
-def Var(orig_name = None):
-    global _next_var_idx
-    var = _Var( name = orig_name if orig_name else "var_" + str(_next_var_idx), idx=_next_var_idx )
-    _next_var_idx += 1
-    return Expr(var)
+def Var(name = None):
+    return Expr(_Var(name))
 
 class Expr:
     def __init__(self, term):

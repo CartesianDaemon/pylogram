@@ -20,6 +20,17 @@ class TestBuiltins(unittest.TestCase):
         # self.assertEqual( d , dict(a=1,c=0) )
         d['b'] = 0
         # self.assertEqual( d , dict(a=1,c=0) )
+        
+    def test_2(self):
+        class Foo:
+            i = 3
+            def set_i(self,val):
+                Foo.i = val
+        foo1 = Foo()
+        foo2 = Foo()
+        foo2.set_i(54)
+        self.assertEqual( foo2.i,54 )
+        self.assertEqual( foo1.i,54 )
 
 class TestMatrixSolve(unittest.TestCase):
     def test_var(self):
@@ -176,27 +187,28 @@ class TestPylogram(unittest.TestCase):
         b = pylogram.Var('b')
         
         system = pylogram.System()
+        system2 = pylogram.System()
 
         # Not necessary for real code, but test results expect this order
-        # self.assertTrue( hash(a) < hash(b) )
-        # self.assertTrue( list({ a:1, b:2 }.keys())[0] is a )
-        # TODO: Check hash for actual variables, not Expr(variable)
+        self.assertTrue( hash(a.var()) < hash(b.var()) )
+        self.assertTrue( list({ a.var():2, b.var():1 }.keys())[0] is a.var() )
 
         # Check we can apply constraints, including duplicates
         system.constrain( b == a * 2 )
         system.constrain( b == 2 * a )
         system.constrain( -1 * b == 0 - (2 * a) )
+        
+        system2.constrain( a == 1 )
+
+        self.assertEqual( system2.variables(), {a.var()} )
+        self.assertEqual( system.variables(), {a.var(),b.var()} )
 
         self.assertFalse( system.solved() )
         self.assertIsNone( system.evaluate(a), None )
         self.assertIsNone( system.evaluate(b), None )
 
+        # Check solution
         system.constrain( a == 3 )
-
-        # Check intermediates
-        self.assertEqual( tuple(system.x()), (a,b) )
-        self.assertEqual( system.b(), (0,0,0,3) )
-        self.assertEqual( system.A(), ((-2,1),(-2,1),(2,-1),(1,0)) )
         self.assertTrue( system.solved() )
         
         # Check results
