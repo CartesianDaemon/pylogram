@@ -26,6 +26,9 @@ class _Var:
     def __repr__(self):
         return "Var('" + self._name + "')"
         
+    def __str__(self):
+        return self._name
+        
     def evaluate(self, system):
         return system._evaluate_var(self)
 
@@ -53,7 +56,12 @@ class Expr:
     def __radd__(self,term): assert is_term(term); return self + term
     def __rmul__(self,term): assert is_term(term); return self * term
     def __truediv__ (self,term): assert is_num(term); return self * (1/term)
-        
+    
+    def var(self):
+        assert(len(self._coeffs)==1)
+        assert(self._const==0)
+        return first(self._coeffs.keys())
+    
     def copy(self):
         return Expr(self)
 

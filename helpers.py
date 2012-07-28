@@ -51,3 +51,6 @@ def solve_matrix(A,b):
         return np.linalg.solve(A,b)
     except np.linalg.LinAlgError:
         return tuple( None for _ in b )
+
+def first( it ):
+    return next( iter(it) )

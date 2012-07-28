@@ -22,6 +22,16 @@ class TestMatrixSolve(unittest.TestCase):
         self.assertTrue( all( linalg.solve(A,b)==x ) )
         self.assertTrue( all( linalg.solve(A_,b)==x ) )
         # TODO: Test with superfluous and unsolvable lines
+        
+    def test_var(self):
+        x = pylogram.Var('fred')
+        self.assertEqual(str(x.var()),'fred')
+        
+    def test_normalised_constraint(self):
+        a = pylogram.Var('a')
+        b = pylogram.Var('b')
+        # self.assertEqual( solve.normalised_constraint( 2*a + 6*b ), a.var() )
+        # self.assertEqual( solve.normalised_constraint( 6*b - 2*a ), a.var() )
 
     @unittest.expectedFailure
     def test_canonical(self):
