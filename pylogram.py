@@ -77,6 +77,9 @@ class Expr:
     def is_tautologically_zero(self):
         return not self._coeffs and self._const == 0
         
+    def is_unique(self):
+        return len(self._coeffs)==1
+        
     def is_normalised(self):
         assert isinstance(self._const,Number)
         return all( isinstance(var,_Var) and isinstance(coeff,Number) for var,coeff in self._coeffs.items() )
@@ -144,6 +147,13 @@ class EquZero:
     
     def is_contradiction(self):
         return self._zero_expr.is_tautologically_nonzero()
+    
+    def solvable(self):
+        return self._zero_expr.is_unique()
+        
+    def solve_for_var(self, var):
+        assert( self._zero_expr.variables() == {var} )
+        return - self._zero_expr.const() / self._zero_expr.coefficient(var)
         
     def evaluate(self, system):
         val = self._zero_expr.evaluate(system)
