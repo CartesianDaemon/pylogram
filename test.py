@@ -60,7 +60,8 @@ class TestPylogram(unittest.TestCase):
         b = pylogram.Var()
         system.constrain( a== 2)
         system.constrain( b== 3)
-        self.assertEquals( system.evaluate(2/2), 1 )
+        self.assertEquals( system.evaluate(pylogram.Expr(2)/2), 1 )
+        self.assertEquals( system.evaluate(a/2), 1 )
         self.assertEquals( system.evaluate(1*2), 2 )
         with self.assertRaises( TypeError): 1/b
         # self.assertEquals( system.evaluate(a/2), 1 )

@@ -56,7 +56,7 @@ class Expr:
     def __rsub__(self,term): assert is_term(term); return ( self * -1 ) + term
     def __radd__(self,term): assert is_term(term); return self + term
     def __rmul__(self,term): assert is_term(term); return self * term
-    def __div__ (self,term): assert is_num(term); return self * (1/term)
+    def __truediv__ (self,term): assert is_num(term); return self * (1/term)
         
     def copy(self):
         return Expr(self)
@@ -149,6 +149,7 @@ class System:
     
     def constrain(self,equ):
         assert isinstance(equ, EquZero)
+        # TODO: Raise Contradiction if this constraint is one too many
         self._constraints.append(equ)
         self._variables |= equ.variables()
 
