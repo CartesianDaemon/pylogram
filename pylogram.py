@@ -63,6 +63,10 @@ class Varset():
         else:
             self._vars[attr] = Var(attr)
             return self._vars[attr]
+    
+    def __next__(self):
+        # Allow tuple assignment. TODO: Should this be a separate function, not Varset?
+        return Var()
 
 class Expr:
     def __init__(self, term):
@@ -221,7 +225,7 @@ class System:
         
     def test_for_contradictions(self):
         # self.solution() throws Contradiction if a conflicting constraint has been added
-        self.solution()
+        self._solution()
         
     def solved(self):
         return not any( val is None for val in self.solution().values() )
@@ -233,14 +237,20 @@ class System:
         if is_bare_term(evaluand):
             evaluand = Expr(evaluand)
         assert is_evaluatable(evaluand)
-        return evaluand.evaluate(self) if evaluand.is_def(self) else None
+        if evaluand.is_def(self):
+            return evaluand.evaluate(self)
+        else:
+            return 'undefined' # Or none
         
-    def solution(self):
+    def _solution(self):
         return solve_constraints(self._constraints,self.variables())
+        
+    def internals(self):
+        return ( (var,self.evaluate(var)) for var in self.variables() )
 
     def _evaluate_var(self,var):
         if var not in self.variables(): raise NormaliseError
-        return self.solution()[var] or _Undefined()
+        return self._solution()[var] or _Undefined()
 
 _default_system = System()
 
