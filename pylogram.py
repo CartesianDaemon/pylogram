@@ -68,8 +68,10 @@ class Var:
         return self.evaluate(system)
         
     def evaluate(self, system = None):
-        if system is None: system = default_sys()
-        if system is default_sys(): self._cached_val_str = str( system._evaluate_var(self) )
+        if system is None:
+            system = default_sys()
+        if system is default_sys():
+            self._cached_val_str = str( system._evaluate_var(self) )
         return system._evaluate_var(self)
 
 class Varset():
@@ -126,6 +128,7 @@ class Expr:
         # Support "a [:]= b" syntax
         assert emptyslice == slice(None, None, None)
         self.constrain(rhs)
+        return Equ(self,rhs)
     
     def constrain(self, rhs):
         default_sys().constrain( Equ( self, rhs ) )
@@ -188,7 +191,9 @@ class Expr:
         return is_def( self.evaluate(system) )
 
     def _format_frac(self, frac, var_name = None):
-        return self._format_num(frac.numerator, var_name) + "/" + str(frac.denominator)
+        num_str = self._format_num(frac.numerator, var_name)
+        den_str = "" if frac.denominator==1 else "/" + str(frac.denominator)
+        return num_str + den_str
         
     def _form_num_with_sign(self,coeff):
         spc = " "
@@ -252,11 +257,11 @@ class EquZero:
         assert( self._zero_expr.variables() == {var} )
         return - self._zero_expr.const() / self._zero_expr.coefficient(var)
         
-    def evaluate(self, system):
+    def evaluate(self, system = None):
         val = self._zero_expr.evaluate(system)
         return (val) if is_undef(val) else (val==0)
         
-    def is_def(self, system):
+    def is_def(self, system = None):
         return is_def( self.evaluate(system) )
 
     def copy(self):
@@ -288,18 +293,17 @@ class System:
         except Contradiction:
             return False
     
-    def constrain(self,equ):
-        assert is_equ(equ)
-        # Throw Contradiction if new constraint 
-        self._constraints.append(equ)
-        if equ.is_contradiction(): raise Contradiction
-        self.test_for_contradictions()
+    def constrain(self,*args):
+        for equ in args:
+            assert is_equ(equ)
+            self._constraints.append(equ)
+            if equ.is_contradiction(): raise Contradiction
+            self.throw_if_contradictions()
         
     def constraints(self):
         return self._constraints
         
-    def test_for_contradictions(self):
-        # self.solution() throws Contradiction if a conflicting constraint has been added
+    def throw_if_contradictions(self):
         self._solution()
         
     def solved(self):
@@ -338,9 +342,9 @@ def default_sys(): return _default_sys
 
 # Only use these outside the module, inside use _default_sys.blah() or default_sys().blah() directly
 
-def constrain(equ): return default_sys().constrain( equ )
-def evaluate(e):    return default_sys().evaluate( e )
-def internals(e):   return default_sys().internals( e )
+def constrain(*args): return default_sys().constrain( *args )
+def evaluate(e):      return default_sys().evaluate( e )
+def internals(e):     return default_sys().internals( e )
 
 def reset_internals():
     # Used for testing systemwide constraints multiple times
@@ -352,6 +356,7 @@ def reset_internals():
     
 class _Undefined:
     def __eq__  (self,other): return other==undefined() # Not equal to self
+    def __bool__(self):       return False
     def __add__ (self,other): return self
     def __radd__(self,other): return self
     def __sub__ (self,other): return self

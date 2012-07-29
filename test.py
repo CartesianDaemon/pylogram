@@ -109,6 +109,7 @@ class TestPylogram(unittest.TestCase):
         self.assertEqual( repr(-a+2),"-a + 2" )
         self.assertEqual( repr(Fraction(1,2)*a),"a/2" )
         self.assertEqual( repr(Fraction(3,2)*a),"3.a/2" )
+        self.assertEqual( repr(Fraction(1,1)*a),"a" )
         
     def test_diophantus_simple(self):
         varset = pylogram.Varset()
@@ -119,7 +120,7 @@ class TestPylogram(unittest.TestCase):
         
         # pylogram._solve_debug_print = print
         
-        # Fails with too-deep recursion if all the following is uncommented:
+        # Fails with too-deep recursion if all the following is uncommented because of order of variables solved for:
         # age_at.sons_birth
         age_at.marriage    [:]= age_at.puberty + age_at.death / 7
         age_at.sons_birth  [:]= age_at.marriage + 5
