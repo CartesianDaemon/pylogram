@@ -325,7 +325,7 @@ class System:
         return solve_constraints( self._constraints, print_steps = _solve_debug_print, undef = _Undefined() )
         
     def _evaluate_var(self,var):
-        return self._solution().get(var)
+        return self._solution().get( var, _Undefined() )
 
 def undefined():
     # Note: _Undefined used internally, but we return None or 'undefined' so caller can do "if aa == 'undefined'"
