@@ -12,15 +12,15 @@ age_at.marriage    [:]= age_at.puberty + age / 7
 age_at.sons_birth  [:]= age_at.marriage + 5
 sons_age [:]= age / 2
 
-print( "A. Diophantus died at age:", age )
+print( " >>", age )
 
-print("\nQ. OK, OK, if Diophantus also died 4 years after his son, how old was he when he died?\n")
+print("\nQ. OK, ok, if Diophantus also died 4 years after his son, how old was he when he died?\n")
 
 age_at.death [:]= age_at.sons_death + 4
 
-print( "A. Diophantus died at age:", age )
+print( " >>", age )
 
-print( "\nAnd in case you're curious, the internal workings were:\n" )
-
-for var, val in system.internals():
-    print( "  His age at", var, "was", val )
+# print( "\nQ. What about everything else?:\n" )
+# 
+# for var in pylogram.internals():
+#     print( "  His age at", var.name(), "was", var.val() )

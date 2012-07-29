@@ -2,13 +2,10 @@
 from helpers import *
 from exceptions import *
 
-def solve_constraints(orig_constraints, _=None, print_steps=ignore):
-    var_constraints = variable_constraints( orig_constraints, variables(orig_constraints), print_steps )
-    return { var : var_value(var,var_constraints[var]) if var in var_constraints else None for var in variables(orig_constraints) }
-    
-def var_value(var,equ):
-    assert( equ.coefficient(var) == 1)
-    return equ.solve_for_var(var) if equ.solvable() else None
+def solve_constraints(orig_constraints, _=None, print_steps=ignore, undef=None):
+    vars = variables(orig_constraints)
+    cncl = variable_constraints( orig_constraints, vars, print_steps )
+    return { var : (cncl[var].solve_for_var(var) if var in cncl and cncl[var].solvable() else undef) for var in vars }
 
 def canonical_equs(orig_constraints,_=None):
     return list(variable_constraints(orig_constraints, variables(orig_constraints) ).values())

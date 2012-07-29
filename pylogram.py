@@ -320,15 +320,12 @@ class System:
         #     return evaluand.evaluate(self)
         # else:
         #     return undefined()
-            
-    def _solution(self):
-        return solve_constraints(self._constraints, print_steps = _solve_debug_print)
-        
-    def internals(self):
-        return ( (var,self.evaluate(var)) for var in variables( self._constraints ) )
 
+    def _solution(self):
+        return solve_constraints( self._constraints, print_steps = _solve_debug_print, undef = _Undefined() )
+        
     def _evaluate_var(self,var):
-        return var in self.variables() and self._solution()[var] or _Undefined()
+        return self._solution().get(var)
 
 def undefined():
     # Note: _Undefined used internally, but we return None or 'undefined' so caller can do "if aa == 'undefined'"
@@ -344,7 +341,7 @@ def default_sys(): return _default_sys
 
 def constrain(*args): return default_sys().constrain( *args )
 def evaluate(e):      return default_sys().evaluate( e )
-def internals(e):     return default_sys().internals( e )
+def internals():      return default_sys().variables()
 
 def reset_internals():
     # Used for testing systemwide constraints multiple times
