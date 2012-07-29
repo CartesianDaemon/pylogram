@@ -271,6 +271,12 @@ class System:
 
 _default_system = System()
 
+def constrain( equ ):
+    return _default_system.constrain( equ )
+    
+def evaluate( e ):
+    return _default_system.evaluate( e )
+
 class _Undefined:
     def __add__ (self,other): return self
     def __radd__(self,other): return self
