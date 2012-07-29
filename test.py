@@ -186,7 +186,7 @@ class TestPylogram(unittest.TestCase):
         self.assertEqual( xxx.val(), val )
         self.assertEqual( str(xxx), str(val) )
         self.assertEqual( xxx.name_or_value(), str(val) )
-
+        
     def test_syntax_square_equals(self):
         varset = pylogram.Varset()
         self._test_is_undef(varset.a)

@@ -13,7 +13,11 @@ class canonical:
     def var_values(self):
         vars = self._variables
         cncl = self._cncl_dict
-        return { var : (cncl[var].solve_for_var(var) if var in cncl and cncl[var].solvable() else self._undef) for var in vars }
+        d = { var : (cncl[var].solve_for_var(var) if var in cncl and cncl[var].solvable() else self._undef) for var in vars }
+        return defaultdict( lambda:self._undef, d )
+    
+    def values(self):
+        return self.var_values().values()
     
     def constraints(self):
         return list(self._cncl_dict.values())
