@@ -9,12 +9,16 @@ from helpers import *
 from solve import solve_constraints
 from exceptions import *
 
+# WARNING: Changed to primarily use global a[:]=b instead of system.constrain( a==b )
+# If you use system.constrain( a==b ) and then to print(a) not print(system.evaluate(a)) you will get weird results
+# Systems may eventually be deprecated, or changed to only work with "with"
+
 def is_var(val): return isinstance(val,Var)
 def is_bare_term(val):return isinstance(val,Number) or isinstance(val,Var)
 def is_term(val):return is_bare_term(val) or isinstance(val,Expr)
 def is_expr(val): return isinstance(val,Expr)
 def is_equ(val): return isinstance(val,EquZero)
-def is_undef(val): return isinstance(val, _Undefined) 
+def is_undef(val): return isinstance(val, _Undefined) # Works on evaluations, not expr. TODO: Change this?
 def is_def(val): return not is_undef(val)
 def is_num(term):  return isinstance(term,Number) # Any built-in constant type, eg. int, float or frac, but not Var instances
 def is_evaluatable(term): return is_equ(term) or is_expr(term)
@@ -27,6 +31,7 @@ class Var:
         Var._next_var_idx +=1
 
     def __eq__      (self,other):  return Expr(self).__eq__     (other) # if not is_var(other) else id(self)==id(other)
+    def __setitem__ (self,pos,val):return Expr(self).__setitem__(pos,val)
     def __add__     (self,other):   return Expr(self).__add__    (other)
     def __mul__     (self,other):   return Expr(self).__mul__    (other)
     def __sub__     (self,other):   return Expr(self).__sub__    (other)
@@ -44,10 +49,17 @@ class Var:
         return "Var('" + self._name + "')"
 
     def __str__(self):
-        return self._name
+        return str(self.val()) if self.is_def(system) else self._name
 
     def name(self):
         return self._name
+        
+    def is_def(self, system = None ):
+        if system is None: system = default_sys()
+        return self in system.variables() and is_def(system.evaluate(self))
+
+    def val(self): # Only meaningful is assigned with module-level constrain() or [:]=
+        return self.evaluate(self, _default_sys)
         
     def evaluate(self, system):
         return system._evaluate_var(self)
@@ -102,6 +114,11 @@ class Expr:
     def __neg__(self): return -1 * self
     def __pos__(self): return 1 * self
     
+    def __setitem__(self, emptyslice, rhs):
+        # Support "a [:]= b" syntax
+        assert emptyslice == slice(None, None, None)
+        _default_sys.constrain( Equ( self, rhs ) )
+        
     def var(self):
         assert(len(self._coeffs)==1)
         assert(self._const==0)
@@ -119,10 +136,10 @@ class Expr:
     def variables(self):
         return set(self._coeffs.keys())
         
-    def is_tautologically_nonzero(self):
+    def is_nonnull(self):
         return not self._coeffs and self._const != 0
 
-    def is_tautologically_zero(self):
+    def is_null(self):
         return not self._coeffs and self._const == 0
         
     def is_unique(self):
@@ -168,11 +185,15 @@ class EquZero:
         self._zero_expr = Expr(lhs)
         
     def __bool__(self):
-        # TODO: Only checks for trivial cases, needed to check things like a==a in hashes
-        # use system.evaluate() to check actual values
-        return self.is_tautology()
-    
-    def __eq__(self,other): return is_equ(other) and self._zero_expr == other._zero_expr
+        # For constraints applied to the global default system eg. "a[:]=2", can be used directly eg. "a==2" is True
+        # For constraints applied to a specific system eg. "sys.constrain(a*2==2)", only checks for tautology, eg. "a==a" is True
+        # but "a==b" is false regardless of the values of a and b in sys. To compare actual values, use sys.evaluate(a==1)
+        if self.is_tautology():
+            return True
+        elif self.is_contradiction():
+            return False
+        else:
+            return self._zero_expr.variables() in default_sys().variables() and default_sys().evaluate(self)
     
     def __add__ (self, other): assert is_equ(other); return EquZero( self._zero_expr + other._zero_expr )
     def __sub__ (self, other): assert is_equ(other); return EquZero( self._zero_expr - other._zero_expr )
@@ -180,11 +201,17 @@ class EquZero:
     def __rmul__(self, other): assert is_num(other); return EquZero( self._zero_expr * other )
     def __truediv__ (self, other): assert is_num(other); return EquZero( self._zero_expr / other )
     
+    def __eq__(self,other):
+        # Test for equivalance between equations,
+        # ie. (a==2) == (a==2) regardless of which systems a is defined in but (a==2) != (-a==-2)
+        # Mostly used in tests to check that intermediate values return the expected equations
+        return is_equ(other) and self._zero_expr == other._zero_expr
+    
     def is_tautology(self):
-        return self._zero_expr.is_tautologically_zero()
+        return self._zero_expr.is_null()
     
     def is_contradiction(self):
-        return self._zero_expr.is_tautologically_nonzero()
+        return self._zero_expr.is_nonnull()
     
     def solvable(self):
         return self._zero_expr.is_unique()
@@ -217,10 +244,10 @@ class EquZero:
 
 def Equ(lhs,rhs):
     return EquZero(lhs-rhs)
-        
+
 class System:
-    def __init__(self):
-        self._constraints = []
+    def __init__(self, *constraints):
+        self._constraints = list(constraints)
         
     def try_constrain(self,equ):
         try:
@@ -236,6 +263,9 @@ class System:
         if equ.is_contradiction(): raise Contradiction
         self.test_for_contradictions()
         
+    def constraints(self):
+        return self._constraints
+        
     def test_for_contradictions(self):
         # self.solution() throws Contradiction if a conflicting constraint has been added
         self._solution()
@@ -244,7 +274,7 @@ class System:
         return not any( val is None for val in self._solution().values() )
     
     def variables(self):
-        return set().union( * ( equ.variables() for equ in self._constraints ) )
+        return variables(self._constraints)
     
     def evaluate(self,evaluand):
         if is_bare_term(evaluand):
@@ -260,24 +290,32 @@ class System:
         # return None
         
     def _solution(self):
-        return solve_constraints(self._constraints,self.variables())
+        return solve_constraints(self._constraints)
         
     def internals(self):
-        return ( (var,self.evaluate(var)) for var in self.variables() )
+        return ( (var,self.evaluate(var)) for var in variables( self._constraints ) )
 
     def _evaluate_var(self,var):
         if var not in self.variables(): raise NormaliseError
         return self._solution()[var] or _Undefined()
 
-_default_system = System()
+_default_sys = System()
+
+def default_sys(): return _default_sys
+
+# Only use these outside the module, inside use _default_sys.blah() or default_sys().blah() directly
 
 def constrain( equ ):
-    return _default_system.constrain( equ )
+    return _default_sys.constrain( equ )
     
 def evaluate( e ):
-    return _default_system.evaluate( e )
+    return _default_sys.evaluate( e )
 
+def internals(e):
+    return _default_sys.internals( e )
+    
 class _Undefined:
+    def __eq__  (self,other): return False # Not equal to self 
     def __add__ (self,other): return self
     def __radd__(self,other): return self
     def __sub__ (self,other): return self

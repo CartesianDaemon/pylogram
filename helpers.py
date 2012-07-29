@@ -34,3 +34,6 @@ def first( it ):
     
 def count( it ):
     return len(tuple(it))
+    
+def variables(constraints):
+    return set().union( * ( equ.variables() for equ in constraints ) )

@@ -78,8 +78,10 @@ class TestPylogram(unittest.TestCase):
 
     def test_syntax_square_equals(self):
         varset = pylogram.Varset()
-        # varset.a []= 2 * varset.b
-        # varset.b []= 1
+        varset.a [:]= 2 * varset.b
+        varset.b [:]= 1
+        self.assertEqual( pylogram.evaluate(varset.a), 2 )
+        self.assertEqual( pylogram.evaluate(varset.b), 1 )
         # self.assertEquals( varset.a, 1 )
         # self.assertEquals( varset.b, 2 )
 
@@ -117,9 +119,9 @@ class TestPylogram(unittest.TestCase):
         b = pylogram.Var('b')
         self.assertEqual( system.evaluate( 3) , 3 )
         self.assertEqual( system.evaluate( 3*a +2 -2*a -a ) , 2 )
-        self.assertTrue( (a-a).is_tautologically_zero() )
-        self.assertFalse( (a+0).is_tautologically_zero() )
-        self.assertTrue( pylogram.Expr(0).is_tautologically_zero() )
+        self.assertTrue( (a-a).is_null() )
+        self.assertFalse( (a+0).is_null() )
+        self.assertTrue( pylogram.Expr(0).is_null() )
         self.assertRaises( pylogram.NormaliseError, system.evaluate, pylogram.Equ(a,b) )
         self.assertTrue( pylogram.Equ( a, a ) )
         self.assertTrue( pylogram.Equ( a + b, b + a ) )
