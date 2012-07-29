@@ -39,7 +39,6 @@ class Obj:
 
 class Point(Obj):
     def __init__(self, *args, prefix=""):
-        super().__init__()
         if len(args)==0:
             self.x = Var(prefix+'.x')
             self.y = Var(prefix+'.y')
@@ -59,7 +58,6 @@ class Line(Obj):
         
 class Circle(Obj):
     def __init__(self, prefix=""):
-        super().__init__()
         self.r = Var(prefix+'.r')
         self.d = self.r * 2
         self.c = Point(prefix=prefix+'.c')

@@ -445,7 +445,6 @@ class TestDraw(unittest.TestCase):
     def test_lollypop(self):
         class Lollypop(Obj):
             def __init__(self):
-                super().__init__()
                 self.stick = Line('stick')
                 self.circ = Circle('ball')
                 self.circ.bottom = self.stick.pt1
