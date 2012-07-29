@@ -186,6 +186,15 @@ class TestPylogram(unittest.TestCase):
         ccc = pylogram.Var('ccc')
         system2.constrain( varset.aaa + ccc == 5 )
         self.assertEqual( system2.variables(), {varset.aaa, ccc} )
+        
+        # for v in varset:
+        #     # Should fail until we implement iterating through variables?
+        #     pass
+            
+        a, b, c = varset.make_n(3)
+        d = varset.make()
+        self.assertTrue( hash(a) < hash(b) < hash(c) < hash(d) )
+        self.assertEqual( (a+b+c+d).variables(), {a,b,c,d} )
 
     def test_system(self):
     
@@ -211,8 +220,8 @@ class TestPylogram(unittest.TestCase):
         self.assertEqual( system.variables(), {a,b} )
 
         self.assertFalse( system.solved() )
-        self.assertIsNone( system.evaluate(a), None )
-        self.assertIsNone( system.evaluate(b), None )
+        self.assertEqual( system.evaluate(a), system.undefined() )
+        self.assertEqual( system.evaluate(b), system.undefined() )
 
         # Check solution
         system.constrain( a == 3 )

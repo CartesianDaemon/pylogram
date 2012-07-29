@@ -64,9 +64,22 @@ class Varset():
             self._vars[attr] = Var(attr)
             return self._vars[attr]
     
-    def __next__(self):
-        # Allow tuple assignment. TODO: Should this be a separate function, not Varset?
-        return Var()
+    def make(self):
+        var = Var()
+        setattr(self, var.name(), var)
+        return var
+    
+    def make_n(self, n):
+        class var_iter:
+            def __init__(self, varset):
+                self._varset, self._n = varset, n
+            def __iter__(self):
+                return self
+            def __next__(self):
+                if self._n<=0: raise StopIteration
+                self._n -=1;
+                return self._varset.make()
+        return var_iter(self)
 
 class Expr:
     def __init__(self, term):
@@ -228,7 +241,7 @@ class System:
         self._solution()
         
     def solved(self):
-        return not any( val is None for val in self.solution().values() )
+        return not any( val is None for val in self._solution().values() )
     
     def variables(self):
         return set().union( * ( equ.variables() for equ in self._constraints ) )
@@ -240,7 +253,11 @@ class System:
         if evaluand.is_def(self):
             return evaluand.evaluate(self)
         else:
-            return 'undefined' # Or none
+            return self.undefined()
+            
+    def undefined(self):
+        return 'undefined'
+        # return None
         
     def _solution(self):
         return solve_constraints(self._constraints,self.variables())
