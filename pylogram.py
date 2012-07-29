@@ -214,15 +214,6 @@ class System:
     def variables(self):
         return set().union( * ( equ.variables() for equ in self._constraints ) )
     
-    def x(self):
-        return tuple( Expr(var) for var in self.variables() )
-        
-    def A(self):
-        return tuple( tuple( equ.coefficient(var) for var in self.variables() ) for equ in self._constraints )
-    
-    def b(self):
-        return tuple( equ.rhs_constant() for equ in self._constraints )
-        
     def evaluate(self,evaluand):
         if is_bare_term(evaluand):
             evaluand = Expr(evaluand)

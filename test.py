@@ -14,13 +14,6 @@ import solve
 from helpers import *
 
 class TestBuiltins(unittest.TestCase):
-    def test_1(self):
-        d = defaultdict(int)
-        d['a'] = 1
-        # self.assertEqual( d , dict(a=1,c=0) )
-        d['b'] = 0
-        # self.assertEqual( d , dict(a=1,c=0) )
-        
     def test_2(self):
         class Foo:
             i = 3
