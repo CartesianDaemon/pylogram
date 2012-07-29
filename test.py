@@ -14,22 +14,9 @@ import solve
 from helpers import *
 
 class TestBuiltins(unittest.TestCase):
-    def test_2(self):
-        class Foo:
-            i = 3
-            def set_i(self,val):
-                Foo.i = val
-        foo1 = Foo()
-        foo2 = Foo()
-        foo2.set_i(54)
-        self.assertEqual( foo2.i,54 )
-        self.assertEqual( foo1.i,54 )
-
+    pass
+    
 class TestMatrixSolve(unittest.TestCase):
-    def test_var(self):
-        x = pylogram.Var('fred')
-        self.assertEqual(str(x),'fred')
-        
     def test_normalised_constraint(self):
         a = pylogram.Var('a')
         b = pylogram.Var('b')
@@ -64,16 +51,17 @@ class TestMatrixSolve(unittest.TestCase):
 
 class TestHelpers(unittest.TestCase):
     def test_nonzero_dict(self):
-        d = nonzero_dict()
-        self.assertEqual( len(d), 0 )
-        d[5] = d[5] + 1
-        self.assertEqual( len(d), 1 )
-        d[5] = d[5] - 1
-        self.assertEqual( len(d), 0 )
-        d[4] += 1
-        self.assertEqual( len(d), 1 )
-        d[4] -= 1
-        self.assertEqual( len(d), 0 )
+        d = nonzero_dict(); self.assertEqual( len(d), 0 )
+        d[5] = d[5] + 1; self.assertEqual( len(d), 1 ); self.assertEqual( d.keys(), {5} )
+        d[5] = d[5] - 1; self.assertEqual( len(d), 0 ); self.assertEqual( d.keys(), set() )
+        d[4] += 1; self.assertEqual( len(d), 1 ); self.assertEqual( d.keys(), {4} )
+        d[4] -= 1; self.assertEqual( len(d), 0 ); self.assertEqual( d.keys(), set() )
+        d[0] = 15
+        self.assertEqual( tuple( d.values() ), (15,) )
+        self.assertEqual( tuple( d.items() ), ( (0,15), ) )
+        d[0] = 0
+        self.assertEqual( tuple( d.values() ), () )
+        self.assertEqual( tuple( d.items() ), () )
 
 class TestPylogram(unittest.TestCase):
     def test_undefined(self):
