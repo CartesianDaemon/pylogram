@@ -14,7 +14,26 @@ import solve
 from helpers import *
 
 class TestBuiltins(unittest.TestCase):
-    pass
+    def test_remove(self):
+        class Foo:
+            def __bool__(self, other):
+                assert False
+            def __eq__(self,other):
+                return isinstance(other, Number) and other==4 or id(self)==id(other)
+        fizz = Foo()
+        buzz = Foo()
+        l = [ 2, fizz, 4, buzz, fizz, 7 ]
+        l.remove(buzz)
+        self.assertEqual(l, [ 2, fizz, buzz, fizz, 7 ] )
+        l.remove(buzz)
+        self.assertEqual(l, [ 2, fizz, fizz, 7 ] )
+        self.assertRaises( Exception, l.remove, buzz )
+        
+    def test_str(self):
+        class Foo:
+            def __str__(self):
+                return "<Foo>"
+        self.assertEqual( str(Foo()), "<Foo>" )
     
 class TestMatrixSolve(unittest.TestCase):
     def test_normalised_constraint(self):
@@ -78,12 +97,22 @@ class TestPylogram(unittest.TestCase):
 
     def test_syntax_square_equals(self):
         varset = pylogram.Varset()
+        # self.assertEqual( str(varset.a), 'a' )
+        # self.assertEqual( varset.a.evaluate(), 'undefined' )
+        # self.assertFalse( varset.a.is_def() )
         varset.a [:]= 2 * varset.b
+        #self.assertEqual( str(varset.a), 'a' )
+        #self.assertEqual( varset.a.evaluate(), 'undefined' )
+        #self.assertFalse( varset.a.is_def() )
         varset.b [:]= 1
         self.assertEqual( pylogram.evaluate(varset.a), 2 )
         self.assertEqual( pylogram.evaluate(varset.b), 1 )
-        self.assertEquals( varset.a, 2 )
-        self.assertEquals( varset.b, 1 )
+        self.assertEqual( varset.a, 2 )
+        self.assertEqual( varset.b, 1 )
+        self.assertTrue( varset.a.is_def() )
+        self.assertEqual( varset.a.evaluate(), 2 )
+        self.assertEqual( varset.b.evaluate(), 1 )
+        self.assertRaises( pylogram.Contradiction, varset.b.constrain, 2 )
 
     def test_syntax_constrain(self):
         system = pylogram.System()
@@ -219,8 +248,8 @@ class TestPylogram(unittest.TestCase):
         self.assertEqual( system.variables(), {a,b} )
 
         self.assertFalse( system.solved() )
-        self.assertEqual( system.evaluate(a), system.undefined() )
-        self.assertEqual( system.evaluate(b), system.undefined() )
+        self.assertEqual( system.evaluate(a), pylogram.undefined() )
+        self.assertEqual( system.evaluate(b), pylogram.undefined() )
 
         # Check solution
         system.constrain( a == 3 )

@@ -33,6 +33,7 @@ class Var:
 
     def __eq__      (self,other):  return Expr(self).__eq__     (other) # if not is_var(other) else id(self)==id(other)
     def __setitem__ (self,pos,val):return Expr(self).__setitem__(pos,val)
+    def constrain   (self,rhs):    return Expr(self).constrain  (rhs)
     def __add__     (self,other):   return Expr(self).__add__    (other)
     def __mul__     (self,other):   return Expr(self).__mul__    (other)
     def __sub__     (self,other):   return Expr(self).__sub__    (other)
@@ -51,7 +52,7 @@ class Var:
         return "Var<" + self._name + "=" +self._cached_val_str + ">" 
 
     def __str__(self):
-        return str(self.val()) if self.is_def(default_sys()) else self._name
+        return str(self.val()) if self.is_def() else self._name
 
     def name(self):
         return self._name
@@ -61,9 +62,10 @@ class Var:
         return self in system.variables() and is_def(system.evaluate(self))
 
     def val(self): # Only meaningful is assigned with module-level constrain() or [:]=
-        return self.evaluate(self, _default_sys)
+        return self.evaluate(default_sys())
         
-    def evaluate(self, system):
+    def evaluate(self, system = None):
+        if system is None: system = default_sys()
         if system is default_sys(): self._cached_val_str = str( system._evaluate_var(self) )
         return system._evaluate_var(self)
 
@@ -120,7 +122,10 @@ class Expr:
     def __setitem__(self, emptyslice, rhs):
         # Support "a [:]= b" syntax
         assert emptyslice == slice(None, None, None)
-        _default_sys.constrain( Equ( self, rhs ) )
+        self.constrain(rhs)
+    
+    def constrain(self, rhs):
+        default_sys().constrain( Equ( self, rhs ) )
         
     def var(self):
         assert(len(self._coeffs)==1)
@@ -207,7 +212,7 @@ class EquZero:
     def __eq__(self,other):
         # Test for equivalance between equations,
         # ie. (a==2) == (a==2) regardless of which systems a is defined in but (a==2) != (-a==-2)
-        # Mostly used in tests to check that intermediate values return the expected equations
+        # Used list.remove(equ) and in [equ1, equ2] == [equ1, equ2]
         return is_equ(other) and self._zero_expr == other._zero_expr
     
     def is_tautology(self):
@@ -286,12 +291,8 @@ class System:
         if evaluand.is_def(self):
             return evaluand.evaluate(self)
         else:
-            return self.undefined()
+            return undefined()
             
-    def undefined(self):
-        return 'undefined'
-        # return None
-        
     def _solution(self):
         return solve_constraints(self._constraints)
         
@@ -302,23 +303,23 @@ class System:
         if var not in self.variables(): raise NormaliseError
         return self._solution()[var] or _Undefined()
 
+def undefined():
+    # Note: _Undefined used internally, but we return None or 'undefined' so caller can do "if aa == 'undefined'"
+    return 'undefined'
+    # return None
+        
 _default_sys = System()
 
 def default_sys(): return _default_sys
 
 # Only use these outside the module, inside use _default_sys.blah() or default_sys().blah() directly
 
-def constrain( equ ):
-    return _default_sys.constrain( equ )
-    
-def evaluate( e ):
-    return _default_sys.evaluate( e )
-
-def internals(e):
-    return _default_sys.internals( e )
+def constrain(equ): return default_sys().constrain( equ )
+def evaluate(e):    return default_sys().evaluate( e )
+def internals(e):   return default_sys().internals( e )
     
 class _Undefined:
-    def __eq__  (self,other): return False # Not equal to self 
+    def __eq__  (self,other): return other==undefined() # Not equal to self
     def __add__ (self,other): return self
     def __radd__(self,other): return self
     def __sub__ (self,other): return self
