@@ -296,7 +296,7 @@ class System:
         #     return undefined()
             
     def _solution(self):
-        return solve_constraints(self._constraints)
+        return solve_constraints(self._constraints, print_steps = _solve_debug_print)
         
     def internals(self):
         return ( (var,self.evaluate(var)) for var in variables( self._constraints ) )
@@ -310,6 +310,7 @@ def undefined():
     # return None
         
 _default_sys = System()
+_solve_debug_print = ignore # Used for debugging
 
 def default_sys(): return _default_sys
 
@@ -318,6 +319,14 @@ def default_sys(): return _default_sys
 def constrain(equ): return default_sys().constrain( equ )
 def evaluate(e):    return default_sys().evaluate( e )
 def internals(e):   return default_sys().internals( e )
+
+def reset_internals():
+    # Used for testing systemwide constraints multiple times
+    global _default_sys
+    global _solve_debug_print
+    _default_sys = System()
+    Var._next_var_idx = 0
+    _solve_debug_print = ignore
     
 class _Undefined:
     def __eq__  (self,other): return other==undefined() # Not equal to self

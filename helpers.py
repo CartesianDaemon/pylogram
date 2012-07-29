@@ -37,3 +37,7 @@ def count( it ):
     
 def variables(constraints):
     return set().union( * ( equ.variables() for equ in constraints ) )
+
+    
+def ignore(*args):
+    pass

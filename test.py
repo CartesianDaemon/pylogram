@@ -88,23 +88,33 @@ class TestHelpers(unittest.TestCase):
         self.assertEqual( tuple( d.items() ), () )
 
 class TestPylogram(unittest.TestCase):
+    def setUp(self):
+        pylogram.reset_internals()
+        
+    def test_indepentent_systems(self):
+        v1 = pylogram.Varset()
+        v1.a [:]= 2 * v1.b
+        v1.b [:]= 1
+        v2 = pylogram.Varset()
+        v2.a [:]= 2 * v2.b
+        v2.b [:]= 1
+        v3 = pylogram.Varset()
+        v3.a [:]= 2 * v3.b
+        v3.b [:]= 1
+        
     def test_diophantus_simple(self):
-        age_at = Struct()
-        age_at.death = pylogram.Var()
-        age_at.adolescence = pylogram.Var()
-        age_at.marriage = pylogram.Var()
-        age_at.sons_birth = pylogram.Var()
-        age_at.sons_death = pylogram.Var()
-        
-        age = age_at.death
-        sons_age = age_at.sons_death - age_at.sons_birth
-        
-        # pylogram.constrain( age_at.adolescence == age / 6                        )
-        # pylogram.constrain( age_at.puberty     == age_at.adolescence + age / 12  )
-        # pylogram.constrain( age_at.marriage    == age_at.puberty + age / 7       )
+        varset = pylogram.Varset()
+        varset.a [:]= 2 * varset.b
+        varset.b [:]= 1
 
+        age_at = pylogram.Varset()
+        
+        pylogram._solve_debug_print = print
+        
+        # Fails with too-deep recursion if all the following is uncommented:
+        # age_at.sons_birth
+        # age_at.marriage    [:]= age_at.puberty + age_at.death / 7
         # age_at.sons_birth  [:]= age_at.marriage + 5
-        # sons_age [:]= age / 2
         
     def test_diophantus_constraints(self):
         age_at = Struct()
