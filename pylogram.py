@@ -9,24 +9,33 @@ from helpers import *
 from solve import solve_constraints
 from exceptions import *
 
-def is_var(val): return is_instance(val,_Var)
-def is_bare_term(val):return isinstance(val,Number) or isinstance(val,_Var)
+def is_var(val): return isinstance(val,Var)
+def is_bare_term(val):return isinstance(val,Number) or isinstance(val,Var)
 def is_term(val):return is_bare_term(val) or isinstance(val,Expr)
 def is_expr(val): return isinstance(val,Expr)
 def is_equ(val): return isinstance(val,EquZero)
 def is_undef(val): return isinstance(val, _Undefined) 
 def is_def(val): return not is_undef(val)
-def is_num(term):  return isinstance(term,Number)
+def is_num(term):  return isinstance(term,Number) # Any built-in constant type, eg. int, float or frac, but not Var instances
 def is_evaluatable(term): return is_equ(term) or is_expr(term)
 
-class _Var:
+class Var:
     _next_var_idx = 0 # Used for debugging to make variables appear in hashes in expected order
-    def __init__(self, name):
-        self._name = name or "var_" + str(_Var._next_var_idx)
-        self._idx = _Var._next_var_idx
-        _Var._next_var_idx +=1
-        
-    # TODO: define __add__ etc here rather than have constructor return Expr(self)
+    def __init__(self, name=None):
+        self._name = name or "var_" + str(Var._next_var_idx)
+        self._idx = Var._next_var_idx
+        Var._next_var_idx +=1
+
+    def __eq__      (self,other):  return Expr(self).__eq__     (other) # if not is_var(other) else id(self)==id(other)
+    def __add__     (self,other):   return Expr(self).__add__    (other)
+    def __mul__     (self,other):   return Expr(self).__mul__    (other)
+    def __sub__     (self,other):   return Expr(self).__sub__    (other)
+    def __rsub__    (self,other):   return Expr(self).__rsub__   (other)
+    def __radd__    (self,other):   return Expr(self).__radd__   (other)
+    def __rmul__    (self,other):   return Expr(self).__rmul__   (other)
+    def __truediv__ (self,other):   return Expr(self).__truediv__(other)
+    def __neg__     (self):        return Expr(self).__neg__()
+    def __pos__     (self):        return Expr(self).__pos__()
 
     def __hash__(self):
         return self._idx
@@ -39,9 +48,6 @@ class _Var:
         
     def evaluate(self, system):
         return system._evaluate_var(self)
-
-def Var(name = None):
-    return Expr(_Var(name))
 
 class Expr:
     def __init__(self, term):
@@ -60,9 +66,9 @@ class Expr:
     def __rsub__(self,term): assert is_term(term); return -self + term
     def __radd__(self,term): assert is_term(term); return self + term
     def __rmul__(self,term): assert is_term(term); return self * term
+    def __truediv__ (self,term): assert is_num(term); return self * Fraction(1,term)
     def __neg__(self): return -1 * self
     def __pos__(self): return 1 * self
-    def __truediv__ (self,term): assert is_num(term); return self * Fraction(1,term)
     
     def var(self):
         assert(len(self._coeffs)==1)
@@ -91,11 +97,11 @@ class Expr:
         return len(self._coeffs)==1
         
     def is_normalised(self):
-        assert isinstance(self._const,Number)
-        return all( isinstance(var,_Var) and isinstance(coeff,Number) for var,coeff in self._coeffs.items() )
+        assert is_num(self._const)
+        return all( is_var(var) and is_num(coeff) for var,coeff in self._coeffs.items() )
 
     def _mul_term(self,term):
-        assert isinstance(term, Number)
+        assert is_num(term)
         val = term
         assert self.is_normalised()
         for var in self._coeffs:
@@ -105,11 +111,11 @@ class Expr:
 
     def _add_term(self, term, coeff=1):
         assert self.is_normalised()
-        if isinstance(term, Number):
+        if is_num(term):
             self._const += term * coeff
-        elif isinstance(term, _Var):
+        elif is_var(term):
             self._coeffs[term] += coeff
-        elif isinstance(term,Expr):
+        elif is_expr(term):
             for subterm,subcoeff in term._coeffs.items():
                 self._add_term( subterm, subcoeff )
             self._const += term._const
@@ -126,8 +132,7 @@ class Expr:
         
 class EquZero:
     def __init__( self, lhs ):
-        if isinstance(lhs,EquZero):
-            assert False
+        assert not is_equ(lhs)
         self._zero_expr = Expr(lhs)
         
     def __bool__(self):
@@ -135,13 +140,13 @@ class EquZero:
         # use system.evaluate() to check actual values
         return self.is_tautology()
     
-    def __eq__(self,other): return isinstance(other,EquZero) and self._zero_expr == other._zero_expr
+    def __eq__(self,other): return is_equ(other) and self._zero_expr == other._zero_expr
     
-    def __add__ (self, other): assert isinstance(other,EquZero); return EquZero( self._zero_expr + other._zero_expr )
-    def __sub__ (self, other): assert isinstance(other,EquZero); return EquZero( self._zero_expr - other._zero_expr )
-    def __mul__ (self, other): assert isinstance(other,Number); return EquZero( self._zero_expr * other )
-    def __rmul__(self, other): assert isinstance(other,Number); return EquZero( self._zero_expr * other )
-    def __truediv__ (self, other): assert isinstance(other,Number); return EquZero( self._zero_expr / other )
+    def __add__ (self, other): assert is_equ(other); return EquZero( self._zero_expr + other._zero_expr )
+    def __sub__ (self, other): assert is_equ(other); return EquZero( self._zero_expr - other._zero_expr )
+    def __mul__ (self, other): assert is_equ(other); return EquZero( self._zero_expr * other )
+    def __rmul__(self, other): assert is_num(other); return EquZero( self._zero_expr * other )
+    def __truediv__ (self, other): assert is_num(other); return EquZero( self._zero_expr / other )
     
     def is_tautology(self):
         return self._zero_expr.is_tautologically_zero()
@@ -193,7 +198,7 @@ class System:
             return False
     
     def constrain(self,equ):
-        assert isinstance(equ, EquZero)
+        assert is_equ(equ)
         # Throw Contradiction if new constraint 
         self._constraints.append(equ)
         if equ.is_contradiction(): raise Contradiction

@@ -35,19 +35,19 @@ class TestBuiltins(unittest.TestCase):
 class TestMatrixSolve(unittest.TestCase):
     def test_var(self):
         x = pylogram.Var('fred')
-        self.assertEqual(str(x.var()),'fred')
+        self.assertEqual(str(x),'fred')
         
     def test_normalised_constraint(self):
         a = pylogram.Var('a')
         b = pylogram.Var('b')
-        self.assertEqual( solve.normalised_constraint_for( 2*a + 6*b , a.var() ), a + 3*b )
-        self.assertEqual( solve.normalised_constraint_for( 6*b - 2*a , a.var() ), a - 3*b )
+        self.assertEqual( solve.normalised_constraint_for( 2*a + 6*b , a ), a + 3*b )
+        self.assertEqual( solve.normalised_constraint_for( 6*b - 2*a , a ), a - 3*b )
 
     def test_reduce_constraint_by_equ_at_var(self):
         a = pylogram.Var('a')
         b = pylogram.Var('b')
-        self.assertEqual( solve.reduce_constraint_by_equ_for_var( (2*a+b==0), (b==-1), b.var() ), (2*a==1) )
-        self.assertEqual( solve.reduce_constraint_by_equ_for_var( (b==-1), (a+b==0), a.var() ), (b==-1) )
+        self.assertEqual( solve.reduce_constraint_by_equ_for_var( (2*a+b==0), (b==-1), b ), (2*a==1) )
+        self.assertEqual( solve.reduce_constraint_by_equ_for_var( (b==-1), (a+b==0), a ), (b==-1) )
         
     def test_canonical(self):
         a = pylogram.Var('a')
@@ -128,7 +128,7 @@ class TestPylogram(unittest.TestCase):
         self.assertEqual( system.evaluate( 3) , 3 )
         self.assertEqual( system.evaluate( 3*a +2 -2*a -a ) , 2 )
         self.assertTrue( (a-a).is_tautologically_zero() )
-        self.assertFalse( a.is_tautologically_zero() )
+        self.assertFalse( (a+0).is_tautologically_zero() )
         self.assertTrue( pylogram.Expr(0).is_tautologically_zero() )
         self.assertRaises( pylogram.NormaliseError, system.evaluate, pylogram.Equ(a,b) )
         self.assertTrue( pylogram.Equ( a, a ) )
@@ -190,8 +190,8 @@ class TestPylogram(unittest.TestCase):
         system2 = pylogram.System()
 
         # Not necessary for real code, but test results expect this order
-        self.assertTrue( hash(a.var()) < hash(b.var()) )
-        self.assertTrue( list({ a.var():2, b.var():1 }.keys())[0] is a.var() )
+        self.assertTrue( hash(a) < hash(b) )
+        self.assertTrue( list({ a:2, b:1 }.keys())[0] is a )
 
         # Check we can apply constraints, including duplicates
         system.constrain( b == a * 2 )
@@ -200,8 +200,8 @@ class TestPylogram(unittest.TestCase):
         
         system2.constrain( a == 1 )
 
-        self.assertEqual( system2.variables(), {a.var()} )
-        self.assertEqual( system.variables(), {a.var(),b.var()} )
+        self.assertEqual( system2.variables(), {a} )
+        self.assertEqual( system.variables(), {a,b} )
 
         self.assertFalse( system.solved() )
         self.assertIsNone( system.evaluate(a), None )
