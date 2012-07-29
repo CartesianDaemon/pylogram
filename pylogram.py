@@ -29,6 +29,7 @@ class Var:
         self._name = name or "var_" + str(Var._next_var_idx)
         self._idx = Var._next_var_idx
         Var._next_var_idx +=1
+        self._cached_val_str = "" # Used for debug repr only
 
     def __eq__      (self,other):  return Expr(self).__eq__     (other) # if not is_var(other) else id(self)==id(other)
     def __setitem__ (self,pos,val):return Expr(self).__setitem__(pos,val)
@@ -46,10 +47,11 @@ class Var:
         return self._idx
 
     def __repr__(self):
-        return "Var('" + self._name + "')"
+        # avoid calculating answer here
+        return "Var<" + self._name + "=" +self._cached_val_str + ">" 
 
     def __str__(self):
-        return str(self.val()) if self.is_def(system) else self._name
+        return str(self.val()) if self.is_def(default_sys()) else self._name
 
     def name(self):
         return self._name
@@ -62,6 +64,7 @@ class Var:
         return self.evaluate(self, _default_sys)
         
     def evaluate(self, system):
+        if system is default_sys(): self._cached_val_str = str( system._evaluate_var(self) )
         return system._evaluate_var(self)
 
 class Varset():
@@ -193,7 +196,7 @@ class EquZero:
         elif self.is_contradiction():
             return False
         else:
-            return self._zero_expr.variables() in default_sys().variables() and default_sys().evaluate(self)
+            return self._zero_expr.variables() < default_sys().variables() and default_sys().evaluate(self)
     
     def __add__ (self, other): assert is_equ(other); return EquZero( self._zero_expr + other._zero_expr )
     def __sub__ (self, other): assert is_equ(other); return EquZero( self._zero_expr - other._zero_expr )

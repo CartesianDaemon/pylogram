@@ -82,8 +82,8 @@ class TestPylogram(unittest.TestCase):
         varset.b [:]= 1
         self.assertEqual( pylogram.evaluate(varset.a), 2 )
         self.assertEqual( pylogram.evaluate(varset.b), 1 )
-        # self.assertEquals( varset.a, 1 )
-        # self.assertEquals( varset.b, 2 )
+        self.assertEquals( varset.a, 2 )
+        self.assertEquals( varset.b, 1 )
 
     def test_syntax_constrain(self):
         system = pylogram.System()

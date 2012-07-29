@@ -14,7 +14,7 @@ system.constrain( age_at.death == age_at.sons_death + 4 )
 
 print( "A. Diophantus died at age:", system.evaluate(age_at.death) )
 
-print( "\nAnd in case you're curious\n" )
+print( "\nAnd in case you're curious, the internal workings were:\n" )
 
 for var, val in system.internals():
     print( "  His age at", var, "was", val )
