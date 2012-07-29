@@ -39,23 +39,30 @@ class Var:
 
     def __hash__(self):
         return self._idx
-        
+
     def __repr__(self):
         return "Var('" + self._name + "')"
-        
+
     def __str__(self):
+        return self._name
+
+    def name(self):
         return self._name
         
     def evaluate(self, system):
         return system._evaluate_var(self)
 
-class _Vars():
+class Varset():
     def __init__(self):
-        self.vars = defaultdict()
+        self._vars = {}
 
     def __getattr__(self,attr):
         # Doesn't apply to special attrs
-        pass
+        if attr in self._vars:
+            return self._vars[attr]
+        else:
+            self._vars[attr] = Var(attr)
+            return self._vars[attr]
 
 class Expr:
     def __init__(self, term):

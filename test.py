@@ -172,6 +172,20 @@ class TestPylogram(unittest.TestCase):
         self.assertTrue( system.solved() )
         self.assertEqual( system.evaluate(a), 2 )
         self.assertEqual( system.evaluate(b), 1 )
+        
+    def test_variable_creation(self):
+        varset = pylogram.Varset()
+        system = pylogram.System()
+        system2 = pylogram.System()
+        self.assertEqual( varset.aaa.name() , 'aaa' )
+        system.constrain( varset.aaa == varset.bbb * 2)
+        self.assertFalse( system.solved() )
+        system.constrain( varset.bbb == 2 )
+        self.assertEqual( system.evaluate(varset.bbb), 2)
+        self.assertEqual( system.evaluate(varset.aaa), 4)
+        ccc = pylogram.Var('ccc')
+        system2.constrain( varset.aaa + ccc == 5 )
+        self.assertEqual( system2.variables(), {varset.aaa, ccc} )
 
     def test_system(self):
     
