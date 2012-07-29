@@ -300,8 +300,7 @@ class System:
         return ( (var,self.evaluate(var)) for var in variables( self._constraints ) )
 
     def _evaluate_var(self,var):
-        if var not in self.variables(): raise NormaliseError
-        return self._solution()[var] or _Undefined()
+        return var in self.variables() and self._solution()[var] or _Undefined()
 
 def undefined():
     # Note: _Undefined used internally, but we return None or 'undefined' so caller can do "if aa == 'undefined'"
