@@ -34,6 +34,11 @@ class TestBuiltins(unittest.TestCase):
             def __str__(self):
                 return "<Foo>"
         self.assertEqual( str(Foo()), "<Foo>" )
+
+    @unittest.skip
+    @unittest.expectedFailure
+    def test_fail(self):
+        self.assertEqual( 1, 2 )        
     
 class TestMatrixSolve(unittest.TestCase):
     def test_normalised_constraint(self):
@@ -83,6 +88,55 @@ class TestHelpers(unittest.TestCase):
         self.assertEqual( tuple( d.items() ), () )
 
 class TestPylogram(unittest.TestCase):
+    def test_diophantus_simple(self):
+        age_at = Struct()
+        age_at.death = pylogram.Var()
+        age_at.adolescence = pylogram.Var()
+        age_at.marriage = pylogram.Var()
+        age_at.sons_birth = pylogram.Var()
+        age_at.sons_death = pylogram.Var()
+        
+        age = age_at.death
+        sons_age = age_at.sons_death - age_at.sons_birth
+        
+        # pylogram.constrain( age_at.adolescence == age / 6                        )
+        # pylogram.constrain( age_at.puberty     == age_at.adolescence + age / 12  )
+        # pylogram.constrain( age_at.marriage    == age_at.puberty + age / 7       )
+
+        # age_at.sons_birth  [:]= age_at.marriage + 5
+        # sons_age [:]= age / 2
+        
+    def test_diophantus_constraints(self):
+        age_at = Struct()
+        # age_at.death = pylogram.Var()
+        # age_at.adolescence = pylogram.Var()
+        # age_at.marriage = pylogram.Var()
+        # age_at.sons_birth = pylogram.Var()
+        # age_at.sons_death = pylogram.Var()
+        # 
+        # age = age_at.death
+        # sons_age = age_at.sons_death - age_at.sons_birth
+        # 
+        # pylogram.constrain( age_at.adolescence == age / 6                        )
+        # pylogram.constrain( age_at.puberty     == age_at.adolescence + age / 12  )
+        # pylogram.constrain( age_at.marriage    == age_at.puberty + age / 7       )
+        # 
+        # # age_at.sons_birth  [:]= age_at.marriage + 5
+        # # sons_age [:]= age / 2
+    
+    def test_diophantus_square_equals(self):
+        age_at = pylogram.Varset()
+        # 
+        # age = age_at.death
+        # sons_age = age_at.sons_death - age_at.sons_birth
+        # 
+        # age_at.adolescence [:]= age / 6
+        # age_at.puberty     [:]= age_at.adolescence + age / 12
+        # age_at.marriage    [:]= age_at.puberty + age / 7
+        # 
+        # # age_at.sons_birth  [:]= age_at.marriage + 5
+        # # sons_age [:]= age / 2
+        
     def test_undefined(self):
         undef = pylogram._Undefined()
         self.assertIs( undef, undef ) 
