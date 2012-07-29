@@ -1,5 +1,7 @@
+# Pylogram libraries
 import pylogram
 from pylogram import constrain, Contradiction, Var
+from helpers import *
 
 def is_obj(obj):
     return isinstance(obj,Obj)
@@ -22,7 +24,7 @@ class Obj:
         return self._vars[attr]
         
     def __eq__(self,other):
-        return is_obj(other) and all( a==b for a,b in zip(self._vars.values(),other._vars.values()) )
+        return is_obj(other) and self._vars.keys() == other._vars.keys() and undef_eq(self._vars.values(),other._vars.values())
 
     def constrain_equal(self,other):
         assert is_obj(other)

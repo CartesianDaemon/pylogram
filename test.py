@@ -39,6 +39,9 @@ class TestBuiltins(unittest.TestCase):
         self.assertEqual( 1, 2 )        
     
 class TestMatrixSolve(unittest.TestCase):
+    def setUp(self):
+        pylogram.reset_internals()
+        
     def test_normalised_constraint(self):
         a = pylogram.Var('a')
         b = pylogram.Var('b')
@@ -72,6 +75,9 @@ class TestMatrixSolve(unittest.TestCase):
         self.assertRaises( pylogram.Contradiction, canonical, [ a==b, a==-b, a==1 ] )
 
 class TestHelpers(unittest.TestCase):
+    def setUp(self):
+        pylogram.reset_internals()
+        
     def test_nonzero_dict(self):
         d = nonzero_dict(); self.assertEqual( len(d), 0 )
         d[5] = d[5] + 1; self.assertEqual( len(d), 1 ); self.assertEqual( d.keys(), {5} )
@@ -84,7 +90,36 @@ class TestHelpers(unittest.TestCase):
         d[0] = 0
         self.assertEqual( tuple( d.values() ), () )
         self.assertEqual( tuple( d.items() ), () )
+    
+    def test_reduce_undef_truthvals(self):
+        a = pylogram.Var('a')
+        b = pylogram.Var('b')
+        self.assertEqual( True & pylogram._Undefined() , pylogram.undefined() )
+        self.assertEqual( False & pylogram._Undefined(), False )
+        self.assertEqual( pylogram._Undefined() & True,  pylogram.undefined() )
+        self.assertEqual( pylogram._Undefined() & False, False)
+        self.assertEqual( pylogram._Undefined() & pylogram._Undefined(), pylogram.undefined() )
+        self.assertEqual( pylogram._Undefined() & pylogram._Undefined() & pylogram._Undefined(), pylogram.undefined() )
 
+        self.assertEqual( (a==a).evaluate(), True )
+        self.assertEqual( (a==b).evaluate(), pylogram.undefined() )
+        self.assertEqual( (a-a==1).evaluate(), False )
+        self.assertEqual( (a==a) & (a==a), True )
+        self.assertEqual( (a==a) & (a==b), pylogram.undefined() )
+        self.assertEqual( (a==a) & (a-a==1), False )
+        
+        self.assertEquals(pylogram._Undefined() & (a==b), pylogram.undefined())
+
+    def test_more_reduce_undef_truthvals(self):
+        a = pylogram.Var('a')
+        b = pylogram.Var('b')
+        self.assertEqual( undef_eq([a,1,b],[a,1,b]), True )
+        self.assertEqual( undef_eq([a,1,b],[a,a,b]), pylogram.undefined() )
+        self.assertEqual( undef_eq([a,a,b],[b,b,b]), pylogram.undefined() )
+        self.assertEqual( undef_eq([a,a,0],[b,b,1]), False )
+        self.assertEqual( undef_eq([a,1,1],[a,1,0]), False )
+        self.assertEqual( undef_eq([a,a,1],[a,1,0]), False )
+        
 class TestPylogram(unittest.TestCase):
     def setUp(self):
         pylogram.reset_internals()
@@ -381,6 +416,28 @@ class TestDraw(unittest.TestCase):
         self.assertEqual( pt1.y, 6 )
         self.assertEqual( pt2.x, 3 )
         self.assertEqual( pt2.y, 6 )
+        
+    def test_points(self):
+        p1 = Point()
+        p2 = p1 + Point(1,1)
+        p3 = p2 + Point(3,3)
+        p3 [:] = Point(4,4)
+        self.assertTrue( pylogram.solved() )
+        self.assertEqual( p1.x, 0 )
+        self.assertEqual( p1.y, 0 )
+        self.assertEqual( p1, Point(0,0) )  
+        
+    def test_undef(self):
+        p1 = Point()
+        p1.x = 3
+        self.assertEqual( len(pylogram.constraints()), 1 )
+        self.assertEqual( pylogram.evaluate(p1.x), 3 )
+        self.assertEqual( pylogram.evaluate(p1.x==3), True )
+        self.assertTrue( bool(p1.x==3) )
+        self.assertFalse( p1.y.is_def() )
+        self.assertEqual( p1==Point(3,3), pylogram.undefined() )
+        self.assertEqual( p1==Point(0,0), False )
+        #self.assertEqual( p1==Point(), pylogram.undefined() )
         
     def test_lollypop(self):
         class Lollypop:

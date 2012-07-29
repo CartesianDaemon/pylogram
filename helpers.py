@@ -38,6 +38,12 @@ def count( it ):
 def variables(constraints):
     return set().union( * ( equ.variables() for equ in constraints ) )
 
-    
 def ignore(*args):
     pass
+
+def undef_eq(list1, list2):
+    ret = True
+    for a,b in zip(list1,list2):
+        ret = ret & (a==b)
+        # if ret==False: return False
+    return ret # True or _Undefined()

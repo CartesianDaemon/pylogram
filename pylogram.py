@@ -29,6 +29,8 @@ def is_def(val): return not is_undef(val)
 def is_num(term):  return isinstance(term,Number) # Any built-in constant type, eg. int, float or frac, but not Var instances
 def is_evaluatable(term): return is_equ(term) or is_expr(term)
 def is_frac(term): return isinstance(term,Fraction)
+def is_tribool(val): return isinstance(val,bool) or is_undef(val)
+def is_bool(val): return isinstance(val,bool)
 
 class Var:
     _next_var_idx = 0 # Used for debugging to make variables appear in hashes in expected order
@@ -229,20 +231,26 @@ class EquZero:
         
     def __bool__(self):
         # For constraints applied to the global default system eg. "a[:]=2", can be used directly eg. "a==2" is True
-        # For constraints applied to a specific system eg. "sys.constrain(a*2==2)", only checks for tautology, eg. "a==a" is True
-        # but "a==b" is false regardless of the values of a and b in sys. To compare actual values, use sys.evaluate(a==1)
+        # For constraints applied to a specific system eg. "sys.constrain(a*2==2)", checks for tautology, eg. "a==a" is True
+        # To compare actual values, use sys.evaluate(a==1).
         if self.is_tautology():
             return True
-        elif self.is_contradiction():
-            return False
         else:
-            return self._zero_expr.variables() < default_sys().variables() and default_sys().evaluate(self)
+            # For backwards compatibility return True if evaluates to true, else false if Undefined or False
+            # In fact, we should stop using Equs for this.
+            # Would like to return _Undefined(), but Python doesn't support it
+            return self.evaluate()
+            # return False
     
     def __add__ (self, other): assert is_equ(other); return EquZero( self._zero_expr + other._zero_expr )
     def __sub__ (self, other): assert is_equ(other); return EquZero( self._zero_expr - other._zero_expr )
     def __mul__ (self, other): assert is_equ(other); return EquZero( self._zero_expr * other )
     def __rmul__(self, other): assert is_num(other); return EquZero( self._zero_expr * other )
     def __truediv__ (self, other): assert is_num(other); return EquZero( self._zero_expr / other )
+    def __or__(self,other): return self.evaluate() | other
+    def __ror__(self,other): return other | self.evaluate()
+    def __and__(self,other): return self.evaluate() & evaluate(other)
+    def __rand__(self,other): return evaluate(other) & self.evaluate()
     
     def __eq__(self,other):
         # Test for equivalance between equations,
@@ -264,6 +272,7 @@ class EquZero:
         return - self._zero_expr.const() / self._zero_expr.coefficient(var)
         
     def evaluate(self, system = None):
+        # Will return True, False, or undefined
         val = self._zero_expr.evaluate(system)
         return (val) if is_undef(val) else (val==0)
         
@@ -306,8 +315,8 @@ class System:
             self._orig_constraints.append(equ)
             if equ.is_contradiction(): raise Contradiction
             self._constraints.append(equ)
-            self.throw_if_contradictions()
-            #self._constraints = 
+            #self.throw_if_contradictions()
+            self._constraints = self._solution().constraints()
         
     def constraints(self):
         return self._constraints
@@ -322,13 +331,14 @@ class System:
         return variables(self._constraints)
     
     def evaluate(self,evaluand):
-        if is_bare_term(evaluand):
-            evaluand = Expr(evaluand)
-        return evaluand.evaluate(self)
-        # if evaluand.is_def(self):
-        #     return evaluand.evaluate(self)
-        # else:
-        #     return undefined()
+        if is_tribool(evaluand):
+            return evaluand # Enabled sys.evaluate( 1==2 ). Very helpful but I'm worried it'll break something
+        elif is_num(evaluand):
+            # Numbers and Equ must be treated differently, so we need is_num() or is_equ() but not both
+            # Everything else can go in either Expr(v).evaluate() or v.evaluate()
+            return evaluand 
+        else:
+            return evaluand.evaluate(self)
 
     def _solution(self):
         return canonical( self._constraints, print_steps = _solve_debug_print, undef = _Undefined() )
@@ -353,6 +363,8 @@ def default_sys(): return _default_sys
 def constrain(*args): return default_sys().constrain( *args )
 def evaluate(e):      return default_sys().evaluate( e )
 def internals():      return default_sys().variables()
+def solved():         return default_sys().solved()
+def constraints():   return default_sys().constraints()
 
 def reset_internals():
     # Used for testing systemwide constraints multiple times
@@ -373,3 +385,7 @@ class _Undefined:
     def __rmul__(self,other): return 0 if other==0 else self
     def __repr__(self): return "_Undefined"
     def __str__(self): return str(undefined())
+    def __or__  (self, other): return True if other else self
+    def __ror__ (self, other): return True if other else self
+    def __and__ (self, other): return False if evaluate(other)==False else _Undefined()
+    def __rand__(self, other): return False if evaluate(other)==False else _Undefined()
