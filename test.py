@@ -194,7 +194,7 @@ class TestPylogram(unittest.TestCase):
         varset.b [:]= 1
         self._test_evaluates_to( varset.b, 1 )
         self._test_evaluates_to( varset.a, 2 )
-        self.assertRaises( pylogram.Contradiction, varset.b.constrain, 2 )
+        self.assertRaises( pylogram.Contradiction, varset.b.constrain_equal, 2 )
 
     def test_syntax_constrain(self):
         system = pylogram.System()
@@ -345,5 +345,26 @@ class TestPylogram(unittest.TestCase):
         a == 2 
         system.constrain( b == a * 2 )
 
+from pylogram_draw import *
+
+class TestDraw(unittest.TestCase):
+    def setUp(self):
+        pylogram.reset_internals()
+        
+    def test_ints(self):
+        obj1 = Obj()
+        obj1.x = 1
+        self.assertTrue( isinstance( obj1.x, Number) )
+        self.assertEqual( obj1.x, 1 )
+        with self.assertRaises(Contradiction): obj1.x = 2
+     
+    def test_obj(self):
+        obj1 = Obj()
+        obj1.x = Var()
+        obj1.y = Var()
+        obj1.x = obj1.y # Create constraint
+        obj1.x = 2
+        self.assertEqual( obj1.y, 2)
+        
 if __name__ == '__main__':
     unittest.main()

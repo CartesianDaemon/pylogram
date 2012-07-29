@@ -1,5 +1,3 @@
-# Usually import Var and Obj only
-
 # Standard libraries
 from numbers import Number
 from fractions import Fraction
@@ -15,9 +13,11 @@ from exceptions import *
 
 # Possible syntaxes (will be simplified):
 #
-# constrain( a==2*b )
-# a [:]= 2*b
-# 
+# constrain( a==2*b )    # clear, but I hate the superfluous bracket at the right
+# a [:]= 2*b             # too cute, but precedence is bad if a becomes a * b as [:]= applies to b only
+# let| a==2*b            # ????
+# a ~ b                  # If this were "=" I'd be happy, but it's not clear enough this is DOING something
+# obj.a = obj.b          # In obj setattr function. Weird, but beautiful if we're happy to always be members of objects
 
 def is_var(val): return isinstance(val,Var)
 def is_bare_term(val):return isinstance(val,Number) or isinstance(val,Var)
@@ -38,18 +38,18 @@ class Var:
         Var._next_var_idx +=1
         self._cached_val_str = "" # Used for debug repr only
 
-    def __eq__      (self,other):  return Expr(self).__eq__     (other) # if not is_var(other) else id(self)==id(other)
-    def __setitem__ (self,pos,val):return Expr(self).__setitem__(pos,val)
-    def constrain   (self,rhs):    return Expr(self).constrain  (rhs)
-    def __add__     (self,other):   return Expr(self).__add__    (other)
-    def __mul__     (self,other):   return Expr(self).__mul__    (other)
-    def __sub__     (self,other):   return Expr(self).__sub__    (other)
-    def __rsub__    (self,other):   return Expr(self).__rsub__   (other)
-    def __radd__    (self,other):   return Expr(self).__radd__   (other)
-    def __rmul__    (self,other):   return Expr(self).__rmul__   (other)
-    def __truediv__ (self,other):   return Expr(self).__truediv__(other)
-    def __neg__     (self):        return Expr(self).__neg__()
-    def __pos__     (self):        return Expr(self).__pos__()
+    def __eq__         (self,other):  return Expr(self).__eq__     (other) # if not is_var(other) else id(self)==id(other)
+    def __setitem__    (self,pos,val):return Expr(self).__setitem__(pos,val)
+    def constrain_equal(self,rhs):    return Expr(self).constrain_equal  (rhs)
+    def __add__        (self,other):   return Expr(self).__add__    (other)
+    def __mul__        (self,other):   return Expr(self).__mul__    (other)
+    def __sub__        (self,other):   return Expr(self).__sub__    (other)
+    def __rsub__       (self,other):   return Expr(self).__rsub__   (other)
+    def __radd__       (self,other):   return Expr(self).__radd__   (other)
+    def __rmul__       (self,other):   return Expr(self).__rmul__   (other)
+    def __truediv__    (self,other):   return Expr(self).__truediv__(other)
+    def __neg__        (self):        return Expr(self).__neg__()
+    def __pos__        (self):        return Expr(self).__pos__()
 
     def __hash__(self):
         return self._idx
@@ -133,10 +133,10 @@ class Expr:
     def __setitem__(self, emptyslice, rhs):
         # Support "a [:]= b" syntax
         assert emptyslice == slice(None, None, None)
-        self.constrain(rhs)
+        self.constrain_equal(rhs)
         return Equ(self,rhs)
     
-    def constrain(self, rhs):
+    def constrain_equal(self, rhs):
         default_sys().constrain( Equ( self, rhs ) )
         
     def var(self):
@@ -370,6 +370,3 @@ class _Undefined:
     def __rmul__(self,other): return 0 if other==0 else self
     def __repr__(self): return "_Undefined"
     def __str__(self): return str(undefined())
-
-class Obj:
-    pass

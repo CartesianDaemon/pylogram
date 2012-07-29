@@ -1,7 +1,7 @@
 # Not implemented yet
 
-# from pylogram_draw import *
-# 
+from pylogram_draw import *
+ 
 # class Lollypop:
 #     def __init__(self):
 #         stick = Line()
