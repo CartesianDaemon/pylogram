@@ -97,11 +97,12 @@ class TestPylogram(unittest.TestCase):
 
     def test_syntax_square_equals(self):
         varset = pylogram.Varset()
-        # self.assertEqual( varset.a.evaluate(), 'undefined' )
+        self.assertEqual( pylogram.evaluate(varset.a), pylogram.undefined() )
         # self.assertEqual( str(varset.a), 'a' )
         # self.assertEqual( varset.a.evaluate(), 'undefined' )
         # self.assertFalse( varset.a.is_def() )
         varset.a [:]= 2 * varset.b
+        self.assertEqual( pylogram.evaluate(varset.a), pylogram.undefined() )
         #self.assertEqual( str(varset.a), 'a' )
         #self.assertEqual( varset.a.evaluate(), 'undefined' )
         #self.assertFalse( varset.a.is_def() )
