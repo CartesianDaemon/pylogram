@@ -2,7 +2,7 @@
 from helpers import *
 from exceptions import *
 
-def solve_constraints(orig_constraints, _=None, print_steps=ignore, undef=None):
+def solve_constraints(orig_constraints, print_steps, undef):
     vars = variables(orig_constraints)
     cncl = variable_constraints( orig_constraints, vars, print_steps )
     return { var : (cncl[var].solve_for_var(var) if var in cncl and cncl[var].solvable() else undef) for var in vars }

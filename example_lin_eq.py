@@ -1,10 +1,6 @@
-import pylogram
+from pylogram import constrain, vars
 
-vars = pylogram.Varset()
-
-eq1 =    vars.a + vars.b   == 2
-eq2 =  2*vars.a + vars.b/3 == -7
-
-pylogram.constrain( eq1, eq2 )
+constrain(   vars.a + vars.b   == 2
+constrain( 2*vars.a + vars.b/3 == -7
 
 print( "a , b =", vars.a, ",", vars.b )

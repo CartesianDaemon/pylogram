@@ -307,7 +307,7 @@ class System:
         self._solution()
         
     def solved(self):
-        return not any( val is None for val in self._solution().values() )
+        return all( is_def(val) for val in self._solution().values() )
     
     def variables(self):
         return variables(self._constraints)
@@ -334,6 +334,8 @@ def undefined():
         
 _default_sys = System()
 _solve_debug_print = ignore # Used for debugging
+
+vars = Varset() # For convenience, one we can import, even though we can define variables in other ways
 
 def default_sys(): return _default_sys
 
