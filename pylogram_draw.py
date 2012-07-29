@@ -21,14 +21,20 @@ class Obj:
     def constrain_equal(self,other):
         assert is_obj(other)
         assert self._vars.keys() == other._vars.keys()
-        for a,b in zip():
+        for a,b in zip(self._vars.values(),other._vars.values()):
             if is_obj(a):
                 a.constrain_equal(b)
             else:
-                Expr(a).constrain_equal(b)
+                pylogram.Expr(a).constrain_equal(b)
 
     def __setitem__(self, emptyslice, rhs):
         # Support "a [:]= b" syntax
         assert emptyslice == slice(None, None, None)
         self.constrain_equal(rhs)
-        return Equ(self,rhs)
+
+class Point(Obj):
+    def __init__(self):
+        super().__init__()
+        self.x = Var()
+        self.y = Var()
+

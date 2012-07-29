@@ -366,5 +366,20 @@ class TestDraw(unittest.TestCase):
         obj1.x = 2
         self.assertEqual( obj1.y, 2)
         
+    def test_obj_assignment(self):
+        pt1 = Point()
+        pt2 = Point()
+        pt1.x = 3
+        self.assertEqual( len(pylogram.default_sys().constraints()), 1 )
+        pt2.y = pt2.x * 2
+        self.assertEqual( len(pylogram.default_sys().constraints()), 2 )
+        pt2 [:]= pt1
+        self.assertEqual( len(pylogram.default_sys().constraints()), 4 )
+        self.assertTrue( pylogram.default_sys().solved() )
+        self.assertEqual( pt1.x, 3 )
+        self.assertEqual( pt1.y, 6 )
+        self.assertEqual( pt2.x, 3 )
+        self.assertEqual( pt2.y, 6 )
+        
 if __name__ == '__main__':
     unittest.main()
