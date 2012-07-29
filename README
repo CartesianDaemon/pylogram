@@ -1,13 +1,13 @@
 pylogram
 ========
 
-A very simple declarative linear equation solver and drawing package.
-
-A reimplementation of Mark Dominus' linogram, described in:
+A very simple declarative linear equation solver and drawing package. A reimplementation of Mark Dominus' linogram, described in:
 
  Several blog posts (reverse order) at http://blog.plover.com/linogram/
  Source code on github at https://github.com/mjdominus/Linogram
  Originally developed in the book Higher Order Perl (http://hop.perl.plover.com/book/)
+
+In most programming languages you can't assign to expressions: 2+3=x doesn't work. But if x is a pylogram Var x becomes equal to 2+3, unless that conflicts with a previous expression, in which case a Contradiction exception is thrown.
 
 An example of use to solve a set of linear equations would be:
  

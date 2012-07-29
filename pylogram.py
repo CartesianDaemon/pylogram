@@ -4,7 +4,7 @@ from fractions import Fraction
 
 # Pylogram libraries
 from helpers import *
-from solve import solve_constraints
+from solve import canonical
 from exceptions import *
 
 # WARNING: Changed to primarily use global a[:]=b instead of system.constrain( a==b )
@@ -38,8 +38,8 @@ class Var:
         Var._next_var_idx +=1
         self._cached_val_str = "" # Used for debug repr only
 
-    def __eq__         (self,other):  return Expr(self).__eq__     (other) # if not is_var(other) else id(self)==id(other)
-    def __setitem__    (self,pos,val):return Expr(self).__setitem__(pos,val)
+    def __eq__         (self,other):  return Expr(self).__eq__           (other) # if not is_var(other) else id(self)==id(other)
+    def __setitem__    (self,pos,val):return Expr(self).__setitem__      (pos,val)
     def constrain_equal(self,rhs):    return Expr(self).constrain_equal  (rhs)
     def __add__        (self,other):   return Expr(self).__add__    (other)
     def __mul__        (self,other):   return Expr(self).__mul__    (other)
@@ -291,6 +291,7 @@ def Equ(lhs,rhs):
 class System:
     def __init__(self, *constraints):
         self._constraints = list(constraints)
+        self._orig_constraints = list(constraints)
         
     def try_constrain(self,equ):
         try:
@@ -302,9 +303,11 @@ class System:
     def constrain(self,*args):
         for equ in args:
             assert is_equ(equ)
-            self._constraints.append(equ)
+            self._orig_constraints.append(equ)
             if equ.is_contradiction(): raise Contradiction
+            self._constraints.append(equ)
             self.throw_if_contradictions()
+            #self._constraints = 
         
     def constraints(self):
         return self._constraints
@@ -328,7 +331,7 @@ class System:
         #     return undefined()
 
     def _solution(self):
-        return solve_constraints( self._constraints, print_steps = _solve_debug_print, undef = _Undefined() )
+        return canonical( self._constraints, print_steps = _solve_debug_print, undef = _Undefined() ).var_values()
         
     def _evaluate_var(self,var):
         return self._solution().get( var, _Undefined() )

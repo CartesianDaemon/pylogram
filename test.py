@@ -8,6 +8,7 @@ from fractions import Fraction
 # Pylogram libraries
 import pylogram
 import solve
+from solve import canonical
 from helpers import *
 
 class TestBuiltins(unittest.TestCase):
@@ -58,17 +59,17 @@ class TestMatrixSolve(unittest.TestCase):
         variables_ab = (a+b).variables()
         variables_abc = (a+b+c).variables()
         variables_abcd = (a+b+c+d).variables()
-        self.assertEqual( solve.canonical_equs( [ 2*a==1 ], variables_ab ), [ a==0.5 ] )
-        self.assertEqual( solve.canonical_equs( [ 2*a==1, 1*b==0 ], variables_ab ), [ a==0.5, b==0 ] )
-        self.assertEqual( solve.canonical_equs( [ 2*a==1, 1*b==0 ], variables_abc ), [ a==0.5, b==0 ] )
-        self.assertEqual( solve.canonical_equs( [ 2*a+b==5, a+b==4 ], variables_abc ), [ a==1, b==3 ] )
-        self.assertRaises( pylogram.Contradiction, solve.canonical_equs, [ a==1, a==2 ], variables_abc )
-        self.assertRaises( pylogram.Contradiction, solve.canonical_equs, [ a==b, a==-b, a==1 ], variables_abc )
-        self.assertEqual( solve.canonical_equs( [ a==1, a==1 ], variables_ab ), [ a==1 ] )
-        self.assertEqual( solve.canonical_equs( [ 3*a==3, 7*a==7 ], variables_ab ), [ a==1 ] )
-        self.assertEqual( solve.canonical_equs( [ 2*a+2*c==6, 3*a+3*b==6 ], variables_abc ), [ a+c==3, b-c==-1 ] )
-        self.assertEqual( solve.canonical_equs( [ a+b+c+d==1, a+b-c-d==2 ], variables_abcd ), [ a+b==1.5, c+d==-0.5 ] )
-        self.assertEqual( solve.canonical_equs( [ a+b+c+d==1,-a+b-c+d==2 ], variables_abcd ), [ c+a==-0.5, d+b==1.5 ] )
+        self.assertEqual(canonical( [ 2*a==1 ]                 ).constraints(), [ a==0.5 ] )
+        self.assertEqual(canonical( [ 2*a==1, 1*b==0 ]         ).constraints(), [ a==0.5, b==0 ] )
+        self.assertEqual(canonical( [ 2*a==1, 1*b==0 ]         ).constraints(), [ a==0.5, b==0 ] )
+        self.assertEqual(canonical( [ 2*a+b==5, a+b==4 ]       ).constraints(), [ a==1, b==3 ] )
+        self.assertEqual(canonical( [ a==1, a==1 ]             ).constraints(), [ a==1 ] )
+        self.assertEqual(canonical( [ 3*a==3, 7*a==7 ]         ).constraints(), [ a==1 ] )
+        self.assertEqual(canonical( [ 2*a+2*c==6, 3*a+3*b==6 ] ).constraints(), [ a+c==3, b-c==-1 ] )
+        self.assertEqual(canonical( [ a+b+c+d==1, a+b-c-d==2 ] ).constraints(), [ a+b==1.5, c+d==-0.5 ] )
+        self.assertEqual(canonical( [ a+b+c+d==1,-a+b-c+d==2 ] ).constraints(), [ c+a==-0.5, d+b==1.5 ] )
+        self.assertRaises( pylogram.Contradiction, canonical, [ a==1, a==2 ]        )
+        self.assertRaises( pylogram.Contradiction, canonical, [ a==b, a==-b, a==1 ] )
 
 class TestHelpers(unittest.TestCase):
     def test_nonzero_dict(self):
@@ -380,6 +381,22 @@ class TestDraw(unittest.TestCase):
         self.assertEqual( pt1.y, 6 )
         self.assertEqual( pt2.x, 3 )
         self.assertEqual( pt2.y, 6 )
+        
+    def test_lollypop(self):
+        class Lollypop:
+            def __init__(self):
+                self.stick = Line()
+                self.circ = Circle()
+                self.circ.bottom = self.stick.pt1
+                self.stick.pt1.x = self.stick.pt2.x
+                line_height = self.stick.pt2.y - self.stick.pt1.y
+                line_height [:]= self.circ.d * 2
+                self.bottom = self.stick.pt2
+                self.height = line_height + self.circ.d
+        lollypop = Lollypop()
+        lollypop.bottom = Point(0,0)
+        lollypop.height = 6
+        # self.assertEqual( lollypop.circ.center , Point(0,5) )
         
 if __name__ == '__main__':
     unittest.main()
