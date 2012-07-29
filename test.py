@@ -454,10 +454,10 @@ class TestDraw(unittest.TestCase):
                 self.bottom = self.stick.pt2
                 self.height = line_height + self.circ.d
         lollypop = Lollypop()
-        lollypop.bottom = Point(0,0)
+        lollypop.bottom = Point(1,0)
         lollypop.height = 6
-        print("\n".join( repr(x) for x in pylogram.constraints()))
-        self.assertEqual( lollypop.circ.c == Point(0,5), True )
+        # print("\n".join( repr(x) for x in pylogram.constraints()))
+        self.assertEqual( lollypop.circ.c == Point(1,-5), True )
         
 if __name__ == '__main__':
     unittest.main()
