@@ -108,7 +108,7 @@ class TestHelpers(unittest.TestCase):
         self.assertEqual( (a==a) & (a==b), pylogram.undefined() )
         self.assertEqual( (a==a) & (a-a==1), False )
         
-        self.assertEquals(pylogram._Undefined() & (a==b), pylogram.undefined())
+        self.assertEqual(pylogram._Undefined() & (a==b), pylogram.undefined())
 
     def test_more_reduce_undef_truthvals(self):
         a = pylogram.Var('a')
@@ -427,6 +427,9 @@ class TestDraw(unittest.TestCase):
         self.assertEqual( p1.y, 0 )
         self.assertEqual( p1, Point(0,0) )  
         
+    def test_circ(self):
+        pass
+        
     def test_undef(self):
         p1 = Point()
         p1.x = 3
@@ -437,13 +440,14 @@ class TestDraw(unittest.TestCase):
         self.assertFalse( p1.y.is_def() )
         self.assertEqual( p1==Point(3,3), pylogram.undefined() )
         self.assertEqual( p1==Point(0,0), False )
-        #self.assertEqual( p1==Point(), pylogram.undefined() )
+        self.assertEqual( p1==Point(), pylogram.undefined() )
         
     def test_lollypop(self):
-        class Lollypop:
+        class Lollypop(Obj):
             def __init__(self):
-                self.stick = Line()
-                self.circ = Circle()
+                super().__init__()
+                self.stick = Line('stick')
+                self.circ = Circle('ball')
                 self.circ.bottom = self.stick.pt1
                 self.stick.pt1.x = self.stick.pt2.x
                 line_height = self.stick.pt2.y - self.stick.pt1.y
@@ -453,7 +457,8 @@ class TestDraw(unittest.TestCase):
         lollypop = Lollypop()
         lollypop.bottom = Point(0,0)
         lollypop.height = 6
-        # self.assertEqual( lollypop.circ.center , Point(0,5) )
+        print("\n".join( repr(x) for x in pylogram.constraints()))
+        self.assertEqual( lollypop.circ.c == Point(0,5), True )
         
 if __name__ == '__main__':
     unittest.main()
