@@ -1,0 +1,30 @@
+pylogram
+========
+
+A very simple declarative linear equation solver and drawing package.
+
+A reimplementation of Mark Dominus' linogram, see:
+
+ Several blog posts (reverse order) at http://blog.plover.com/linogram/
+ Source code on github at https://github.com/mjdominus/Linogram
+ Originally developed in the book Higher Order Perl (http://hop.perl.plover.com/book/)
+
+An example is to solve a question like "Diophantus was a boy for one-sixth of his life. After one-twelfth more, he acquired a beard. After another one-seventh, he married. In the fifth year after his marriage his son was born. The son lived half as many as his father. Diophantus died 4 years after his son. How old was Diophantus when he died?"
+
+  import pylogram
+  
+  system = pylogram.System()
+  age_at = pylogram.Varset()
+  
+  system.constrain( age_at.death / 6 == age_at.adolescence )
+  system.constrain( age_at.puberty == age_at.adolescence + age_at.death / 12 )
+  system.constrain( age_at.marriage == age_at.puberty + age_at.death / 7 )
+  system.constrain( age_at.sons_birth == age_at.marriage + 5 )
+  system.constrain( age_at.death / 2  == age_at.sons_death - age_at.sons_birth )
+  system.constrain( age_at.death == age_at.sons_death + 4 )
+  
+  print( "A. Diophantus died at age:", system.evaluate(age_at.death) )
+
+ It is much more useful when variables are collected together in objects, eg. a line can contain three points, start, end, and middle, and the user can specify any two of them in terms of any other points on the screen, and the system automatically calculates the rest. This is not yet implemented.
+ 
+ 
