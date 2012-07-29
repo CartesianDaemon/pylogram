@@ -94,26 +94,33 @@ class TestPylogram(unittest.TestCase):
         self.assertEqual( undef * 0, 0 ) 
         self.assertEqual( 0 * undef, 0 ) 
         self.assertRaises( AttributeError, getattr, undef, '__div__' )
+        
+    def _test_is_undef(self,xxx):
+        self.assertEqual( pylogram.evaluate(xxx), pylogram.undefined() )
+        self.assertEqual( str(xxx), 'undefined' )
+        self.assertEqual( xxx.evaluate(), pylogram.undefined() )
+        self.assertEqual( str(xxx.evaluate()), 'undefined' )
+        self.assertFalse( xxx.is_def() )
+        self.assertEqual( xxx.name_or_value(), xxx.name() )
+
+    def _test_evaluates_to(self,xxx, val):
+        self.assertEqual( pylogram.evaluate(xxx), val )
+        self.assertTrue( isinstance(pylogram.evaluate(xxx), Number) )
+        self.assertEqual( xxx, val )
+        self.assertTrue( xxx.is_def() )
+        self.assertEqual( xxx.evaluate(), val )
+        self.assertEqual( xxx.val(), val )
+        self.assertEqual( str(xxx), str(val) )
+        self.assertEqual( xxx.name_or_value(), str(val) )
 
     def test_syntax_square_equals(self):
         varset = pylogram.Varset()
-        self.assertEqual( pylogram.evaluate(varset.a), pylogram.undefined() )
-        # self.assertEqual( str(varset.a), 'a' )
-        # self.assertEqual( varset.a.evaluate(), 'undefined' )
-        # self.assertFalse( varset.a.is_def() )
+        self._test_is_undef(varset.a)
         varset.a [:]= 2 * varset.b
-        self.assertEqual( pylogram.evaluate(varset.a), pylogram.undefined() )
-        #self.assertEqual( str(varset.a), 'a' )
-        #self.assertEqual( varset.a.evaluate(), 'undefined' )
-        #self.assertFalse( varset.a.is_def() )
+        self._test_is_undef(varset.a)
         varset.b [:]= 1
-        self.assertEqual( pylogram.evaluate(varset.a), 2 )
-        self.assertEqual( pylogram.evaluate(varset.b), 1 )
-        self.assertEqual( varset.a, 2 )
-        self.assertEqual( varset.b, 1 )
-        self.assertTrue( varset.a.is_def() )
-        self.assertEqual( varset.a.evaluate(), 2 )
-        self.assertEqual( varset.b.evaluate(), 1 )
+        self._test_evaluates_to( varset.b, 1 )
+        self._test_evaluates_to( varset.a, 2 )
         self.assertRaises( pylogram.Contradiction, varset.b.constrain, 2 )
 
     def test_syntax_constrain(self):

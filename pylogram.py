@@ -52,17 +52,19 @@ class Var:
         return "Var<" + self._name + "=" +self._cached_val_str + ">" 
 
     def __str__(self):
-        return str(self.val()) if self.is_def() else self._name
+        return str(self.val())
 
+    def name_or_value(self, system=None):
+        return str(self.val(system)) if self.is_def(system) else self.name()
+        
     def name(self):
         return self._name
         
     def is_def(self, system = None ):
-        if system is None: system = default_sys()
-        return self in system.variables() and is_def(system.evaluate(self))
+        return is_def(self.evaluate(system))
 
-    def val(self): # Only meaningful is assigned with module-level constrain() or [:]=
-        return self.evaluate(default_sys())
+    def val(self,system = None): # Only meaningful is assigned with module-level constrain() or [:]=
+        return self.evaluate(system)
         
     def evaluate(self, system = None):
         if system is None: system = default_sys()
@@ -287,11 +289,11 @@ class System:
     def evaluate(self,evaluand):
         if is_bare_term(evaluand):
             evaluand = Expr(evaluand)
-        assert is_evaluatable(evaluand)
-        if evaluand.is_def(self):
-            return evaluand.evaluate(self)
-        else:
-            return undefined()
+        return evaluand.evaluate(self)
+        # if evaluand.is_def(self):
+        #     return evaluand.evaluate(self)
+        # else:
+        #     return undefined()
             
     def _solution(self):
         return solve_constraints(self._constraints)
@@ -325,6 +327,8 @@ class _Undefined:
     def __rsub__(self,other): return self
     def __mul__ (self,other): return 0 if other==0 else self
     def __rmul__(self,other): return 0 if other==0 else self
+    def __repr__(self): return "_Undefined"
+    def __str__(self): return str(undefined())
 
 class Obj:
     pass
