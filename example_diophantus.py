@@ -14,9 +14,13 @@ sons_age [:]= age / 2
 
 print( " >>", age )
 
+#  >> undefined
+
 print("\nQ. OK, ok, if Diophantus also died 4 years after his son, how old was he when he died?\n")
 
 age_at.death [:]= age_at.sons_death + 4
+
+#  >> 84
 
 print( " >>", age )
 

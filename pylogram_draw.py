@@ -37,6 +37,18 @@ class Obj:
         assert emptyslice == slice(None, None, None)
         self.constrain_equal(rhs)
 
+    def sim_draw(self):
+        assert type(self) != type(Obj()) # Should be derived class, not Obj itself, else will recurse
+        for subobj in self._vars.values():
+            # TODO: Use try/except.
+            # TODO: Move whole "do this func name for each subobj" logic into separate function
+            if is_obj(subobj):
+                subobj.sim_draw()
+            else:
+                # Literals, Vars and anything else won't be drawn on screen
+                continue
+        
+
 class Point(Obj):
     def __init__(self, *args, prefix=""):
         if len(args)==0:
@@ -49,12 +61,18 @@ class Point(Obj):
     def __add__(self,other):
         assert isinstance(other,Point)
         return Point( self.x+other.x, self.y+other.y )
-
+    
+    def sim_draw(self):
+        pass
+    
 class Line(Obj):
     def __init__(self, prefix=""):
         super().__init__()
         self.pt1 = Point(prefix=prefix+".pt1")
         self.pt2 = Point(prefix=prefix+".pt2")
+
+    def sim_draw(self):
+        print( " >> Drawing line from {:},{:} to {:},{:}".format(self.pt1.x,self.pt1.y,self.pt2.x,self.pt2.y) )
         
 class Circle(Obj):
     def __init__(self, prefix=""):
@@ -65,5 +83,8 @@ class Circle(Obj):
         self.top    = self.c + Point(0,-self.r)
         self.left   = self.c + Point(-self.r, 0)
         self.right  = self.c + Point( self.r, 0)
+
+    def sim_draw(self):
+        print( " >> Drawing circle about {:},{:} with radius {:}".format(self.c.x,self.c.y,self.r) )
         
         
