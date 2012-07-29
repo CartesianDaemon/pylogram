@@ -208,7 +208,8 @@ class Expr:
         spc = " "
         coeff_reprs = [ self._format_num(coeff,var.name()) for var,coeff in self._coeffs.items() ]
         coeff_reprs.append( self._format_num(self._const) )
-        return spc.join( coeff_reprs ).strip('+ ')
+        str = spc.join( coeff_reprs )
+        return ("-" if str[0]=='-' else "") + str.strip('+ -')
         
 class EquZero:
     def __init__( self, lhs ):

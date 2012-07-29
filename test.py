@@ -106,7 +106,7 @@ class TestPylogram(unittest.TestCase):
         self.assertEqual( repr(2*a-1),"2.a - 1" )
         self.assertEqual( repr(a-b),"a - b" )
         self.assertEqual( repr(a-2*b),"a - 2.b" )
-        self.assertEqual( repr(-a+2),"- a + 2" )
+        self.assertEqual( repr(-a+2),"-a + 2" )
         self.assertEqual( repr(Fraction(1,2)*a),"a/2" )
         self.assertEqual( repr(Fraction(3,2)*a),"3.a/2" )
         
