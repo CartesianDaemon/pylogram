@@ -13,6 +13,12 @@ from exceptions import *
 # If you use system.constrain( a==b ) and then to print(a) not print(system.evaluate(a)) you will get weird results
 # Systems may eventually be deprecated, or changed to only work with "with"
 
+# Possible syntaxes (will be simplified):
+#
+# constrain( a==2*b )
+# a [:]= 2*b
+# 
+
 def is_var(val): return isinstance(val,Var)
 def is_bare_term(val):return isinstance(val,Number) or isinstance(val,Var)
 def is_term(val):return is_bare_term(val) or isinstance(val,Expr)
@@ -335,7 +341,7 @@ def undefined():
 _default_sys = System()
 _solve_debug_print = ignore # Used for debugging
 
-vars = Varset() # For convenience, one we can import, even though we can define variables in other ways
+default_vars = Varset() # For convenience, one we can import, even though we can define variables in other ways
 
 def default_sys(): return _default_sys
 
