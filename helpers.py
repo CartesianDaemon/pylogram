@@ -7,25 +7,23 @@ class Struct:
     
 DefaultArg = Struct()
         
-class nonzero_dict( defaultdict ): #TODO: Move int onto this line?
+class nonzero_dict( defaultdict ):
     def __init__(self):
-        super(nonzero_dict,self)
-        super(nonzero_dict,self).__init__(int)
+        super().__init__(int)
         
     def keys(self):
-        return { k for k,v in super(nonzero_dict,self).items() if v }
+        return { k for k,v in super().items() if v }
 
     def items(self):
-        return { (k,v) for k,v in super(nonzero_dict,self).items() if v }
+        return { (k,v) for k,v in super().items() if v }
     
     def values(self):
-        return { v for v in super(nonzero_dict,self).values() if v }
+        return { v for v in super().values() if v }
     
     def __len__(self):
         return count(self.keys())
 
     def __repr__(self):
-        # TODO: delegate to super(super(self))
         return repr(dict(self))
         
     def __bool__(self):

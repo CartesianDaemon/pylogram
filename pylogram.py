@@ -49,6 +49,14 @@ class Var:
     def evaluate(self, system):
         return system._evaluate_var(self)
 
+class _Vars():
+    def __init__(self):
+        self.vars = defaultdict()
+
+    def __getattr__(self,attr):
+        # Doesn't apply to special attrs
+        pass
+
 class Expr:
     def __init__(self, term):
         assert is_term( term )
