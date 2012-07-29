@@ -22,6 +22,7 @@ def is_undef(val): return isinstance(val, _Undefined) # Works on evaluations, no
 def is_def(val): return not is_undef(val)
 def is_num(term):  return isinstance(term,Number) # Any built-in constant type, eg. int, float or frac, but not Var instances
 def is_evaluatable(term): return is_equ(term) or is_expr(term)
+def is_frac(term): return isinstance(term,Fraction)
 
 class Var:
     _next_var_idx = 0 # Used for debugging to make variables appear in hashes in expected order
@@ -186,8 +187,28 @@ class Expr:
     def is_def(self, system):
         return is_def( self.evaluate(system) )
 
+    def _format_frac(self, frac, var_name = None):
+        return self._format_num(frac.numerator, var_name) + "/" + str(frac.denominator)
+        
+    def _form_num_with_sign(self,coeff):
+        spc = " "
+        return ( "+" if coeff>=0 else "-" ) + spc + str(abs(coeff))
+
+    def _format_num(self, coeff, var_name = None):
+        spc = " "
+        mul="."
+        if is_frac(coeff):
+            return self._format_frac(coeff, var_name)  if var_name or coeff else '' 
+        elif var_name:
+            return ( "-"+spc if coeff==-1 else "+"+spc if coeff==1 else self._form_num_with_sign(coeff)+mul ) + var_name
+        else:
+            return self._form_num_with_sign(coeff) if coeff else '' 
+        
     def __repr__(self):
-        return " + ".join( repr(coeff) + "*" + repr(var) for var, coeff in self._coeffs.items() ) + " + " + str(self._const)
+        spc = " "
+        coeff_reprs = [ self._format_num(coeff,var.name()) for var,coeff in self._coeffs.items() ]
+        coeff_reprs.append( self._format_num(self._const) )
+        return spc.join( coeff_reprs ).strip('+ ')
         
 class EquZero:
     def __init__( self, lhs ):
@@ -250,7 +271,7 @@ class EquZero:
         return -self._zero_expr.const()
         
     def __repr__(self):
-        return "{ " + repr(self._zero_expr) + " == 0 }"
+        return "{ 0 = " + repr(self._zero_expr) + " }"
 
 def Equ(lhs,rhs):
     return EquZero(lhs-rhs)

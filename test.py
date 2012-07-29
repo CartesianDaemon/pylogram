@@ -3,10 +3,7 @@
 # Standard libraries
 import unittest
 import os
-
-# Numpy libraries
-import numpy as np
-from numpy import linalg
+from fractions import Fraction
 
 # Pylogram libraries
 import pylogram
@@ -102,6 +99,17 @@ class TestPylogram(unittest.TestCase):
         v3.a [:]= 2 * v3.b
         v3.b [:]= 1
         
+    def test_expr_repr(self):
+        a = pylogram.Var('a')
+        b = pylogram.Var('b')
+        self.assertEqual( repr(a-1),"a - 1" )
+        self.assertEqual( repr(2*a-1),"2.a - 1" )
+        self.assertEqual( repr(a-b),"a - b" )
+        self.assertEqual( repr(a-2*b),"a - 2.b" )
+        self.assertEqual( repr(-a+2),"- a + 2" )
+        self.assertEqual( repr(Fraction(1,2)*a),"a/2" )
+        self.assertEqual( repr(Fraction(3,2)*a),"3.a/2" )
+        
     def test_diophantus_simple(self):
         varset = pylogram.Varset()
         varset.a [:]= 2 * varset.b
@@ -109,12 +117,12 @@ class TestPylogram(unittest.TestCase):
 
         age_at = pylogram.Varset()
         
-        pylogram._solve_debug_print = print
+        # pylogram._solve_debug_print = print
         
         # Fails with too-deep recursion if all the following is uncommented:
         # age_at.sons_birth
-        # age_at.marriage    [:]= age_at.puberty + age_at.death / 7
-        # age_at.sons_birth  [:]= age_at.marriage + 5
+        age_at.marriage    [:]= age_at.puberty + age_at.death / 7
+        age_at.sons_birth  [:]= age_at.marriage + 5
         
     def test_diophantus_constraints(self):
         age_at = Struct()

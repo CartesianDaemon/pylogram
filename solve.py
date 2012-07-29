@@ -22,7 +22,7 @@ def print_constraints( print_steps, a, b=()):
 def variable_constraints(orig_constraints,variables, print_steps=ignore):
     unused_constraints = list( orig_constraints )
     constraints = {}
-    print_steps("************************************************\n            Solving...\n*********************************\n")
+    print_steps("\n****************************************\n            Solving...\n*****************************************")
     print_steps("\nInput:")
     print_constraints(print_steps, unused_constraints)
     for var in variables:
@@ -31,10 +31,9 @@ def variable_constraints(orig_constraints,variables, print_steps=ignore):
                 break
         else:
             # variable only appeared in constraints already used, ie. is defined non-uniquely in terms of a previous var
-            print_steps("Skipping variable ", var.name(), "...")
+            print_steps("\nSkipping variable", var.name(), "...")
             continue
-        print_steps("Solving for ", var.name(), "...")
-        print_steps()
+        print_steps("\nSolving for", var.name(), ":")
         unused_constraints.remove(equ)
         equ = normalised_constraint_for( equ, var)
         for prev_var, prev_constraint in constraints.items():
