@@ -242,7 +242,7 @@ class EquZero:
         # Test for equivalance between equations,
         # ie. (a==2) == (a==2) regardless of which systems a is defined in but (a==2) != (-a==-2)
         # Used list.remove(equ) and in [equ1, equ2] == [equ1, equ2]
-        return is_equ(other) and self._zero_expr == other._zero_expr
+        return is_equ(other) and (self._zero_expr-other._zero_expr).is_null()
     
     def is_tautology(self):
         return self._zero_expr.is_null()

@@ -118,10 +118,10 @@ class TestPylogram(unittest.TestCase):
 
         age_at = pylogram.Varset()
         
-        # pylogram._solve_debug_print = print
+        #pylogram._solve_debug_print = print
         
         # Fails with too-deep recursion if all the following is uncommented because of order of variables solved for:
-        # age_at.sons_birth
+        age_at.sons_birth
         age_at.marriage    [:]= age_at.puberty + age_at.death / 7
         age_at.sons_birth  [:]= age_at.marriage + 5
         
