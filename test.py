@@ -485,7 +485,7 @@ class TestDraw(unittest.TestCase):
         lollypop.draw(canvas)
         canvas.pack()
         
-    @skip
+    @unittest.skip
     def test_display(self):
         self.test_lollypop_draw()
         mainloop()
