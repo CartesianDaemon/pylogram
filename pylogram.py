@@ -252,12 +252,12 @@ class EquZero:
             # Would like to return _Undefined(), but Python doesn't support it
             return self.evaluate()
             # return False
-    
+
     def __add__ (self, other): assert is_equ(other); return EquZero( self._zero_expr + other._zero_expr )
     def __sub__ (self, other): assert is_equ(other); return EquZero( self._zero_expr - other._zero_expr )
     def __mul__ (self, other): assert is_equ(other); return EquZero( self._zero_expr * other )
     def __rmul__(self, other): assert is_num(other); return EquZero( self._zero_expr * other )
-    def __truediv__ (self, other): assert is_num(other); return EquZero( self._zero_expr / other )
+    def __truediv__ (self, other): assert is_num(other); return EquZero( self._zero_expr * inverse_mod_n(other,self._mod) )
     def __or__(self,other): return self.evaluate() | other
     def __ror__(self,other): return other | self.evaluate()
     def __and__(self,other): return self.evaluate() & evaluate(other)
@@ -280,7 +280,8 @@ class EquZero:
         
     def solve_for_var(self, var):
         assert( self._zero_expr.variables() == {var} )
-        return - self._zero_expr.const() / self._zero_expr.coefficient(var)
+        val =  - self._zero_expr.const() * inverse_mod_n(self._zero_expr.coefficient(var),self._mod)
+        return val if self._mod is None else val % self._mod
         
     def evaluate(self, system = None):
         # Will return True, False, or undefined

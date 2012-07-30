@@ -2,6 +2,7 @@
 from numbers import Number
 from collections import defaultdict
 from itertools import zip_longest
+from fractions import Fraction
 
 class Struct:
     pass
@@ -52,6 +53,7 @@ def undef_eq(list1, list2):
     return ret # True or _Undefined()
     
 def inverse_mod_n(a, p):
+    if p is None: return Fraction(1,a)
     r = a
     d = 1
     for _ in range(p):

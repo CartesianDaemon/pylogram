@@ -136,7 +136,8 @@ class TestHelpers(unittest.TestCase):
         p = 101
         for a in range(1, p):
             inv = inverse_mod_n(a, p)
-            assert (inv * a) % p == 1
+            self.assertEqual( (inv * a) % p, 1 )
+        self.assertEqual( inverse_mod_n(570004, None), Fraction(1,570004) ) 
         
 class TestPylogram(unittest.TestCase):
     def setUp(self):
