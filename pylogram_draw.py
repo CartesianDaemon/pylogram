@@ -37,7 +37,7 @@ class Obj:
         assert emptyslice == slice(None, None, None)
         self.constrain_equal(rhs)
 
-    def sim_draw(self, str):
+    def sim_draw(self, str=""):
         return self.reduce_subobjs('sim_draw', str)
         
     def draw(sim, canvas):
@@ -73,7 +73,7 @@ class Point(Obj):
     def draw(self, canvas):
         return canvas
         
-    def sim_draw(self, str):
+    def sim_draw(self, str=""):
         return str
     
 class Line(Obj):
@@ -86,7 +86,7 @@ class Line(Obj):
         canvas.create_line(self.pt1.x,self.pt1.y,self.pt2.x,self.pt2.y)        
         return canvas
         
-    def sim_draw(self, str):
+    def sim_draw(self, str=""):
         return str + " >> Drawing line from {:},{:} to {:},{:}\n".format(self.pt1.x,self.pt1.y,self.pt2.x,self.pt2.y)
         
 class Circle(Obj):
@@ -103,8 +103,8 @@ class Circle(Obj):
         canvas.create_oval(self.c.x-r,self.c.y-r,self.c.x+r,self.c.y+r)  
         return canvas
 
-    def sim_draw(self, str):
-        return str + " >> Drawingcircle about {:},{:} with radius {:}".format(self.c.x,self.c.y,self.r)
+    def sim_draw(self, str=""):
+        return str + " >> Drawing circle about {:},{:} with radius {:}\n".format(self.c.x,self.c.y,self.r)
 
         
         

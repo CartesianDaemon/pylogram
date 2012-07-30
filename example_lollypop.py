@@ -17,7 +17,7 @@ lollypop.height = 6
 
 assert lollypop.circ.c == Point(1,-5)
 
-lollypop.sim_draw()
+print(lollypop.sim_draw())
 
 #  >> Drawing circle about 1,-5 with radius 1
 #  >> Drawing line from 1,-4 to 1,0
