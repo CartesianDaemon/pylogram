@@ -421,10 +421,14 @@ class TestPylogram(unittest.TestCase):
 
     def test_mod_eq2(self):
         vars = pylogram.Varset()
-        # equ1 =  (   vars.a + 5*vars.b == 22 ).mod=17
-        # equ2 =  ( 2*vars.a +   vars.b == -7 ).mod=17
-        # pylogram._solve_debug_print = print
-        # canonical( [equ1,equ2] )
+        equ1 =  (   vars.a + 5*vars.b == 22 ).mod(17)
+        equ2 =  ( 2*vars.a +   vars.b == -6 ).mod(17)
+        cncl = canonical( [equ1,equ2] 
+            # ,print_steps = print
+            )
+        a_val, b_val = cncl.values()
+        self.assertEqual( (a_val+5*b_val)%17 , 22%17 )
+        self.assertEqual( (2*a_val+b_val)%17 , (-6)%17 )
 
 from pylogram_draw import *
 

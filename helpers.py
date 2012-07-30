@@ -51,9 +51,13 @@ def undef_eq(list1, list2):
         ret = ret & (a==b)
         # if ret==False: return False
     return ret # True or _Undefined()
+
+def mod_n(a,p):
+    return a if p is None else a % p
     
 def inverse_mod_n(a, p):
     if p is None: return Fraction(1,a)
+    a = a % p
     r = a
     d = 1
     for _ in range(p):

@@ -47,6 +47,7 @@ class canonical:
             for prev_var, prev_constraint in constraints.items():
                 constraints[prev_var] = reduce_constraint_by_equ_for_var(prev_constraint,equ,var)
                 print_steps(" >> ", constraints[prev_var])
+            print_steps(" >> ", equ)
             for idx in range(len(unused_constraints)):
                 unused_constraints[idx] = reduce_constraint_by_equ_for_var( unused_constraints[idx], equ, var)
                 print_steps(" >> ", unused_constraints[idx])
@@ -62,6 +63,6 @@ def normalised_constraint_for(equ, var):
     return equ / equ.coefficient(var)
     
 def reduce_constraint_by_equ_for_var(constraint,equ,var):
-    assert 1 == ( equ.coefficient(var) if equ._mod is None else equ.coefficient(var) % equ._mod )
+    assert 1 == equ.coefficient(var)
     return constraint - constraint.coefficient(var) * equ
     

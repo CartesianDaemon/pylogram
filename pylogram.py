@@ -112,11 +112,12 @@ class Varset():
         return var_iter(self)
 
 class Expr:
-    def __init__(self, term):
-        assert is_term( term )
+    def __init__(self, *args):
         self._coeffs = nonzero_dict()
         self._const = 0
-        self._add_term( term )
+        for term in args:
+            assert is_term( term )
+            self._add_term( term )
 
     def __hash__(self):
         return id(self)
@@ -155,6 +156,12 @@ class Expr:
     
     def copy(self):
         return Expr(self)
+        
+    def normalised(self,mod):
+        if mod is None:
+            return self
+        else:
+            return Expr( * ( mod_n(coeff, mod) * var for var, coeff in self._coeffs.items() ) ) + mod_n(self._const,mod)
 
     def const(self):
         return self._const;
@@ -174,21 +181,21 @@ class Expr:
     def is_unique(self):
         return len(self._coeffs)==1
         
-    def is_normalised(self):
+    def is_wellformed(self):
         assert is_num(self._const)
         return all( is_var(var) and is_num(coeff) for var,coeff in self._coeffs.items() )
 
     def _mul_term(self,term):
         assert is_num(term)
         val = term
-        assert self.is_normalised()
+        assert self.is_wellformed()
         for var in self._coeffs:
             self._coeffs[var] *= val;
         self._const *= val
         return self
 
     def _add_term(self, term, coeff=1):
-        assert self.is_normalised()
+        assert self.is_wellformed()
         if is_num(term):
             self._const += term * coeff
         elif is_var(term):
@@ -237,8 +244,8 @@ class Expr:
 class EquZero:
     def __init__( self, lhs, mod = None ):
         assert not is_equ(lhs)
-        self._zero_expr = Expr(lhs)
         self._mod = mod
+        self._zero_expr = Expr(lhs).normalised(mod)
         
     def __bool__(self):
         # For constraints applied to the global default system eg. "a[:]=2", can be used directly eg. "a==2" is True
@@ -275,9 +282,8 @@ class EquZero:
         return is_equ(other) and self._mod==other._mod and (self._zero_expr-other._zero_expr).is_null()
     
     def mod(self,n):
-        equ = self.copy()
-        equ._mod = n
-        return equ
+        assert self._mod is None
+        return EquZero(self._zero_expr.copy(), mod=n)
     
     def is_tautology(self):
         return self._zero_expr.is_null()
@@ -334,7 +340,7 @@ class System:
     def constrain(self,*args, mod=None):
         for equ in args:
             assert is_equ(equ)
-            equ._mod = mod
+            equ = equ.mod(mod)
             self._orig_constraints.append(equ)
             if equ.is_contradiction(): raise Contradiction
             self._constraints.append(equ)
