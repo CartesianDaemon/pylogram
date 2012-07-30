@@ -137,7 +137,12 @@ class TestHelpers(unittest.TestCase):
         for a in range(1, p):
             inv = inverse_mod_n(a, p)
             self.assertEqual( (inv * a) % p, 1 )
-        self.assertEqual( inverse_mod_n(570004, None), Fraction(1,570004) ) 
+        self.assertEqual( inverse_mod_n(570004, None), Fraction(1,570004) )
+        self.assertEqual( inverse_mod_n(1, 5), 1 )
+        self.assertEqual( inverse_mod_n(8, 5), inverse_mod_n(3, 5) )
+        self.assertEqual( inverse_mod_n(-2, 5), inverse_mod_n(3, 5) )
+        self.assertEqual( inverse_mod_n(-1, 5), 4 )
+        inverse_mod_n(-1, 17)
         
 class TestPylogram(unittest.TestCase):
     def setUp(self):
@@ -399,6 +404,27 @@ class TestPylogram(unittest.TestCase):
         
         a == 2 
         system.constrain( b == a * 2 )
+        
+    def test_mod_eq1(self):
+        a = pylogram.Var('a')
+        equ = (a*2==3).mod(7)
+        self.assertEqual( (equ/2).coefficient(a) % 7, 1 )
+        self.assertEqual( (equ/2).rhs_constant() % 7, 5 )
+        self.assertEqual( equ.solve_for_var(a), 5 )
+        self.assertEqual( (a==5).mod(7).solve_for_var(a), 5 )
+        self.assertEqual( (a==12).mod(7).solve_for_var(a), 5 )
+        self.assertEqual( list( canonical([ (a*2==3).mod(5) ]) ), [(6*a==9).mod(5)] )
+        self.assertEqual( (a==1).mod(3), (a==1).mod(3) )
+        self.assertNotEqual( a==1, (a==1).mod(3) )
+        pylogram.constrain( a*2==3 , mod=5 )
+        self.assertEqual( a, 4)
+
+    def test_mod_eq2(self):
+        vars = pylogram.Varset()
+        # equ1 =  (   vars.a + 5*vars.b == 22 ).mod=17
+        # equ2 =  ( 2*vars.a +   vars.b == -7 ).mod=17
+        # pylogram._solve_debug_print = print
+        # canonical( [equ1,equ2] )
 
 from pylogram_draw import *
 

@@ -19,6 +19,9 @@ class canonical:
     def values(self):
         return self.var_values().values()
     
+    def __iter__(self):
+        return iter(self.constraints())
+    
     def constraints(self):
         return list(self._cncl_dict.values())
         
@@ -59,6 +62,6 @@ def normalised_constraint_for(equ, var):
     return equ / equ.coefficient(var)
     
 def reduce_constraint_by_equ_for_var(constraint,equ,var):
-    assert equ.coefficient(var)==1
+    assert 1 == ( equ.coefficient(var) if equ._mod is None else equ.coefficient(var) % equ._mod )
     return constraint - constraint.coefficient(var) * equ
     

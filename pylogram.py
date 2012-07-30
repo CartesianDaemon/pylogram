@@ -252,12 +252,17 @@ class EquZero:
             # Would like to return _Undefined(), but Python doesn't support it
             return self.evaluate()
             # return False
+            
+    @staticmethod
+    def _z(a,b):
+        assert a==b # Solver should work combining equ with different mods, but not confirmed
+        return a
 
-    def __add__ (self, other): assert is_equ(other); return EquZero( self._zero_expr + other._zero_expr )
-    def __sub__ (self, other): assert is_equ(other); return EquZero( self._zero_expr - other._zero_expr )
-    def __mul__ (self, other): assert is_equ(other); return EquZero( self._zero_expr * other )
-    def __rmul__(self, other): assert is_num(other); return EquZero( self._zero_expr * other )
-    def __truediv__ (self, other): assert is_num(other); return EquZero( self._zero_expr * inverse_mod_n(other,self._mod) )
+    def __add__ (self, other): assert is_equ(other); return EquZero(self._zero_expr+other._zero_expr, mod=self._z(self._mod,other._mod))
+    def __sub__ (self, other): assert is_equ(other); return EquZero(self._zero_expr-other._zero_expr, mod=self._z(self._mod,other._mod))
+    def __mul__ (self, other): assert is_equ(other); return EquZero(self._zero_expr*other, mod=self._mod)
+    def __rmul__(self, other): assert is_num(other); return EquZero(self._zero_expr*other, mod=self._mod)
+    def __truediv__ (self, other): assert is_num(other); return EquZero( self._zero_expr*inverse_mod_n(other,self._mod), mod=self._mod)
     def __or__(self,other): return self.evaluate() | other
     def __ror__(self,other): return other | self.evaluate()
     def __and__(self,other): return self.evaluate() & evaluate(other)
@@ -267,7 +272,12 @@ class EquZero:
         # Test for equivalance between equations,
         # ie. (a==2) == (a==2) regardless of which systems a is defined in but (a==2) != (-a==-2)
         # Used list.remove(equ) and in [equ1, equ2] == [equ1, equ2]
-        return is_equ(other) and (self._zero_expr-other._zero_expr).is_null()
+        return is_equ(other) and self._mod==other._mod and (self._zero_expr-other._zero_expr).is_null()
+    
+    def mod(self,n):
+        equ = self.copy()
+        equ._mod = n
+        return equ
     
     def is_tautology(self):
         return self._zero_expr.is_null()
@@ -280,7 +290,7 @@ class EquZero:
         
     def solve_for_var(self, var):
         assert( self._zero_expr.variables() == {var} )
-        val =  - self._zero_expr.const() * inverse_mod_n(self._zero_expr.coefficient(var),self._mod)
+        val =  self.rhs_constant() * inverse_mod_n(self._zero_expr.coefficient(var),self._mod)
         return val if self._mod is None else val % self._mod
         
     def evaluate(self, system = None):
@@ -292,7 +302,7 @@ class EquZero:
         return is_def( self.evaluate(system) )
 
     def copy(self):
-        return EquZero(self._zero_expr.copy())
+        return EquZero(self._zero_expr.copy(), mod=self._mod)
     
     def coefficient(self,variable):
         return self._zero_expr.coefficient(variable)
@@ -304,7 +314,7 @@ class EquZero:
         return -self._zero_expr.const()
         
     def __repr__(self):
-        return "{ 0 = " + repr(self._zero_expr) + " }"
+        return "{ 0 = " + repr(self._zero_expr) + (" mod" + str(self._mod) if self._mod is not None else "") + " }"
 
 def Equ(lhs,rhs):
     return EquZero(lhs-rhs)
