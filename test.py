@@ -422,7 +422,7 @@ class TestPylogram(unittest.TestCase):
     def test_mod_eq2(self):
         vars = pylogram.Varset()
         equ1 =  (   vars.a + 5*vars.b == 22 ).mod(17)
-        equ2 =  ( 2*vars.a +   vars.b == -6 ).mod(17)
+        equ2 =  ( 2*vars.a +   vars.b == -5 ).mod(17)
         cncl = canonical( [equ1,equ2] 
             # ,print_steps = print
             )
