@@ -47,5 +47,6 @@ Which gives output:
  >> Drawing circle about 1,-5 with radius
  >> Drawing line from 1,-4 to 1,0
 
-Actual drawing isn't implemented yet.
+For a linear equation from a riddle 1800 years old, see example_diophantus.py
+For a slightly longer drawing example including displaying to screen, see example_lollypop.py
  

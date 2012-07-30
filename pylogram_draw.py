@@ -1,5 +1,5 @@
 # Pylogram libraries
-import pylogram
+import pylogram as pyl
 from pylogram import constrain, Contradiction, Var
 from helpers import *
 
@@ -13,7 +13,7 @@ class Obj:
             if is_obj(self._vars[attr]):
                 self._vars[attr].constrain_equal( val )
             else:
-                pylogram.Expr(self._vars[attr]).constrain_equal( val )
+                pyl.Expr(self._vars[attr]).constrain_equal( val )
         else:
             self._vars[attr] = val
     
@@ -30,7 +30,7 @@ class Obj:
             if is_obj(a):
                 a.constrain_equal(b)
             else:
-                pylogram.Expr(a).constrain_equal(b)
+                pyl.Expr(a).constrain_equal(b)
 
     def __setitem__(self, emptyslice, rhs):
         # Support "a [:]= b" syntax
@@ -83,7 +83,10 @@ class Line(Obj):
         self.pt2 = Point(prefix=prefix+".pt2")
 
     def draw(self, canvas):
-        canvas.create_line(self.pt1.x,self.pt1.y,self.pt2.x,self.pt2.y)        
+        canvas.create_line(pyl.evaluate(self.pt1.x),
+                           pyl.evaluate(self.pt1.y),
+                           pyl.evaluate(self.pt2.x),
+                           pyl.evaluate(self.pt2.y))        
         return canvas
         
     def sim_draw(self, str=""):
@@ -100,7 +103,10 @@ class Circle(Obj):
         self.right  = self.c + Point( self.r, 0)
 
     def draw(self, canvas):
-        canvas.create_oval(self.c.x-self.r,self.c.y-self.r,self.c.x+self.r,self.c.y+self.r)  
+        canvas.create_oval(pyl.evaluate(self.c.x)-pyl.evaluate(self.r),
+                           pyl.evaluate(self.c.y)-pyl.evaluate(self.r),
+                           pyl.evaluate(self.c.x)+pyl.evaluate(self.r),
+                           pyl.evaluate(self.c.y)+pyl.evaluate(self.r))  
         return canvas
 
     def sim_draw(self, str=""):

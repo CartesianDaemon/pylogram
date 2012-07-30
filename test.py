@@ -41,13 +41,14 @@ class TestBuiltins(unittest.TestCase):
         self.assertEqual( 1, 2 )
         
     def test_tk(self):
-        master = Tk()
+        # master = Tk()
         # w = Canvas(master, width=200, height=100)
         # w.pack()
         # w.create_line(0, 0, 200, 100)
         # w.create_line(0, 100, 200, 0, fill="red", dash=(4, 4))
         # w.create_rectangle(50, 25, 150, 75, fill="blue")
         # mainloop()
+        pass
     
 class TestMatrixSolve(unittest.TestCase):
     def setUp(self):
@@ -475,16 +476,19 @@ class TestDraw(unittest.TestCase):
         self.assertEqual(output.count("line"),1)
         self.assertEqual(output.count("circle"),1)
 
-    @unittest.expectedFailure
     def test_lollypop_draw(self):
+        master = Tk()
         lollypop = self.Lollypop()
         lollypop.mid = Point(150,150)
         lollypop.height = 150
-        canvas = Canvas(Tk(), width=300, height=300)
+        canvas = Canvas(master, width=300, height=300)
         lollypop.draw(canvas)
-        if 'draw' in sys.argv:
-            canvas.pack()
-            mainloop()
+        canvas.pack()
+        
+    @skip
+    def test_display(self):
+        self.test_lollypop_draw()
+        mainloop()
         
 if __name__ == '__main__':
     unittest.main()

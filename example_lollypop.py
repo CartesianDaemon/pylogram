@@ -10,18 +10,33 @@ class Lollypop(Obj):
         line_height [:]= self.circ.d * 2
         self.bottom = self.stick.pt2
         self.height = line_height + self.circ.d
+        self.mid = self.circ.bottom
 
-lollypop = Lollypop()
-lollypop.bottom = Point(1,0)
-lollypop.height = 6
+small_lollypop = Lollypop()
+small_lollypop.bottom = Point(1,0)
+small_lollypop.height = 6
 
-assert lollypop.circ.c == Point(1,-5)
+big_lollypop = Lollypop()
+big_lollypop.mid = Point(150,150)
+big_lollypop.height = 150
 
-print(lollypop.sim_draw())
+# Example of deducing coordinates
 
-#  >> Drawing circle about 1,-5 with radius 1
-#  >> Drawing line from 1,-4 to 1,0
+assert small_lollypop.circ.c == Point(1,-5)
 
-# Not implemented yet:
+# Example of drawing to screen
 
-# lollypop.draw()
+from tkinter import *
+
+master = Tk()
+canvas = Canvas(master, width=300, height=300)
+big_lollypop.draw(canvas)
+canvas.pack()
+mainloop()
+
+# Look at how drawing happens
+
+print(big_lollypop.sim_draw())
+
+
+
