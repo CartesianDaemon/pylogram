@@ -1,11 +1,12 @@
 # Standard modules
 from numbers import Number
 from collections import defaultdict
+from itertools import zip_longest
 
 class Struct:
     pass
-    
-DefaultArg = Struct()
+
+DefaultArg = Struct
         
 class nonzero_dict( defaultdict ):
     def __init__(self):
@@ -43,7 +44,9 @@ def ignore(*args):
 
 def undef_eq(list1, list2):
     ret = True
-    for a,b in zip(list1,list2):
+    sentinel = DefaultArg()
+    for a,b in zip_longest(list1,list2):
+        if a is sentinel or b is sentinel: return False
         ret = ret & (a==b)
         # if ret==False: return False
     return ret # True or _Undefined()

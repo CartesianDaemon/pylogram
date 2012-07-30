@@ -14,6 +14,8 @@ class Obj:
                 self._vars[attr].constrain_equal( val )
             else:
                 pyl.Expr(self._vars[attr]).constrain_equal( val )
+        elif attr[0]=="_":
+            self.__dict__[attr] = val
         else:
             self._vars[attr] = val
     
@@ -55,8 +57,33 @@ class Obj:
                 # Literals, Vars and anything else won't be drawn on screen
                 continue
         return arg
-        
 
+class Array(Obj):
+    def __init__(self,N,Type):
+        # TODO: Do we want to support non-var use, eg. arr1 = Array(N); arr1.first = 1; arr1.each = arr1.prev*2
+        self.N = N
+        self._arr = [ Type() for _ in range(N) ]
+        self.first = self._arr[0]
+        self.last = self._arr[-1]
+
+    def __setitem__(self,idx,val):
+        self._arr[idx].constrain_equal(val)
+        
+    def __getitem__(self,idx):
+        return self._arr[idx]
+        
+    def adj_objs(self, n=2):
+        return ( self._arr[i:i+n] for i in range(self.N+1-n) )
+
+    def __iter__(self):
+        return iter(self._arr)
+        
+    def __repr__(self):
+        return repr(self._arr)
+        
+    def __eq__(self,other):
+        return undef_eq( self, other )
+        
 class Point(Obj):
     def __init__(self, *args, prefix=""):
         if len(args)==0:

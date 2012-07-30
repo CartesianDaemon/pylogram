@@ -395,6 +395,17 @@ class TestPylogram(unittest.TestCase):
 
 from pylogram_draw import *
 
+class TestArray(unittest.TestCase):
+    def setUp(self):
+        pylogram.reset_internals()
+        
+    def test_arr(self):
+        arr = Array(6,Var)
+        arr.first = 0
+        arr.last = 10
+        for a,b,c in arr.adj_objs(3): constrain( c-b == b-a )
+        self.assertEqual( arr , (0,2,4,6,8,10) )
+        
 class TestDraw(unittest.TestCase):
     def setUp(self):
         pylogram.reset_internals()
@@ -429,6 +440,10 @@ class TestDraw(unittest.TestCase):
         self.assertEqual( pt2.x, 3 )
         self.assertEqual( pt2.y, 6 )
         
+class TestPrimitives(unittest.TestCase):
+    def setUp(self):
+        pylogram.reset_internals()
+        
     def test_points(self):
         p1 = Point()
         p2 = p1 + Point(1,1)
@@ -453,6 +468,10 @@ class TestDraw(unittest.TestCase):
         self.assertEqual( p1==Point(3,3), pylogram.undefined() )
         self.assertEqual( p1==Point(0,0), False )
         self.assertEqual( p1==Point(), pylogram.undefined() )
+        
+class TestDraw(unittest.TestCase):
+    def setUp(self):
+        pylogram.reset_internals()
         
     class Lollypop(Obj):
         def __init__(self):
