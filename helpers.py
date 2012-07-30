@@ -50,3 +50,15 @@ def undef_eq(list1, list2):
         ret = ret & (a==b)
         # if ret==False: return False
     return ret # True or _Undefined()
+    
+def inverse_mod_n(a, p):
+    r = a
+    d = 1
+    for _ in range(p):
+        d = ((p // r + 1) * d) % p
+        r = (d * a) % p
+        if r == 1:
+            break
+    else:
+        raise ValueError('%d has no inverse mod %d' % (a, p))
+    return d

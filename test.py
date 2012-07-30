@@ -131,6 +131,12 @@ class TestHelpers(unittest.TestCase):
         self.assertEqual( undef_eq([a,a,0],[b,b,1]), False )
         self.assertEqual( undef_eq([a,1,1],[a,1,0]), False )
         self.assertEqual( undef_eq([a,a,1],[a,1,0]), False )
+
+    def inverse_mod_n(self):
+        p = 101
+        for a in range(1, p):
+            inv = inverse_mod_n(a, p)
+            assert (inv * a) % p == 1
         
 class TestPylogram(unittest.TestCase):
     def setUp(self):

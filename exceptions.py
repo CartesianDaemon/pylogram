@@ -6,3 +6,5 @@ class Contradiction(Exception):
 class NormaliseError(Exception):
     pass
 
+class PolynomialError(Exception):
+    pass

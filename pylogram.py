@@ -235,9 +235,10 @@ class Expr:
         return ("-" if str[0]=='-' else "") + str.strip('+ -')
         
 class EquZero:
-    def __init__( self, lhs ):
+    def __init__( self, lhs, mod = None ):
         assert not is_equ(lhs)
         self._zero_expr = Expr(lhs)
+        self._mod = mod
         
     def __bool__(self):
         # For constraints applied to the global default system eg. "a[:]=2", can be used directly eg. "a==2" is True
@@ -319,9 +320,10 @@ class System:
         except Contradiction:
             return False
     
-    def constrain(self,*args):
+    def constrain(self,*args, mod=None):
         for equ in args:
             assert is_equ(equ)
+            equ._mod = mod
             self._orig_constraints.append(equ)
             if equ.is_contradiction(): raise Contradiction
             self._constraints.append(equ)
@@ -370,11 +372,11 @@ def default_sys(): return _default_sys
 
 # Only use these outside the module, inside use _default_sys.blah() or default_sys().blah() directly
 
-def constrain(*args): return default_sys().constrain( *args )
-def evaluate(e):      return default_sys().evaluate( e )
-def internals():      return default_sys().variables()
-def solved():         return default_sys().solved()
-def constraints():   return default_sys().constraints()
+def constrain(*args, **kwargs): return default_sys().constrain( *args, **kwargs )
+def evaluate(e):                return default_sys().evaluate( e )
+def internals():                return default_sys().variables()
+def solved():                   return default_sys().solved()
+def constraints():              return default_sys().constraints()
 
 def reset_internals():
     # Used for testing systemwide constraints multiple times
