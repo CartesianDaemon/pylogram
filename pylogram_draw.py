@@ -38,13 +38,20 @@ class Obj:
         self.constrain_equal(rhs)
 
     def sim_draw(self):
+        return self.reduce_subobjs('sim_draw',__add__)
+        
+    def draw(sim, canvas):
+        return self.reduce_subobjs('sim_draw',ignore)
+    
+    def reduce_subobjs(self, subfunc, combine, *args):
         assert type(self) != type(Obj()) # Should be derived class, not Obj itself, else will recurse
         for subobj in self._vars.values():
             # TODO: Use try/except.
             # TODO: Move whole "do this func name for each subobj" logic into separate function
             if is_obj(subobj):
-                subobj.sim_draw()
+                getattr(subobj,subfunc)(*args)
             else:
+                # TODO: For undef and similar make this function into an "all"
                 # Literals, Vars and anything else won't be drawn on screen
                 continue
         
@@ -62,6 +69,9 @@ class Point(Obj):
         assert isinstance(other,Point)
         return Point( self.x+other.x, self.y+other.y )
     
+    def draw(self, canvas):
+        return canvas
+        
     def sim_draw(self):
         pass
     
@@ -71,6 +81,10 @@ class Line(Obj):
         self.pt1 = Point(prefix=prefix+".pt1")
         self.pt2 = Point(prefix=prefix+".pt2")
 
+    def draw(self, canvas):
+        canvas.create_line(self.pt1.x,self.pt1.y,self.pt2.x,self.pt2.y)        
+        return canvas
+        
     def sim_draw(self):
         print( " >> Drawing line from {:},{:} to {:},{:}".format(self.pt1.x,self.pt1.y,self.pt2.x,self.pt2.y) )
         
@@ -83,6 +97,10 @@ class Circle(Obj):
         self.top    = self.c + Point(0,-self.r)
         self.left   = self.c + Point(-self.r, 0)
         self.right  = self.c + Point( self.r, 0)
+
+    def draw(self, canvas):
+        canvas.create_oval(self.c.x-r,self.c.y-r,self.c.x+r,self.c.y+r)  
+        return canvas
 
     def sim_draw(self):
         print( " >> Drawing circle about {:},{:} with radius {:}".format(self.c.x,self.c.y,self.r) )
