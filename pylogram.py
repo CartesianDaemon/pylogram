@@ -121,7 +121,14 @@ class Expr:
     def __hash__(self):
         return id(self)
 
-    def __eq__  (self,other):assert is_term(other); return EquZero( self - Expr(other) )
+    def __eq__  (self,other):
+        if is_term(other):
+            return EquZero( self - Expr(other) )
+        elif other==undefined():
+            return self.is_undef()
+        else:
+            return False
+
     def __add__ (self,term): assert is_term(term); return self.copy()._add_term( term )
     def __mul__ (self,term): assert is_term(term); return self.copy()._mul_term(term)
     def __sub__ (self,term): assert is_term(term); return self + -term
@@ -195,7 +202,10 @@ class Expr:
     def evaluate(self, system):
         return self._const + sum( coeff * term.evaluate(system) for term,coeff in self._coeffs.items() )
         
-    def is_def(self, system):
+    def is_undef(self, system = None):
+        return not self.is_def(system)
+
+    def is_def(self, system = None):
         return is_def( self.evaluate(system) )
 
     def _format_frac(self, frac, var_name = None):

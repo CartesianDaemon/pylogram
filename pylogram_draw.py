@@ -59,10 +59,10 @@ class Obj:
         return arg
 
 class Array(Obj):
-    def __init__(self,N,Type):
+    def __init__(self,N,Type,prefix=""):
         # TODO: Do we want to support non-var use, eg. arr1 = Array(N); arr1.first = 1; arr1.each = arr1.prev*2
         self.N = N
-        self._arr = [ Type() for _ in range(N) ]
+        self._arr = [ Type(prefix+"["+str(idx)+"]") for idx in range(N) ]
         self.first = self._arr[0]
         self.last = self._arr[-1]
 

@@ -399,12 +399,25 @@ class TestArray(unittest.TestCase):
     def setUp(self):
         pylogram.reset_internals()
         
-    def test_arr(self):
+    def test_arr_var(self):
         arr = Array(6,Var)
         arr.first = 0
         arr.last = 10
         for a,b,c in arr.adj_objs(3): constrain( c-b == b-a )
         self.assertEqual( arr , (0,2,4,6,8,10) )
+        
+    def test_arr_circ(self):
+        arr = Array(2,Circle,"circs")
+        # arr.first.left = Point(0,Var())
+        # arr.last.right = Point(10,Var())
+        arr.first.left.x = 0
+        arr.last.right.x = 4
+        for a,b in arr.adj_objs():
+            a.right = b.left
+            a.r = b.r
+        self.assertEqual( arr[1].r, 1 )
+        self.assertFalse( arr[1].top.y.is_def() )
+        self.assertEqual( arr[1].top.y, pylogram.undefined() )
         
 class TestDraw(unittest.TestCase):
     def setUp(self):
