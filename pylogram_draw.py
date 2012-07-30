@@ -40,8 +40,8 @@ class Obj:
     def sim_draw(self, str=""):
         return self.reduce_subobjs('sim_draw', str)
         
-    def draw(sim, canvas):
-        return self.reduce_subobjs('sim_draw',canvas)
+    def draw(self, canvas):
+        return self.reduce_subobjs('draw',canvas)
     
     def reduce_subobjs(self, subfunc, arg):
         assert type(self) != type(Obj()) # Should be derived class, not Obj itself, else will recurse
@@ -100,7 +100,7 @@ class Circle(Obj):
         self.right  = self.c + Point( self.r, 0)
 
     def draw(self, canvas):
-        canvas.create_oval(self.c.x-r,self.c.y-r,self.c.x+r,self.c.y+r)  
+        canvas.create_oval(self.c.x-self.r,self.c.y-self.r,self.c.x+self.r,self.c.y+self.r)  
         return canvas
 
     def sim_draw(self, str=""):

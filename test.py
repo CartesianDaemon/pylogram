@@ -454,6 +454,7 @@ class TestDraw(unittest.TestCase):
         self.assertEqual( p1==Point(), pylogram.undefined() )
         
     def test_lollypop(self):
+    
         class Lollypop(Obj):
             def __init__(self):
                 self.stick = Line('stick')
@@ -464,6 +465,7 @@ class TestDraw(unittest.TestCase):
                 line_height [:]= self.circ.d * 2
                 self.bottom = self.stick.pt2
                 self.height = line_height + self.circ.d
+
         lollypop = Lollypop()
         lollypop.bottom = Point(1,0)
         lollypop.height = 6
@@ -472,6 +474,11 @@ class TestDraw(unittest.TestCase):
         self.assertEqual(len(output.splitlines()),2)
         self.assertEqual(output.count("line"),1)
         self.assertEqual(output.count("circle"),1)
+        canvas = Canvas(Tk(), width=100, height=100)
+        # lollypop.draw(canvas)
+        if 'draw' in sys.argv:
+            canvas.pack()
+            mainloop()
         
 if __name__ == '__main__':
     unittest.main()
