@@ -37,23 +37,24 @@ class Obj:
         assert emptyslice == slice(None, None, None)
         self.constrain_equal(rhs)
 
-    def sim_draw(self):
-        return self.reduce_subobjs('sim_draw',__add__)
+    def sim_draw(self, str):
+        return self.reduce_subobjs('sim_draw', str)
         
     def draw(sim, canvas):
-        return self.reduce_subobjs('sim_draw',ignore)
+        return self.reduce_subobjs('sim_draw',canvas)
     
-    def reduce_subobjs(self, subfunc, combine, *args):
+    def reduce_subobjs(self, subfunc, arg):
         assert type(self) != type(Obj()) # Should be derived class, not Obj itself, else will recurse
         for subobj in self._vars.values():
             # TODO: Use try/except.
             # TODO: Move whole "do this func name for each subobj" logic into separate function
             if is_obj(subobj):
-                getattr(subobj,subfunc)(*args)
+                arg = getattr(subobj,subfunc)(arg)
             else:
                 # TODO: For undef and similar make this function into an "all"
                 # Literals, Vars and anything else won't be drawn on screen
                 continue
+        return arg
         
 
 class Point(Obj):
@@ -72,8 +73,8 @@ class Point(Obj):
     def draw(self, canvas):
         return canvas
         
-    def sim_draw(self):
-        pass
+    def sim_draw(self, str):
+        return str
     
 class Line(Obj):
     def __init__(self, prefix=""):
@@ -85,8 +86,8 @@ class Line(Obj):
         canvas.create_line(self.pt1.x,self.pt1.y,self.pt2.x,self.pt2.y)        
         return canvas
         
-    def sim_draw(self):
-        print( " >> Drawing line from {:},{:} to {:},{:}".format(self.pt1.x,self.pt1.y,self.pt2.x,self.pt2.y) )
+    def sim_draw(self, str):
+        return str + " >> Drawing line from {:},{:} to {:},{:}\n".format(self.pt1.x,self.pt1.y,self.pt2.x,self.pt2.y)
         
 class Circle(Obj):
     def __init__(self, prefix=""):
@@ -102,7 +103,8 @@ class Circle(Obj):
         canvas.create_oval(self.c.x-r,self.c.y-r,self.c.x+r,self.c.y+r)  
         return canvas
 
-    def sim_draw(self):
-        print( " >> Drawing circle about {:},{:} with radius {:}".format(self.c.x,self.c.y,self.r) )
+    def sim_draw(self, str):
+        return str + " >> Drawingcircle about {:},{:} with radius {:}".format(self.c.x,self.c.y,self.r)
+
         
         

@@ -41,7 +41,7 @@ class TestBuiltins(unittest.TestCase):
         self.assertEqual( 1, 2 )
         
     def test_tk(self):
-        # master = Tk()
+        master = Tk()
         # w = Canvas(master, width=200, height=100)
         # w.pack()
         # w.create_line(0, 0, 200, 100)
