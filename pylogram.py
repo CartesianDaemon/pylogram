@@ -357,7 +357,7 @@ class System:
         return all( is_def(val) for val in self._solution().values() )
     
     def variables(self):
-        return variables(self._constraints)
+        return self._solution().variables()
     
     def evaluate(self,evaluand):
         if is_tribool(evaluand):
