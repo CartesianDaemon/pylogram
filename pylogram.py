@@ -206,7 +206,7 @@ class Expr:
             self._const += term._const
         return self
         
-    def evaluate(self, system):
+    def evaluate(self, system = None):
         return self._const + sum( coeff * term.evaluate(system) for term,coeff in self._coeffs.items() )
         
     def is_undef(self, system = None):
@@ -291,13 +291,13 @@ class EquZero:
     def is_contradiction(self):
         return self._zero_expr.is_nonnull()
     
-    def solvable(self):
-        return self._zero_expr.is_unique()
-        
-    def solve_for_var(self, var):
-        assert( self._zero_expr.variables() == {var} )
-        val =  self.rhs_constant() * inverse_mod_n(self._zero_expr.coefficient(var),self._mod)
-        return val if self._mod is None else val % self._mod
+    def solve_for_var(self, var, undef=None):
+        coeff = self._zero_expr.coefficient(var)
+        val =  (coeff*var-self._zero_expr) * inverse_mod_n(coeff,self._mod)
+        if self._zero_expr.is_unique():
+            return val.normalised(self._mod).evaluate()
+        else:
+            return undef
         
     def evaluate(self, system = None):
         # Will return True, False, or undefined

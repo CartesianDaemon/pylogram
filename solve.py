@@ -55,10 +55,7 @@ class canonical:
         self._var_values[new_var] = self._solve_var_value(new_var)
     
     def _solve_var_value(self, var):
-        if self._cncl_dict[var].solvable():
-            return self._cncl_dict[var].solve_for_var(var)
-        else:
-            return self._undef
+        return self._cncl_dict[var].solve_for_var(var, undef=self._undef)
         
 def normalised_constraint_for(equ, var):
     return equ / equ.coefficient(var)
