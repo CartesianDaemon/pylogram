@@ -68,3 +68,10 @@ def inverse_mod_n(a, p):
     else:
         raise ValueError('%d has no inverse mod %d' % (a, p))
     return d
+
+def if_raises( exception, func, *args, **kwargs):
+    try:
+        func(*args,**kwargs)
+        return True
+    except exception:
+        return False

@@ -331,11 +331,12 @@ class System:
         self._orig_constraints = list(constraints)
         
     def try_constrain(self,equ):
-        try:
-            self.constrain(equ)
-            return True
-        except Contradiction:
-            return False
+        return if_raises(Contradiction, self.constrain, equ)
+        # try:
+        #     self.constrain(equ)
+        #     return True
+        # except Contradiction:
+        #     return False
     
     def constrain(self,*args, mod=None):
         for equ in args:
