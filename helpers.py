@@ -49,7 +49,7 @@ def undef_eq(list1, list2):
     for a,b in zip_longest(list1,list2):
         if a is sentinel or b is sentinel: return False
         ret = ret & (a==b)
-        # if ret==False: return False
+        if ret==False: return False
     return ret # True or _Undefined()
 
 def mod_n(a,p):

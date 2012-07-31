@@ -293,9 +293,9 @@ class EquZero:
     
     def solve_for_var(self, var, undef=None):
         coeff = self._zero_expr.coefficient(var)
-        val =  (coeff*var-self._zero_expr) * inverse_mod_n(coeff,self._mod)
+        soln = (coeff*var-self._zero_expr) * inverse_mod_n(coeff,self._mod)
         if self._zero_expr.is_unique():
-            return val.normalised(self._mod).evaluate()
+            return soln.normalised(self._mod).evaluate()
         else:
             return undef
         
