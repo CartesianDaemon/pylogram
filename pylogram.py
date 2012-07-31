@@ -343,10 +343,16 @@ class System:
             assert is_equ(equ)
             equ = equ.mod(mod)
             self._orig_constraints.append(equ)
-            if equ.is_contradiction(): raise Contradiction
             self._constraints.append(equ)
-            #self.throw_if_contradictions()
-            self._constraints = self._solution().constraints()
+            self._constraints = self._calc_solution().constraints()
+            self._canonical.add_constraint(equ)
+    
+    def _calc_solution(self):
+        return canonical( self._constraints, print_steps = _solve_debug_print, undef = _Undefined() )
+        
+    def _solution(self):
+        #return self._calc_solution
+        return self._canonical
         
     def constraints(self):
         return self._constraints
@@ -370,9 +376,6 @@ class System:
         else:
             return evaluand.evaluate(self)
 
-    def _solution(self):
-        return canonical( self._constraints, print_steps = _solve_debug_print, undef = _Undefined() )
-        
     def _evaluate_var(self,var):
         return self._solution().var_values().get( var, _Undefined() )
 
