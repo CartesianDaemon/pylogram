@@ -14,14 +14,12 @@ class canonical:
             self.add_constraint(new_constraint)
         
     def _solve_var_value(self, var):
-        return self._cncl_dict[var].solve_for_var(var) if var in self._cncl_dict and self._cncl_dict[var].solvable() else self._undef
-        #if var in self._cncl_dict and self._cncl_dict[var].solvable():
-        #    return self._cncl_dict[var].solve_for_var(var)
-        #else:
-        #    self._undef
+        if var in self._cncl_dict and self._cncl_dict[var].solvable():
+            return self._cncl_dict[var].solve_for_var(var)
+        else:
+            return self._undef
         
     def var_values(self):
-        #d = { var : (self._cncl_dict[var].solve_for_var(var) if var in self._cncl_dict and self._cncl_dict[var].solvable() else self._undef) for var in self._variables }
         d = { var : self._solve_var_value( var ) for var in self._variables }
         return defaultdict( lambda:self._undef, d )
         # for var in self.free_vars():
@@ -45,12 +43,15 @@ class canonical:
     
     def constraints(self):
         return list(self._cncl_dict.values())
-        
+    
+    def _set_solved_constraint(self, new_var, new_constraint):
+        self._cncl_dict[new_var] = new_constraint
+        self._var_values[new_var] = self._solve_var_value(new_var)
+    
     def add_constraint(self, new_constraint):
         print_steps = self._print_steps
         for var, equ in self._cncl_dict.items():
             new_constraint = reduce_constraint_by_equ_for_var( new_constraint, equ, var)
-            #self._var_values[var] = self._solve_var_value(equ,var)
         new_vars = new_constraint.variables()
         assert not new_vars & self.reduced_vars()
         if new_constraint.is_tautology(): return
@@ -60,9 +61,12 @@ class canonical:
         print_steps("\nSolving",new_constraint,"for", new_var.name(), ":")
         new_constraint = normalised_constraint_for( new_constraint, new_var)
         for var, constraint in self._cncl_dict.items():
-            self._cncl_dict[var] = reduce_constraint_by_equ_for_var(constraint,new_constraint,new_var)
-        self._cncl_dict[new_var] = new_constraint
-        #self._var_values[new_var] = self._solve_var_value(new_constraint,new_var)
+            self._set_solved_constraint(var,reduce_constraint_by_equ_for_var(constraint,new_constraint,new_var))
+            #self._cncl_dict[var] = reduce_constraint_by_equ_for_var(constraint,new_constraint,new_var)
+            #self._var_values[var] = self._solve_var_value(var)
+        self._set_solved_constraint(new_var, new_constraint)
+        #self._cncl_dict[new_var] = new_constraint
+        #self._var_values[new_var] = self._solve_var_value(new_var)
 
 def normalised_constraint_for(equ, var):
     return equ / equ.coefficient(var)
