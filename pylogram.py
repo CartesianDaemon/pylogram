@@ -328,7 +328,6 @@ def Equ(lhs,rhs):
 class System:
     def __init__(self, *constraints):
         self._canonical = canonical( constraints, undef = _Undefined() )
-        self._constraints = list(constraints)
         self._orig_constraints = list(constraints)
         
     def try_constrain(self,equ):
@@ -343,19 +342,16 @@ class System:
             assert is_equ(equ)
             equ = equ.mod(mod)
             self._orig_constraints.append(equ)
-            self._constraints.append(equ)
-            self._constraints = self._calc_solution().constraints()
             self._canonical.add_constraint(equ)
     
     def _calc_solution(self):
         return canonical( self._constraints, print_steps = _solve_debug_print, undef = _Undefined() )
         
     def _solution(self):
-        #return self._calc_solution
         return self._canonical
         
     def constraints(self):
-        return self._constraints
+        return self._canonical.constraints()
         
     def throw_if_contradictions(self):
         self._solution()
