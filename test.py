@@ -301,6 +301,16 @@ class TestPylogram(unittest.TestCase):
         self.assertTrue( a + b == b + a )
         self.assertEqual( a, a )
         self.assertEqual( a + b, b + a )
+        
+    def test_multiple_assignment(self):
+        obj = Obj()
+        obj.a = Var()
+        obj.b = Var()
+        obj.c = Var()
+        obj.a = obj.b = obj.c = 3
+        self.assertEqual( obj.a.val(), 3)
+        self.assertEqual( obj.b.val(), 3)
+        self.assertEqual( obj.c.val(), 3)        
 
     def test_simple_evaluations(self):
         system = pylogram.System()

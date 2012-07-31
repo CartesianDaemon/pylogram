@@ -1,7 +1,9 @@
 # Pylogram libraries
+import pylogram
 import pylogram as pyl
 from pylogram import constrain, Contradiction, Var
 from helpers import *
+import tkinter
 
 def is_obj(obj):
     return isinstance(obj,Obj)
@@ -156,13 +158,14 @@ class Circle(Obj):
 class hLine(Line):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.pt1.y = self.pt2.y
+        self.y = self.pt1.y = self.pt2.y
         self.length = self.pt2.x - self.pt1.x
+        self.pt1.y
         
 class vLine(Line):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.pt1.x = self.pt2.x
+        self.x = self.pt1.x = self.pt2.x
         self.length = self.pt2.y - self.pt1.y
 
 class Box(Obj):
@@ -175,8 +178,17 @@ class Box(Obj):
         self.topright = self.top.pt2
         self.bottomleft = self.bottom.pt1
         self.bottomright = self.bottom.pt2
+        self.width = self.top.length
+        self.height = self.left.length
         
 class Square(Box):
     def __init__(self,prefix=""):
         super().__init__(prefix=prefix)
-        self.top.length = self.left.length
+        self.width = self.height
+        
+def display(*objs, w=300,h=300):
+    master = tkinter.Tk()
+    canvas = tkinter.Canvas(master, width=w, height=h)
+    for obj in objs: obj.draw(canvas)
+    canvas.pack()
+    tkinter.mainloop()
