@@ -352,14 +352,12 @@ class System:
     def evaluate(self,evaluand):
         if is_var(evaluand):
             return self._solution().var_values().get( evaluand, _Undefined() )
-        elif is_bool(evaluand) or is_undef(evaluand):
+        elif is_bool(evaluand) or is_undef(evaluand) or is_num(evaluand):
             return evaluand
-        elif is_num(evaluand):
-            # Numbers and Equ must be treated differently, so we need is_num() or is_equ() but not both
-            # Everything else can go in either Expr(v).evaluate() or v.evaluate()
-            return evaluand 
-        else:
+        elif is_expr(evaluand) or is_equ(evaluand):
             return evaluand.evaluate(self)
+        else:
+            assert 0
 
 def undefined():
     # Note: _Undefined used internally, but we return None or 'undefined' so caller can do "if aa == 'undefined'"
