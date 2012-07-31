@@ -38,12 +38,13 @@ class canonical:
         print_steps = self._print_steps
         for var, equ in self._cncl_dict.items():
             new_constraint = reduce_constraint_by_equ_for_var( new_constraint, equ, var)
-        new_vars = new_constraint.variables()
-        assert not new_vars & self.reduced_vars()
-        if new_constraint.is_tautology(): return
-        if new_constraint.is_contradiction(): raise Contradiction
-        self._variables |= new_vars
-        new_var = first(new_vars)
+        assert not new_constraint.variables() & self.reduced_vars()
+        if new_constraint.is_tautology():
+            return
+        if new_constraint.is_contradiction():
+            raise Contradiction
+        self._variables |= new_constraint.variables()
+        new_var = first(new_constraint.variables())
         print_steps("\nSolving",new_constraint,"for", new_var.name(), ":")
         new_constraint = normalised_constraint_for( new_constraint, new_var)
         for var, constraint in self._cncl_dict.items():

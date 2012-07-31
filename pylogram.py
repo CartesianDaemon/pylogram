@@ -327,6 +327,7 @@ def Equ(lhs,rhs):
 
 class System:
     def __init__(self, *constraints):
+        self._canonical = canonical( constraints, undef = _Undefined() )
         self._constraints = list(constraints)
         self._orig_constraints = list(constraints)
         
@@ -380,6 +381,22 @@ def undefined():
     return 'undefined'
     # return None
         
+class _Undefined:
+    def __eq__  (self,other): return other==undefined() # Not equal to self
+    def __bool__(self):       return False
+    def __add__ (self,other): return self
+    def __radd__(self,other): return self
+    def __sub__ (self,other): return self
+    def __rsub__(self,other): return self
+    def __mul__ (self,other): return 0 if other==0 else self
+    def __rmul__(self,other): return 0 if other==0 else self
+    def __repr__(self): return "_Undefined"
+    def __str__(self): return str(undefined())
+    def __or__  (self, other): return True if other else self
+    def __ror__ (self, other): return True if other else self
+    def __and__ (self, other): return False if evaluate(other)==False else _Undefined()
+    def __rand__(self, other): return False if evaluate(other)==False else _Undefined()
+
 _default_sys = System()
 _solve_debug_print = ignore # Used for debugging
 
@@ -403,18 +420,3 @@ def reset_internals():
     Var._next_var_idx = 0
     _solve_debug_print = ignore
     
-class _Undefined:
-    def __eq__  (self,other): return other==undefined() # Not equal to self
-    def __bool__(self):       return False
-    def __add__ (self,other): return self
-    def __radd__(self,other): return self
-    def __sub__ (self,other): return self
-    def __rsub__(self,other): return self
-    def __mul__ (self,other): return 0 if other==0 else self
-    def __rmul__(self,other): return 0 if other==0 else self
-    def __repr__(self): return "_Undefined"
-    def __str__(self): return str(undefined())
-    def __or__  (self, other): return True if other else self
-    def __ror__ (self, other): return True if other else self
-    def __and__ (self, other): return False if evaluate(other)==False else _Undefined()
-    def __rand__(self, other): return False if evaluate(other)==False else _Undefined()
