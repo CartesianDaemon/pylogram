@@ -116,6 +116,7 @@ class Square(Box):
 def display(*objs, w=300,h=300):
     master = tkinter.Tk()
     canvas = tkinter.Canvas(master, width=w, height=h)
-    for obj in objs: obj.draw(canvas)
+    for obj in objs:
+        obj.draw(canvas)
     canvas.pack()
     tkinter.mainloop()

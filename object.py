@@ -1,10 +1,18 @@
 # Pylogram libraries
-from expressions import constrain, Contradiction, Var, Expr
+from expressions import constrain, Contradiction, Var, Expr, is_expr, is_var, is_num
 from helpers import *
 
 def is_obj(obj):
     return isinstance(obj,Obj)
 
+def set_name(obj,name):
+    if is_var(obj) or is_obj(obj):
+        obj.set_name(name)
+    elif is_expr(obj):
+        return
+    else:
+        assert 0
+    
 class Obj:
     def __setattr__(self,attr,val):
         if '_vars' not in self.__dict__: self.__dict__['_vars'] = {}
@@ -17,6 +25,10 @@ class Obj:
             self.__dict__[attr] = val
         else:
             self._vars[attr] = val
+            
+    def set_name(self,new_name):
+        for subname, subobj in self._vars.items():
+            set_name(subobj,new_name+"."+subname)
     
     def __getattr__(self,attr):
         return self._vars[attr]
@@ -57,9 +69,13 @@ class Array(Obj):
     def __init__(self,N,Type,name=""):
         # TODO: Do we want to support non-var use, eg. arr1 = Array(N); arr1.first = 1; arr1.each = arr1.prev*2
         self.N = N
-        self._arr = [ Type(name=name+"["+str(idx)+"]") for idx in range(N) ]
+        self._arr = [ Type() for idx in range(N) ]
+        self.set_name(name)
         self.first = self._arr[0]
         self.last = self._arr[-1]
+        
+    def set_name(self,name):
+        for idx in range(self.N): set_name(self._arr[idx],name+"["+str(idx)+"]")
 
     def __setitem__(self,idx,val):
         if idx==slice(None, None, None):
@@ -90,3 +106,11 @@ class Array(Obj):
         for subobj in self._vars.values():
             arg = self.reduce_subobj(  subobj, subfunc, arg )
         return arg
+
+    # TODO: Enable sim_draw() and draw() only if enabled for subobjs
+    def sim_draw(self, str=""):
+        return self.reduce_subobjs('sim_draw', str)
+        
+    def draw(self, canvas):
+        return self.reduce_subobjs('draw',canvas)
+

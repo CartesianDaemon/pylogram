@@ -34,10 +34,14 @@ def is_bool(val): return isinstance(val,bool)
 class Var:
     _next_var_idx = 0 # Used for debugging to make variables appear in hashes in expected order
     def __init__(self, name=None):
-        self._name = name or "var_" + str(Var._next_var_idx)
         self._idx = Var._next_var_idx
+        self._name = name or "var_" + str(self._idx)
         Var._next_var_idx +=1
         self._cached_val = { default_sys() : "" } # Used for debug repr only
+        
+    # Normally only used immediately after __init__
+    def set_name(self, name=None):
+        self._name = name or "var_" + str(Var._next_var_idx)
 
     def __eq__         (self,other):  return Expr(self).__eq__           (other) # if not is_var(other) else id(self)==id(other)
     def __setitem__    (self,pos,val):return Expr(self).__setitem__      (pos,val)
