@@ -16,6 +16,9 @@ class canonical:
     def var_value(self, var):
         return self._var_values.get( var, self._undef )
     
+    def solved(self):
+        return not self.free_vars()
+
     def variables(self):
         return self._variables
         

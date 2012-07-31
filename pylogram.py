@@ -341,7 +341,7 @@ class System:
         return self._canonical.constraints()
         
     def solved(self):
-        return all( is_def(val) for val in self._canonical.values() )
+        return self._canonical.solved()
     
     def variables(self):
         return self._canonical.variables()
