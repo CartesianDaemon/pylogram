@@ -36,12 +36,17 @@ class Var:
     def __init__(self, name=None):
         self._idx = Var._next_var_idx
         self._name = name or "var_" + str(self._idx)
+        self._is_anon = name is None
         Var._next_var_idx +=1
         self._cached_val = { default_sys() : "" } # Used for debug repr only
         
     # Normally only used immediately after __init__
     def set_name(self, name=None):
         self._name = name or "var_" + str(Var._next_var_idx)
+        self._is_anon = False
+
+    def is_anon(self):
+        return self._is_anon
 
     def __eq__         (self,other):  return Expr(self).__eq__           (other) # if not is_var(other) else id(self)==id(other)
     def __setitem__    (self,pos,val):return Expr(self).__setitem__      (pos,val)

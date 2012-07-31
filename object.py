@@ -5,17 +5,24 @@ from helpers import *
 def is_obj(obj):
     return isinstance(obj,Obj)
 
-def set_name(obj,name):
+def set_name(obj,name,overwrite=False):
     if is_var(obj) or is_obj(obj):
-        obj.set_name(name)
-    elif is_expr(obj):
+        if overwrite or obj.is_anon():
+            obj.set_name(name)
+    elif is_expr(obj) or is_num(obj):
         return
     else:
         assert 0
+        
     
 class Obj:
+    def _require_init(self):
+        if '_vars' not in self.__dict__:
+            self.__dict__['_vars'] = {}
+            self._name=""
+
     def __setattr__(self,attr,val):
-        if '_vars' not in self.__dict__: self.__dict__['_vars'] = {}
+        self._require_init()
         if attr in self._vars:
             if is_obj(self._vars[attr]):
                 self._vars[attr].constrain_equal( val )
@@ -24,15 +31,30 @@ class Obj:
         elif attr[0]=="_":
             self.__dict__[attr] = val
         else:
-            self._vars[attr] = val
+            self.make_var(attr,val)
+
+    default_arg = DefaultArg()
+    def make_var(self,attr, val = default_arg):
+        self._vars[attr] = val if val is not self.default_arg else Var()
+        name = (self._name+ "."*bool(self._name))+attr
+        set_name(self._vars[attr],name,overwrite=False)
+        return self._vars[attr]
             
+    def __getattr__(self,attr):
+        self._require_init()
+        if attr in self._vars:
+            return self._vars[attr]
+        else:
+            return self.make_var(attr)
+        
     def set_name(self,new_name):
+        self._name = new_name
         for subname, subobj in self._vars.items():
             set_name(subobj,new_name+"."+subname)
+            
+    def is_anon(self):
+        return not self._name
     
-    def __getattr__(self,attr):
-        return self._vars[attr]
-        
     def __eq__(self,other):
         return is_obj(other) and self._vars.keys() == other._vars.keys() and undef_eq(self._vars.values(),other._vars.values())
 

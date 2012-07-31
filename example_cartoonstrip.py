@@ -3,7 +3,8 @@ from draw import *
 padding = 25
 
 class Stickfigure(Primitive):
-    pass
+    def __init__(self):
+        pass
 
 class Panel(Box):
     def __init__(self,*args,stickfigures=0):
