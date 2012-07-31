@@ -1,8 +1,8 @@
-import pylogram
+import expressions
 
 print("\nQ. Diophantus was a boy for one-sixth of his life. After one-twelfth more, he acquired a beard. After another one-seventh, he married. In the fifth year after his marriage his son was born. The son lived half as many as his father. Diophantus died 4 years after his son. How old was Diophantus when he died?\n")
 
-age_at = pylogram.Varset()
+age_at = expressions.Varset()
 age = age_at.death
 sons_age = age_at.sons_death - age_at.sons_birth
 
@@ -26,5 +26,5 @@ print( " >>", age )
 
 # print( "\nQ. What about everything else?:\n" )
 # 
-# for var in pylogram.internals():
+# for var in expressions.internals():
 #     print( "  His age at", var.name(), "was", var.val() )

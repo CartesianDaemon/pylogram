@@ -1,7 +1,7 @@
 # Pylogram libraries
-import pylogram
-import pylogram as pyl
-from pylogram import constrain, Contradiction, Var
+import expressions
+import expressions as pyl
+from expressions import constrain, Contradiction, Var
 from object import *
 from helpers import *
 import tkinter

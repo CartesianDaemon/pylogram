@@ -1,4 +1,4 @@
-from pylogram import constrain, default_vars as vars
+from expressions import constrain, default_vars as vars
 
 constrain(   vars.a + 5*vars.b == 22 , mod=17 )
 constrain( 2*vars.a +   vars.b == -5 , mod=17 )

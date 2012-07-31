@@ -6,8 +6,8 @@ import os
 from fractions import Fraction
 
 # Pylogram libraries
-import pylogram
-import pylogram as pyl
+import expressions
+import expressions as pyl
 import solve
 from solve import Canonical
 from helpers import *
@@ -53,25 +53,25 @@ class TestBuiltins(unittest.TestCase):
     
 class TestMatrixSolve(unittest.TestCase):
     def setUp(self):
-        pylogram.reset_internals()
+        expressions.reset_internals()
         
     def test_normalised_constraint(self):
-        a = pylogram.Var('a')
-        b = pylogram.Var('b')
+        a = expressions.Var('a')
+        b = expressions.Var('b')
         self.assertEqual( solve.normalised_constraint_for( 2*a + 6*b , a ), a + 3*b )
         self.assertEqual( solve.normalised_constraint_for( 6*b - 2*a , a ), a - 3*b )
 
     def test_reduce_constraint_by_equ_at_var(self):
-        a = pylogram.Var('a')
-        b = pylogram.Var('b')
+        a = expressions.Var('a')
+        b = expressions.Var('b')
         self.assertEqual( solve.reduce_constraint_by_equ_for_var( (2*a+b==0), (b==-1), b ), (2*a==1) )
         self.assertEqual( solve.reduce_constraint_by_equ_for_var( (b==-1), (a+b==0), a ), (b==-1) )
         
     def test_canonical(self):
-        a = pylogram.Var('a')
-        b = pylogram.Var('b')
-        c = pylogram.Var('c')
-        d = pylogram.Var('d')
+        a = expressions.Var('a')
+        b = expressions.Var('b')
+        c = expressions.Var('c')
+        d = expressions.Var('d')
         variables_ab = (a+b).variables()
         variables_abc = (a+b+c).variables()
         variables_abcd = (a+b+c+d).variables()
@@ -84,12 +84,12 @@ class TestMatrixSolve(unittest.TestCase):
         self.assertEqual(Canonical( [ 2*a+2*c==6, 3*a+3*b==6 ] ).constraints(), [ a+c==3, b-c==-1 ] )
         self.assertEqual(Canonical( [ a+b+c+d==1, a+b-c-d==2 ] ).constraints(), [ a+b==1.5, c+d==-0.5 ] )
         self.assertEqual(Canonical( [ a+b+c+d==1,-a+b-c+d==2 ] ).constraints(), [ c+a==-0.5, d+b==1.5 ] )
-        self.assertRaises( pylogram.Contradiction, Canonical, [ a==1, a==2 ]        )
-        self.assertRaises( pylogram.Contradiction, Canonical, [ a==b, a==-b, a==1 ] )
+        self.assertRaises( expressions.Contradiction, Canonical, [ a==1, a==2 ]        )
+        self.assertRaises( expressions.Contradiction, Canonical, [ a==b, a==-b, a==1 ] )
 
 class TestHelpers(unittest.TestCase):
     def setUp(self):
-        pylogram.reset_internals()
+        expressions.reset_internals()
         
     def test_nonzero_dict(self):
         d = nonzero_dict(); self.assertEqual( len(d), 0 )
@@ -105,30 +105,30 @@ class TestHelpers(unittest.TestCase):
         self.assertEqual( tuple( d.items() ), () )
     
     def test_reduce_undef_truthvals(self):
-        a = pylogram.Var('a')
-        b = pylogram.Var('b')
-        self.assertEqual( True & pylogram._Undefined() , pylogram.undefined() )
-        self.assertEqual( False & pylogram._Undefined(), False )
-        self.assertEqual( pylogram._Undefined() & True,  pylogram.undefined() )
-        self.assertEqual( pylogram._Undefined() & False, False)
-        self.assertEqual( pylogram._Undefined() & pylogram._Undefined(), pylogram.undefined() )
-        self.assertEqual( pylogram._Undefined() & pylogram._Undefined() & pylogram._Undefined(), pylogram.undefined() )
+        a = expressions.Var('a')
+        b = expressions.Var('b')
+        self.assertEqual( True & expressions._Undefined() , expressions.undefined() )
+        self.assertEqual( False & expressions._Undefined(), False )
+        self.assertEqual( expressions._Undefined() & True,  expressions.undefined() )
+        self.assertEqual( expressions._Undefined() & False, False)
+        self.assertEqual( expressions._Undefined() & expressions._Undefined(), expressions.undefined() )
+        self.assertEqual( expressions._Undefined() & expressions._Undefined() & expressions._Undefined(), expressions.undefined() )
 
         self.assertEqual( (a==a).evaluate(), True )
-        self.assertEqual( (a==b).evaluate(), pylogram.undefined() )
+        self.assertEqual( (a==b).evaluate(), expressions.undefined() )
         self.assertEqual( (a-a==1).evaluate(), False )
         self.assertEqual( (a==a) & (a==a), True )
-        self.assertEqual( (a==a) & (a==b), pylogram.undefined() )
+        self.assertEqual( (a==a) & (a==b), expressions.undefined() )
         self.assertEqual( (a==a) & (a-a==1), False )
         
-        self.assertEqual(pylogram._Undefined() & (a==b), pylogram.undefined())
+        self.assertEqual(expressions._Undefined() & (a==b), expressions.undefined())
 
     def test_more_reduce_undef_truthvals(self):
-        a = pylogram.Var('a')
-        b = pylogram.Var('b')
+        a = expressions.Var('a')
+        b = expressions.Var('b')
         self.assertEqual( undef_eq([a,1,b],[a,1,b]), True )
-        self.assertEqual( undef_eq([a,1,b],[a,a,b]), pylogram.undefined() )
-        self.assertEqual( undef_eq([a,a,b],[b,b,b]), pylogram.undefined() )
+        self.assertEqual( undef_eq([a,1,b],[a,a,b]), expressions.undefined() )
+        self.assertEqual( undef_eq([a,a,b],[b,b,b]), expressions.undefined() )
         self.assertEqual( undef_eq([a,a,0],[b,b,1]), False )
         self.assertEqual( undef_eq([a,1,1],[a,1,0]), False )
         self.assertEqual( undef_eq([a,a,1],[a,1,0]), False )
@@ -147,22 +147,22 @@ class TestHelpers(unittest.TestCase):
         
 class TestPylogram(unittest.TestCase):
     def setUp(self):
-        pylogram.reset_internals()
+        expressions.reset_internals()
         
     def test_indepentent_systems(self):
-        v1 = pylogram.Varset()
+        v1 = expressions.Varset()
         v1.a [:]= 2 * v1.b
         v1.b [:]= 1
-        v2 = pylogram.Varset()
+        v2 = expressions.Varset()
         v2.a [:]= 2 * v2.b
         v2.b [:]= 1
-        v3 = pylogram.Varset()
+        v3 = expressions.Varset()
         v3.a [:]= 2 * v3.b
         v3.b [:]= 1
         
     def test_expr_repr(self):
-        a = pylogram.Var('a')
-        b = pylogram.Var('b')
+        a = expressions.Var('a')
+        b = expressions.Var('b')
         self.assertEqual( repr(a-1),"a - 1" )
         self.assertEqual( repr(2*a-1),"2.a - 1" )
         self.assertEqual( repr(a-b),"a - b" )
@@ -173,13 +173,13 @@ class TestPylogram(unittest.TestCase):
         self.assertEqual( repr(Fraction(1,1)*a),"a" )
         
     def test_diophantus_simple(self):
-        varset = pylogram.Varset()
+        varset = expressions.Varset()
         varset.a [:]= 2 * varset.b
         varset.b [:]= 1
 
-        age_at = pylogram.Varset()
+        age_at = expressions.Varset()
         
-        #pylogram._solve_debug_print = print
+        #expressions._solve_debug_print = print
         
         # Fails with too-deep recursion if all the following is uncommented because of order of variables solved for:
         age_at.sons_birth
@@ -188,24 +188,24 @@ class TestPylogram(unittest.TestCase):
         
     def test_diophantus_constraints(self):
         age_at = Struct()
-        # age_at.death = pylogram.Var()
-        # age_at.adolescence = pylogram.Var()
-        # age_at.marriage = pylogram.Var()
-        # age_at.sons_birth = pylogram.Var()
-        # age_at.sons_death = pylogram.Var()
+        # age_at.death = expressions.Var()
+        # age_at.adolescence = expressions.Var()
+        # age_at.marriage = expressions.Var()
+        # age_at.sons_birth = expressions.Var()
+        # age_at.sons_death = expressions.Var()
         # 
         # age = age_at.death
         # sons_age = age_at.sons_death - age_at.sons_birth
         # 
-        # pylogram.constrain( age_at.adolescence == age / 6                        )
-        # pylogram.constrain( age_at.puberty     == age_at.adolescence + age / 12  )
-        # pylogram.constrain( age_at.marriage    == age_at.puberty + age / 7       )
+        # expressions.constrain( age_at.adolescence == age / 6                        )
+        # expressions.constrain( age_at.puberty     == age_at.adolescence + age / 12  )
+        # expressions.constrain( age_at.marriage    == age_at.puberty + age / 7       )
         # 
         # # age_at.sons_birth  [:]= age_at.marriage + 5
         # # sons_age [:]= age / 2
     
     def test_diophantus_square_equals(self):
-        age_at = pylogram.Varset()
+        age_at = expressions.Varset()
         # 
         # age = age_at.death
         # sons_age = age_at.sons_death - age_at.sons_birth
@@ -218,7 +218,7 @@ class TestPylogram(unittest.TestCase):
         # # sons_age [:]= age / 2
         
     def test_undefined(self):
-        undef = pylogram._Undefined()
+        undef = expressions._Undefined()
         self.assertIs( undef, undef ) 
         self.assertIs( undef + 1, undef ) 
         self.assertIs( undef - 1, undef ) 
@@ -230,16 +230,16 @@ class TestPylogram(unittest.TestCase):
         self.assertRaises( AttributeError, getattr, undef, '__div__' )
         
     def _test_is_undef(self,xxx):
-        self.assertEqual( pylogram.evaluate(xxx), pylogram.undefined() )
+        self.assertEqual( expressions.evaluate(xxx), expressions.undefined() )
         self.assertEqual( str(xxx), 'undefined' )
-        self.assertEqual( xxx.evaluate(), pylogram.undefined() )
+        self.assertEqual( xxx.evaluate(), expressions.undefined() )
         self.assertEqual( str(xxx.evaluate()), 'undefined' )
         self.assertFalse( xxx.is_def() )
         self.assertEqual( xxx.name_or_value(), xxx.name() )
 
     def _test_evaluates_to(self,xxx, val):
-        self.assertEqual( pylogram.evaluate(xxx), val )
-        self.assertTrue( isinstance(pylogram.evaluate(xxx), Number) )
+        self.assertEqual( expressions.evaluate(xxx), val )
+        self.assertTrue( isinstance(expressions.evaluate(xxx), Number) )
         self.assertEqual( xxx, val )
         self.assertTrue( xxx.is_def() )
         self.assertEqual( xxx.evaluate(), val )
@@ -248,27 +248,27 @@ class TestPylogram(unittest.TestCase):
         self.assertEqual( xxx.name_or_value(), str(val) )
         
     def test_syntax_square_equals(self):
-        varset = pylogram.Varset()
+        varset = expressions.Varset()
         self._test_is_undef(varset.a)
         varset.a [:]= 2 * varset.b
         self._test_is_undef(varset.a)
         varset.b [:]= 1
         self._test_evaluates_to( varset.b, 1 )
         self._test_evaluates_to( varset.a, 2 )
-        self.assertRaises( pylogram.Contradiction, varset.b.constrain_equal, 2 )
+        self.assertRaises( expressions.Contradiction, varset.b.constrain_equal, 2 )
 
     def test_syntax_constrain(self):
-        system = pylogram.System()
-        a = pylogram.Var()
+        system = expressions.System()
+        a = expressions.Var()
         system.constrain( 3==a*2 )
-        pylogram.constrain( a == 15 )
+        expressions.constrain( a == 15 )
         self.assertEqual( system.evaluate(a), 1.5 )
-        self.assertEqual( pylogram.evaluate(a), 15 )
+        self.assertEqual( expressions.evaluate(a), 15 )
         
     def test_arithmetic(self):
-        system = pylogram.System()
-        a = pylogram.Var('a')
-        b = pylogram.Var('b')
+        system = expressions.System()
+        a = expressions.Var('a')
+        b = expressions.Var('b')
         # Check compiles
         a + 2  
         a * 2
@@ -286,17 +286,17 @@ class TestPylogram(unittest.TestCase):
         (a + b) / 2
         
     def test_null_evaluations(self):
-        system = pylogram.System()
-        a = pylogram.Var('a')
-        b = pylogram.Var('b')
+        system = expressions.System()
+        a = expressions.Var('a')
+        b = expressions.Var('b')
         self.assertEqual( system.evaluate( 3) , 3 )
         self.assertEqual( system.evaluate( 3*a +2 -2*a -a ) , 2 )
         self.assertTrue( (a-a).is_null() )
         self.assertFalse( (a+0).is_null() )
-        self.assertTrue( pylogram.Expr(0).is_null() )
-        self.assertEqual( system.evaluate( a==b ), pylogram.undefined() )
-        self.assertTrue( pylogram.Equ( a, a ) )
-        self.assertTrue( pylogram.Equ( a + b, b + a ) )
+        self.assertTrue( expressions.Expr(0).is_null() )
+        self.assertEqual( system.evaluate( a==b ), expressions.undefined() )
+        self.assertTrue( expressions.Equ( a, a ) )
+        self.assertTrue( expressions.Equ( a + b, b + a ) )
         self.assertTrue( a == a )
         self.assertTrue( a + b == b + a )
         self.assertEqual( a, a )
@@ -313,12 +313,12 @@ class TestPylogram(unittest.TestCase):
         self.assertEqual( obj.c.val(), 3)        
 
     def test_simple_evaluations(self):
-        system = pylogram.System()
-        a = pylogram.Var('a')
-        b = pylogram.Var('b')
+        system = expressions.System()
+        a = expressions.Var('a')
+        b = expressions.Var('b')
         system.constrain( a== 2)
         system.constrain( b== 3)
-        self.assertEqual( system.evaluate(pylogram.Expr(2)/2), 1 )
+        self.assertEqual( system.evaluate(expressions.Expr(2)/2), 1 )
         self.assertEqual( system.evaluate(a/2), 1 )
         self.assertEqual( system.evaluate(1*2), 2 )
         with self.assertRaises( TypeError): 1/b
@@ -329,25 +329,25 @@ class TestPylogram(unittest.TestCase):
         self.assertEqual( system.evaluate( a*5 + b/3 -2*(a+b) - (-0.1) ), 1.1 )
     
     def test_contradictions(self):
-        system = pylogram.System()
-        a = pylogram.Var('a')
+        system = expressions.System()
+        a = expressions.Var('a')
         self.assertFalse( system.evaluate( a-a==2 ) )
         self.assertFalse( system.try_constrain(a-a==2) )
-        self.assertRaises( pylogram.Contradiction, system.constrain, a-a==2 )
+        self.assertRaises( expressions.Contradiction, system.constrain, a-a==2 )
 
     def test_equ(self):
-        system = pylogram.System()
-        a = pylogram.Var()
-        b = pylogram.Var()
+        system = expressions.System()
+        a = expressions.Var()
+        b = expressions.Var()
         # self.assertEqual( a==b, b==a )
         self.assertNotEqual( a==a, a==b )
-        self.assertEqual( a==a, pylogram.Expr(0)==0 )
+        self.assertEqual( a==a, expressions.Expr(0)==0 )
         self.assertNotEqual( a==a, 0 )
     
     def test_solve(self):
-        system = pylogram.System()
-        a = pylogram.Var()
-        b = pylogram.Var()
+        system = expressions.System()
+        a = expressions.Var()
+        b = expressions.Var()
         system.constrain( a + b == 3)
         system.constrain( 2 * a + b == 5)
         self.assertTrue( system.solved() )
@@ -355,16 +355,16 @@ class TestPylogram(unittest.TestCase):
         self.assertEqual( system.evaluate(b), 1 )
         
     def test_variable_creation(self):
-        varset = pylogram.Varset()
-        system = pylogram.System()
-        system2 = pylogram.System()
+        varset = expressions.Varset()
+        system = expressions.System()
+        system2 = expressions.System()
         self.assertEqual( varset.aaa.name() , 'aaa' )
         system.constrain( varset.aaa == varset.bbb * 2)
         self.assertFalse( system.solved() )
         system.constrain( varset.bbb == 2 )
         self.assertEqual( system.evaluate(varset.bbb), 2)
         self.assertEqual( system.evaluate(varset.aaa), 4)
-        ccc = pylogram.Var('ccc')
+        ccc = expressions.Var('ccc')
         system2.constrain( varset.aaa + ccc == 5 )
         self.assertEqual( system2.variables(), {varset.aaa, ccc} )
         
@@ -380,11 +380,11 @@ class TestPylogram(unittest.TestCase):
     def test_system(self):
     
         # Variables
-        a = pylogram.Var('a')
-        b = pylogram.Var('b')
+        a = expressions.Var('a')
+        b = expressions.Var('b')
         
-        system = pylogram.System()
-        system2 = pylogram.System()
+        system = expressions.System()
+        system2 = expressions.System()
 
         # Not necessary for real code, but test results expect this order
         self.assertTrue( hash(a) < hash(b) )
@@ -401,8 +401,8 @@ class TestPylogram(unittest.TestCase):
         self.assertEqual( system.variables(), {a,b} )
 
         self.assertFalse( system.solved() )
-        self.assertEqual( system.evaluate(a), pylogram.undefined() )
-        self.assertEqual( system.evaluate(b), pylogram.undefined() )
+        self.assertEqual( system.evaluate(a), expressions.undefined() )
+        self.assertEqual( system.evaluate(b), expressions.undefined() )
 
         # Check solution
         system.constrain( a == 3 )
@@ -417,7 +417,7 @@ class TestPylogram(unittest.TestCase):
         system.constrain( b == a * 2 )
         
     def test_mod_eq1(self):
-        a = pylogram.Var('a')
+        a = expressions.Var('a')
         equ = (a*2==3).mod(7)
         self.assertEqual( (equ/2).coefficient(a) % 7, 1 )
         self.assertEqual( (equ/2).rhs_constant() % 7, 5 )
@@ -427,11 +427,11 @@ class TestPylogram(unittest.TestCase):
         self.assertEqual( list( Canonical([ (a*2==3).mod(5) ]) ), [(6*a==9).mod(5)] )
         self.assertEqual( (a==1).mod(3), (a==1).mod(3) )
         self.assertNotEqual( a==1, (a==1).mod(3) )
-        pylogram.constrain( a*2==3 , mod=5 )
+        expressions.constrain( a*2==3 , mod=5 )
         self.assertEqual( a, 4)
 
     def test_mod_eq2(self):
-        vars = pylogram.Varset()
+        vars = expressions.Varset()
         equ1 =  (   vars.a + 5*vars.b == 22 ).mod(17)
         equ2 =  ( 2*vars.a +   vars.b == -5 ).mod(17)
         cncl = Canonical( [equ1,equ2] 
@@ -445,7 +445,7 @@ from object import *
 
 class TestArray(unittest.TestCase):
     def setUp(self):
-        pylogram.reset_internals()
+        expressions.reset_internals()
         
     def test_arr_var(self):
         arr = Array(6,Var)
@@ -465,7 +465,7 @@ class TestArray(unittest.TestCase):
             a.r = b.r
         self.assertEqual( arr[1].r, 1 )
         self.assertFalse( arr[1].top.y.is_def() )
-        self.assertEqual( arr[1].top.y, pylogram.undefined() )
+        self.assertEqual( arr[1].top.y, expressions.undefined() )
         
     def test_arr_props(self):
         arr = Array(3,Point)
@@ -478,7 +478,7 @@ class TestArray(unittest.TestCase):
         
 class TestObj(unittest.TestCase):
     def setUp(self):
-        pylogram.reset_internals()
+        expressions.reset_internals()
         
     def test_ints(self):
         obj1 = Primitive()
@@ -499,12 +499,12 @@ class TestObj(unittest.TestCase):
         pt1 = Point()
         pt2 = Point()
         pt1.x = 3
-        self.assertEqual( len(pylogram.default_sys().constraints()), 1 )
+        self.assertEqual( len(expressions.default_sys().constraints()), 1 )
         pt2.y = pt2.x * 2
-        self.assertEqual( len(pylogram.default_sys().constraints()), 2 )
+        self.assertEqual( len(expressions.default_sys().constraints()), 2 )
         pt2 [:]= pt1
-        self.assertEqual( len(pylogram.default_sys().constraints()), 4 )
-        self.assertTrue( pylogram.default_sys().solved() )
+        self.assertEqual( len(expressions.default_sys().constraints()), 4 )
+        self.assertTrue( expressions.default_sys().solved() )
         self.assertEqual( pt1.x, 3 )
         self.assertEqual( pt1.y, 6 )
         self.assertEqual( pt2.x, 3 )
@@ -514,14 +514,14 @@ from draw import *
 
 class TestPrimitives(unittest.TestCase):
     def setUp(self):
-        pylogram.reset_internals()
+        expressions.reset_internals()
         
     def test_points(self):
         p1 = Point()
         p2 = p1 + Point(1,1)
         p3 = p2 + Point(3,3)
         p3 [:] = Point(4,4)
-        self.assertTrue( pylogram.solved() )
+        self.assertTrue( expressions.solved() )
         self.assertEqual( p1.x, 0 )
         self.assertEqual( p1.y, 0 )
         self.assertEqual( p1, Point(0,0) )
@@ -550,18 +550,18 @@ class TestPrimitives(unittest.TestCase):
     def test_undef(self):
         p1 = Point()
         p1.x = 3
-        self.assertEqual( len(pylogram.constraints()), 1 )
-        self.assertEqual( pylogram.evaluate(p1.x), 3 )
-        self.assertEqual( pylogram.evaluate(p1.x==3), True )
+        self.assertEqual( len(expressions.constraints()), 1 )
+        self.assertEqual( expressions.evaluate(p1.x), 3 )
+        self.assertEqual( expressions.evaluate(p1.x==3), True )
         self.assertTrue( bool(p1.x==3) )
         self.assertFalse( p1.y.is_def() )
-        self.assertEqual( p1==Point(3,3), pylogram.undefined() )
+        self.assertEqual( p1==Point(3,3), expressions.undefined() )
         self.assertEqual( p1==Point(0,0), False )
-        self.assertEqual( p1==Point(), pylogram.undefined() )
+        self.assertEqual( p1==Point(), expressions.undefined() )
         
 class TestDraw(unittest.TestCase):
     def setUp(self):
-        pylogram.reset_internals()
+        expressions.reset_internals()
         
     class Lollypop(Primitive):
         def __init__(self):
