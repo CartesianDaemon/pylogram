@@ -7,14 +7,35 @@ class canonical:
         self._orig_constraints = orig_constraints
         self._print_steps = print_steps
         self._undef = undef
-        self._variables = variables(orig_constraints)
-        self._cncl_dict = self.solve_dict(orig_constraints)
+        self._variables = set()
+        self._cncl_dict = {}
+        self._var_values = defaultdict( lambda:self._undef )
+        for new_constraint in orig_constraints:
+            self.add_constraint(new_constraint)
+        
+    def _solve_var_value(self, var):
+        return self._cncl_dict[var].solve_for_var(var) if var in self._cncl_dict and self._cncl_dict[var].solvable() else self._undef
+        #if var in self._cncl_dict and self._cncl_dict[var].solvable():
+        #    return self._cncl_dict[var].solve_for_var(var)
+        #else:
+        #    self._undef
         
     def var_values(self):
-        vars = self._variables
-        cncl = self._cncl_dict
-        d = { var : (cncl[var].solve_for_var(var) if var in cncl and cncl[var].solvable() else self._undef) for var in vars }
+        #d = { var : (self._cncl_dict[var].solve_for_var(var) if var in self._cncl_dict and self._cncl_dict[var].solvable() else self._undef) for var in self._variables }
+        d = { var : self._solve_var_value( var ) for var in self._variables }
         return defaultdict( lambda:self._undef, d )
+        # for var in self.free_vars():
+        #     self._var_values[var] = self._undef
+        # return self._var_values
+    
+    def variables(self):
+        return self._variables
+        
+    def reduced_vars(self):
+        return self._cncl_dict.keys()
+        
+    def free_vars(self):
+        return self.variables() - self.reduced_vars()
     
     def values(self):
         return self.var_values().values()
@@ -25,39 +46,23 @@ class canonical:
     def constraints(self):
         return list(self._cncl_dict.values())
         
-    def solve_dict(self, orig_constraints):
-        vars = self._variables
-        unused_constraints = list( orig_constraints )
+    def add_constraint(self, new_constraint):
         print_steps = self._print_steps
-        constraints = {}
-        print_steps("\n****************************************\n            Solving...\n*****************************************")
-        print_steps("\nInput:")
-        for orig_constraint in unused_constraints: print_steps(" >> ", orig_constraint)
-        for var in vars:
-            for equ in unused_constraints:
-                if equ.coefficient(var):
-                    break
-            else:
-                # variable only appeared in constraints already used, ie. is defined non-uniquely in terms of a previous var
-                print_steps("\nSkipping variable", var.name(), "...")
-                continue
-            print_steps("\nSolving for", var.name(), ":")
-            unused_constraints.remove(equ)
-            equ = normalised_constraint_for( equ, var)
-            for prev_var, prev_constraint in constraints.items():
-                constraints[prev_var] = reduce_constraint_by_equ_for_var(prev_constraint,equ,var)
-                print_steps(" >> ", constraints[prev_var])
-            print_steps(" >> ", equ)
-            for idx in range(len(unused_constraints)):
-                unused_constraints[idx] = reduce_constraint_by_equ_for_var( unused_constraints[idx], equ, var)
-                print_steps(" >> ", unused_constraints[idx])
-            constraints[var] = equ
-        for equ in unused_constraints:
-            if equ.is_tautology(): continue
-            if equ.is_contradiction(): raise Contradiction
-            print(equ)
-            raise AssertionError # Should never get here
-        return constraints
+        for var, equ in self._cncl_dict.items():
+            new_constraint = reduce_constraint_by_equ_for_var( new_constraint, equ, var)
+            #self._var_values[var] = self._solve_var_value(equ,var)
+        new_vars = new_constraint.variables()
+        assert not new_vars & self.reduced_vars()
+        if new_constraint.is_tautology(): return
+        if new_constraint.is_contradiction(): raise Contradiction
+        self._variables |= new_vars
+        new_var = first(new_vars)
+        print_steps("\nSolving",new_constraint,"for", new_var.name(), ":")
+        new_constraint = normalised_constraint_for( new_constraint, new_var)
+        for var, constraint in self._cncl_dict.items():
+            self._cncl_dict[var] = reduce_constraint_by_equ_for_var(constraint,new_constraint,new_var)
+        self._cncl_dict[new_var] = new_constraint
+        #self._var_values[new_var] = self._solve_var_value(new_constraint,new_var)
 
 def normalised_constraint_for(equ, var):
     return equ / equ.coefficient(var)
