@@ -67,7 +67,11 @@ class Array(Obj):
         self.last = self._arr[-1]
 
     def __setitem__(self,idx,val):
-        self._arr[idx].constrain_equal(val)
+        if idx==slice(None, None, None):
+            super().__setitem__(idx,val)
+        else:
+            assert 0 <= idx <= self.N
+            self._arr[idx].constrain_equal(val)
         
     def __getitem__(self,idx):
         return self._arr[idx]
@@ -104,10 +108,19 @@ class Point(Obj):
         return str
     
 class Line(Obj):
-    def __init__(self, prefix=""):
-        super().__init__()
-        self.pt1 = Point(prefix=prefix+".pt1")
-        self.pt2 = Point(prefix=prefix+".pt2")
+    def __init__(self, *args, prefix=""):
+        if len(args)==0:
+            self.pt1 = Point(prefix=prefix+".pt1")
+            self.pt2 = Point(prefix=prefix+".pt2")
+        elif len(args)==1:
+            if isinstance(args[0],str):
+                self.__init__(prefix=args[0])
+            elif isinstance(args[0],Point):
+                self.pt1 = args[0]
+                self.pt2 = Point(prefix=prefix+".pt2")
+        else:
+            assert len(args)==2
+            self.pt1, self.pt2 = args
 
     def draw(self, canvas):
         canvas.create_line(pyl.evaluate(self.pt1.x),
@@ -139,5 +152,21 @@ class Circle(Obj):
     def sim_draw(self, str=""):
         return str + " >> Drawing circle about {:},{:} with radius {:}\n".format(self.c.x,self.c.y,self.r)
 
+
+class hLine(Line):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.pt1.y = self.pt2.y
         
+class vLine(Line):
+    def __init__(self, prefix=""):
+        super().__init__(*args, **kwargs)
+        self.pt1.x = self.pt2.x
+
+class Box(Obj):
+    def __init__(self, prefix=""):
+        self.top = hLine(prefix="top")
+        self.bottom = hLine(prefix="bottom")
+        self.left = vLine(self.top.pt1, self.bottom.pt1, prefix="left")
+        self.right = vLine(self.top.pt2, self.bottom.pt2, prefix="right")
         

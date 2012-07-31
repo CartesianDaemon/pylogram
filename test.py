@@ -7,6 +7,7 @@ from fractions import Fraction
 
 # Pylogram libraries
 import pylogram
+import pylogram as pyl
 import solve
 from solve import canonical
 from helpers import *
@@ -428,7 +429,7 @@ class TestPylogram(unittest.TestCase):
             )
         a_val, b_val = cncl.values()
         self.assertEqual( (a_val+5*b_val)%17 , 22%17 )
-        self.assertEqual( (2*a_val+b_val)%17 , (-6)%17 )
+        self.assertEqual( (2*a_val+b_val)%17 , (-5)%17 )
 
 from pylogram_draw import *
 
@@ -502,7 +503,19 @@ class TestPrimitives(unittest.TestCase):
         self.assertTrue( pylogram.solved() )
         self.assertEqual( p1.x, 0 )
         self.assertEqual( p1.y, 0 )
-        self.assertEqual( p1, Point(0,0) )  
+        self.assertEqual( p1, Point(0,0) )
+        
+    def test_pt_init(self):
+        p1 = Point(3,4)
+        p2 = Point(p1.y,Var())
+        p3 = Point(4,44)
+        self.assertTrue( pyl.is_num(p1.x) )
+        self.assertTrue( pyl.is_num(p1.y) )
+        self.assertTrue( pyl.is_num(p2.x) )
+        self.assertTrue( pyl.is_var(p2.y) )
+        self.assertEqual( p2.x, 4 )
+        p2 [:]= p3
+        self.assertEqual( p2.y.val(), 44 )
         
     def test_circ(self):
         pass
