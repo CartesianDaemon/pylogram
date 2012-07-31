@@ -9,6 +9,9 @@ def is_obj(obj):
     return isinstance(obj,Obj)
 
 class Obj:
+    def __init__(self,name=""):
+        self._name = name # Not used?
+        
     def __setattr__(self,attr,val):
         if '_vars' not in self.__dict__: self.__dict__['_vars'] = {}
         if attr in self._vars:
@@ -47,24 +50,26 @@ class Obj:
     def draw(self, canvas):
         return self.reduce_subobjs('draw',canvas)
     
+    def reduce_subobj(self, subobj, subfunc, arg):
+        # TODO: Use try/except.
+        if is_obj(subobj):
+            return getattr(subobj,subfunc)(arg)
+        else:
+            # TODO: For undef and similar make this function into an "all"
+            # Literals, Vars and anything else won't be drawn on screen
+            return arg
+    
     def reduce_subobjs(self, subfunc, arg):
         assert type(self) != type(Obj()) # Should be derived class, not Obj itself, else will recurse
         for subobj in self._vars.values():
-            # TODO: Use try/except.
-            # TODO: Move whole "do this func name for each subobj" logic into separate function
-            if is_obj(subobj):
-                arg = getattr(subobj,subfunc)(arg)
-            else:
-                # TODO: For undef and similar make this function into an "all"
-                # Literals, Vars and anything else won't be drawn on screen
-                continue
+            arg = self.reduce_subobj( subobj, subfunc, arg )
         return arg
 
 class Array(Obj):
-    def __init__(self,N,Type,prefix=""):
+    def __init__(self,N,Type,name=""):
         # TODO: Do we want to support non-var use, eg. arr1 = Array(N); arr1.first = 1; arr1.each = arr1.prev*2
         self.N = N
-        self._arr = [ Type(prefix+"["+str(idx)+"]") for idx in range(N) ]
+        self._arr = [ Type(name=name+"["+str(idx)+"]") for idx in range(N) ]
         self.first = self._arr[0]
         self.last = self._arr[-1]
 
@@ -89,12 +94,23 @@ class Array(Obj):
         
     def __eq__(self,other):
         return undef_eq( self, other )
-        
+
+    def reduce_subobjs(self, subfunc, arg):
+        # assert type(self) == type(Array()) 
+        for subobj in self._arr:
+            arg = self.reduce_subobj(  subobj, subfunc, arg )
+        for subobj in self._vars.values():
+            arg = self.reduce_subobj(  subobj, subfunc, arg )
+        return arg
+
 class Point(Obj):
-    def __init__(self, *args, prefix=""):
+    def __init__(self, *args, name=""):
         if len(args)==0:
-            self.x = Var(prefix+'.x')
-            self.y = Var(prefix+'.y')
+            self.x = Var(name+'.x')
+            self.y = Var(name+'.y')
+        elif len(args)==1:
+            assert isinstance(args[0],str)
+            self.__init__(name=args[0])
         else:
             assert len(args)==2
             self.x, self.y = args
@@ -110,35 +126,35 @@ class Point(Obj):
         return str
     
 class Line(Obj):
-    def __init__(self, *args, prefix=""):
+    def __init__(self, *args, name=""):
         if len(args)==0:
-            self.pt1 = Point(prefix=prefix+".pt1")
-            self.pt2 = Point(prefix=prefix+".pt2")
+            self.pt1 = Point(name=name+".pt1")
+            self.pt2 = Point(name=name+".pt2")
         elif len(args)==1:
             if isinstance(args[0],str):
-                self.__init__(prefix=args[0])
+                self.__init__(name=args[0])
             elif isinstance(args[0],Point):
                 self.pt1 = args[0]
-                self.pt2 = Point(prefix=prefix+".pt2")
+                self.pt2 = Point(name=name+".pt2")
         else:
             assert len(args)==2
             self.pt1, self.pt2 = args
 
     def draw(self, canvas):
-        canvas.create_line(pyl.evaluate(self.pt1.x),
-                           pyl.evaluate(self.pt1.y),
-                           pyl.evaluate(self.pt2.x),
-                           pyl.evaluate(self.pt2.y))        
+        canvas.create_line(int(pyl.evaluate(self.pt1.x)),
+                           int(pyl.evaluate(self.pt1.y)),
+                           int(pyl.evaluate(self.pt2.x)),
+                           int(pyl.evaluate(self.pt2.y)))        
         return canvas
         
     def sim_draw(self, str=""):
         return str + " >> Drawing line from {:},{:} to {:},{:}\n".format(self.pt1.x,self.pt1.y,self.pt2.x,self.pt2.y)
         
 class Circle(Obj):
-    def __init__(self, prefix=""):
-        self.r = Var(prefix+'.r')
+    def __init__(self, name=""):
+        self.r = Var(name+'.r')
         self.d = self.r * 2
-        self.c = Point(prefix=prefix+'.c')
+        self.c = Point(name=name+'.c')
         self.bottom = self.c + Point(0, self.r)
         self.top    = self.c + Point(0,-self.r)
         self.left   = self.c + Point(-self.r, 0)
@@ -169,11 +185,11 @@ class vLine(Line):
         self.length = self.pt2.y - self.pt1.y
 
 class Box(Obj):
-    def __init__(self, prefix=""):
-        self.top = hLine(prefix="top")
-        self.bottom = hLine(prefix="bottom")
-        self.left = vLine(self.top.pt1, self.bottom.pt1, prefix="left")
-        self.right = vLine(self.top.pt2, self.bottom.pt2, prefix="right")
+    def __init__(self, name=""):
+        self.top = hLine(name="top")
+        self.bottom = hLine(name="bottom")
+        self.left = vLine(self.top.pt1, self.bottom.pt1, name="left")
+        self.right = vLine(self.top.pt2, self.bottom.pt2, name="right")
         self.topleft = self.top.pt1
         self.topright = self.top.pt2
         self.bottomleft = self.bottom.pt1
@@ -182,8 +198,8 @@ class Box(Obj):
         self.height = self.left.length
         
 class Square(Box):
-    def __init__(self,prefix=""):
-        super().__init__(prefix=prefix)
+    def __init__(self,name=""):
+        super().__init__(name=name)
         self.width = self.height
         
 def display(*objs, w=300,h=300):

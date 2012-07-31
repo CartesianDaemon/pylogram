@@ -467,6 +467,15 @@ class TestArray(unittest.TestCase):
         self.assertFalse( arr[1].top.y.is_def() )
         self.assertEqual( arr[1].top.y, pylogram.undefined() )
         
+    def test_arr_props(self):
+        arr = Array(3,Point)
+        arr.first.x = 3
+
+    def test_arr_init(self):
+        Array(3,Var)
+        Array(3,Point)
+        Array(3,Obj)
+        
 class TestDraw(unittest.TestCase):
     def setUp(self):
         pylogram.reset_internals()
