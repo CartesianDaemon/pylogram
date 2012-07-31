@@ -303,7 +303,7 @@ class TestPylogram(unittest.TestCase):
         self.assertEqual( a + b, b + a )
         
     def test_multiple_assignment(self):
-        obj = Obj()
+        obj = Primitive()
         obj.a = Var()
         obj.b = Var()
         obj.c = Var()
@@ -441,7 +441,7 @@ class TestPylogram(unittest.TestCase):
         self.assertEqual( (a_val+5*b_val)%17 , 22%17 )
         self.assertEqual( (2*a_val+b_val)%17 , (-5)%17 )
 
-from pylogram_draw import *
+from object import *
 
 class TestArray(unittest.TestCase):
     def setUp(self):
@@ -474,21 +474,21 @@ class TestArray(unittest.TestCase):
     def test_arr_init(self):
         Array(3,Var)
         Array(3,Point)
-        Array(3,Obj)
+        Array(3,Primitive)
         
-class TestDraw(unittest.TestCase):
+class TestObj(unittest.TestCase):
     def setUp(self):
         pylogram.reset_internals()
         
     def test_ints(self):
-        obj1 = Obj()
+        obj1 = Primitive()
         obj1.x = 1
         self.assertTrue( isinstance( obj1.x, Number) )
         self.assertEqual( obj1.x, 1 )
         with self.assertRaises(Contradiction): obj1.x = 2
      
     def test_obj(self):
-        obj1 = Obj()
+        obj1 = Primitive()
         obj1.x = Var()
         obj1.y = Var()
         obj1.x = obj1.y # Create constraint
@@ -509,7 +509,9 @@ class TestDraw(unittest.TestCase):
         self.assertEqual( pt1.y, 6 )
         self.assertEqual( pt2.x, 3 )
         self.assertEqual( pt2.y, 6 )
-        
+
+from draw import *
+
 class TestPrimitives(unittest.TestCase):
     def setUp(self):
         pylogram.reset_internals()
@@ -561,7 +563,7 @@ class TestDraw(unittest.TestCase):
     def setUp(self):
         pylogram.reset_internals()
         
-    class Lollypop(Obj):
+    class Lollypop(Primitive):
         def __init__(self):
             self.stick = Line('stick')
             self.circ = Circle('ball')

@@ -1,6 +1,6 @@
-from pylogram_draw import *
+from draw import *
  
-class Lollypop(Obj):
+class Lollypop(Primitive):
     def __init__(self):
         self.stick = Line('stick')
         self.circ = Circle('ball')

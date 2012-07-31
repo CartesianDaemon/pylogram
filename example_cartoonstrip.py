@@ -1,10 +1,13 @@
-from pylogram_draw import *
+from draw import *
 
 padding = 25
 
+class Stickfigure(Primitive):
+    
+
 class Panel(Box):
-    def __init__(self,*args,**kwargs):
-        super().__init__(*args,**kwargs)
+    def __init__(self,*args,stickfigures=0):
+        super().__init__(*args)
         
 class Strip(Array):
     def __init__(self, N, width = 100, height=100):
@@ -18,9 +21,8 @@ class Strip(Array):
         for a,b in self.adj_objs():
             a.right = b.left
 
-display(Strip(1,300),w=400,h=300)
-print(Strip(1,300).sim_draw())
+#display(Strip(1,300),w=400,h=300)
+#print(Strip(1,300).sim_draw())
         
-# display(Strip(3,600, 200),w=650,h=250)
-# 
-# display(Strip(5,600),w=650,h=150)
+display(Strip(3,600, 200),w=650,h=250)
+
