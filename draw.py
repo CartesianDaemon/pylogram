@@ -1,7 +1,5 @@
 # Pylogram libraries
-import expressions
-import expressions as pyl
-from expressions import constrain, Contradiction, Var
+from expressions import constrain, Contradiction, Var, evaluate
 from object import *
 from helpers import *
 import tkinter
@@ -54,10 +52,10 @@ class Line(Primitive):
             self.pt1, self.pt2 = args
 
     def draw(self, canvas):
-        canvas.create_line(int(pyl.evaluate(self.pt1.x)),
-                           int(pyl.evaluate(self.pt1.y)),
-                           int(pyl.evaluate(self.pt2.x)),
-                           int(pyl.evaluate(self.pt2.y)))        
+        canvas.create_line(int(evaluate(self.pt1.x)),
+                           int(evaluate(self.pt1.y)),
+                           int(evaluate(self.pt2.x)),
+                           int(evaluate(self.pt2.y)))        
         return canvas
         
     def sim_draw(self, str=""):
@@ -74,10 +72,10 @@ class Circle(Primitive):
         self.right  = self.c + Point( self.r, 0)
 
     def draw(self, canvas):
-        canvas.create_oval(pyl.evaluate(self.c.x)-pyl.evaluate(self.r),
-                           pyl.evaluate(self.c.y)-pyl.evaluate(self.r),
-                           pyl.evaluate(self.c.x)+pyl.evaluate(self.r),
-                           pyl.evaluate(self.c.y)+pyl.evaluate(self.r))  
+        canvas.create_oval(evaluate(self.c.x)-evaluate(self.r),
+                           evaluate(self.c.y)-evaluate(self.r),
+                           evaluate(self.c.x)+evaluate(self.r),
+                           evaluate(self.c.y)+evaluate(self.r))  
         return canvas
 
     def sim_draw(self, str=""):

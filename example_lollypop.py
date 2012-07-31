@@ -26,17 +26,9 @@ assert small_lollypop.circ.c == Point(1,-5)
 
 # Example of drawing to screen
 
-from tkinter import *
-
-master = Tk()
-canvas = Canvas(master, width=300, height=300)
-big_lollypop.draw(canvas)
-canvas.pack()
-mainloop()
+display( big_lollypop )
 
 # Look at how drawing happens
 
 print(big_lollypop.sim_draw())
-
-
 

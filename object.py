@@ -1,7 +1,5 @@
 # Pylogram libraries
-import expressions
-import expressions as pyl
-from expressions import constrain, Contradiction, Var
+from expressions import constrain, Contradiction, Var, Expr
 from helpers import *
 
 def is_obj(obj):
@@ -14,7 +12,7 @@ class Obj:
             if is_obj(self._vars[attr]):
                 self._vars[attr].constrain_equal( val )
             else:
-                pyl.Expr(self._vars[attr]).constrain_equal( val )
+                Expr(self._vars[attr]).constrain_equal( val )
         elif attr[0]=="_":
             self.__dict__[attr] = val
         else:
@@ -33,7 +31,7 @@ class Obj:
             if is_obj(a):
                 a.constrain_equal(b)
             else:
-                pyl.Expr(a).constrain_equal(b)
+                Expr(a).constrain_equal(b)
 
     def __setitem__(self, emptyslice, rhs):
         # Support "a [:]= b" syntax
