@@ -66,7 +66,7 @@ class Var:
 
     def __repr__(self):
         # avoid calculating answer here
-        return "Var<" + self._name + "=" +str(self._cached_val_str[default_sys()]) + ">" 
+        return "Var<" + self._name + "=" +str(self._cached_val[default_sys()]) + ">" 
 
     def __str__(self):
         return str(self.val())

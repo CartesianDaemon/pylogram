@@ -50,6 +50,9 @@ class Line(Primitive):
         else:
             assert len(args)==2
             self.pt1, self.pt2 = args
+        self.width = self.pt2.x - self.pt1.x
+        self.height= self.pt2.y - self.pt1.y
+        self.mid = self.pt1 + Point(self.width/2,self.height/2)
 
     def draw(self, canvas):
         canvas.create_line(int(evaluate(self.pt1.x)),
@@ -72,10 +75,10 @@ class Circle(Primitive):
         self.right  = self.c + Point( self.r, 0)
 
     def draw(self, canvas):
-        canvas.create_oval(evaluate(self.c.x)-evaluate(self.r),
-                           evaluate(self.c.y)-evaluate(self.r),
-                           evaluate(self.c.x)+evaluate(self.r),
-                           evaluate(self.c.y)+evaluate(self.r))  
+        canvas.create_oval(int(evaluate(self.c.x))-int(evaluate(self.r)),
+                           int(evaluate(self.c.y))-int(evaluate(self.r)),
+                           int(evaluate(self.c.x))+int(evaluate(self.r)),
+                           int(evaluate(self.c.y))+int(evaluate(self.r)))  
         return canvas
 
     def sim_draw(self, str=""):
@@ -86,14 +89,11 @@ class hLine(Line):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.y = self.pt1.y = self.pt2.y
-        self.length = self.pt2.x - self.pt1.x
-        self.pt1.y
-        
+
 class vLine(Line):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.x = self.pt1.x = self.pt2.x
-        self.length = self.pt2.y - self.pt1.y
 
 class Box(Primitive):
     def __init__(self, name=""):
@@ -105,8 +105,8 @@ class Box(Primitive):
         self.topright = self.top.pt2
         self.bottomleft = self.bottom.pt1
         self.bottomright = self.bottom.pt2
-        self.width = self.top.length
-        self.height = self.left.length
+        self.width = self.top.width
+        self.height = self.left.height
         
 class Square(Box):
     def __init__(self,name=""):
