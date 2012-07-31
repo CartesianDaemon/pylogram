@@ -13,8 +13,8 @@ class canonical:
         for new_constraint in orig_constraints:
             self.add_constraint(new_constraint)
         
-    def var_values(self):
-        return self._var_values
+    def var_value(self, var):
+        return self._var_values.get( var, self._undef )
     
     def variables(self):
         return self._variables
@@ -26,7 +26,7 @@ class canonical:
         return self.variables() - self.reduced_vars()
     
     def values(self):
-        return self.var_values().values()
+        return self._var_values.values()
     
     def __iter__(self):
         return iter(self.constraints())

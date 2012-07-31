@@ -337,21 +337,18 @@ class System:
             self._orig_constraints.append(equ.mod(mod))
             self._canonical.add_constraint(equ.mod(mod))
     
-    def _solution(self):
-        return self._canonical
-        
     def constraints(self):
         return self._canonical.constraints()
         
     def solved(self):
-        return all( is_def(val) for val in self._solution().values() )
+        return all( is_def(val) for val in self._canonical.values() )
     
     def variables(self):
-        return self._solution().variables()
+        return self._canonical.variables()
     
     def evaluate(self,evaluand):
         if is_var(evaluand):
-            return self._solution().var_values().get( evaluand, _Undefined() )
+            return self._canonical.var_value( evaluand )
         elif is_bool(evaluand) or is_undef(evaluand) or is_num(evaluand):
             return evaluand
         elif is_expr(evaluand) or is_equ(evaluand):
