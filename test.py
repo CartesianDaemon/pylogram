@@ -9,7 +9,7 @@ from fractions import Fraction
 import pylogram
 import pylogram as pyl
 import solve
-from solve import canonical
+from solve import Canonical
 from helpers import *
 
 from tkinter import *
@@ -75,17 +75,17 @@ class TestMatrixSolve(unittest.TestCase):
         variables_ab = (a+b).variables()
         variables_abc = (a+b+c).variables()
         variables_abcd = (a+b+c+d).variables()
-        self.assertEqual(canonical( [ 2*a==1 ]                 ).constraints(), [ a==0.5 ] )
-        self.assertEqual(canonical( [ 2*a==1, 1*b==0 ]         ).constraints(), [ a==0.5, b==0 ] )
-        self.assertEqual(canonical( [ 2*a==1, 1*b==0 ]         ).constraints(), [ a==0.5, b==0 ] )
-        self.assertEqual(canonical( [ 2*a+b==5, a+b==4 ]       ).constraints(), [ a==1, b==3 ] )
-        self.assertEqual(canonical( [ a==1, a==1 ]             ).constraints(), [ a==1 ] )
-        self.assertEqual(canonical( [ 3*a==3, 7*a==7 ]         ).constraints(), [ a==1 ] )
-        self.assertEqual(canonical( [ 2*a+2*c==6, 3*a+3*b==6 ] ).constraints(), [ a+c==3, b-c==-1 ] )
-        self.assertEqual(canonical( [ a+b+c+d==1, a+b-c-d==2 ] ).constraints(), [ a+b==1.5, c+d==-0.5 ] )
-        self.assertEqual(canonical( [ a+b+c+d==1,-a+b-c+d==2 ] ).constraints(), [ c+a==-0.5, d+b==1.5 ] )
-        self.assertRaises( pylogram.Contradiction, canonical, [ a==1, a==2 ]        )
-        self.assertRaises( pylogram.Contradiction, canonical, [ a==b, a==-b, a==1 ] )
+        self.assertEqual(Canonical( [ 2*a==1 ]                 ).constraints(), [ a==0.5 ] )
+        self.assertEqual(Canonical( [ 2*a==1, 1*b==0 ]         ).constraints(), [ a==0.5, b==0 ] )
+        self.assertEqual(Canonical( [ 2*a==1, 1*b==0 ]         ).constraints(), [ a==0.5, b==0 ] )
+        self.assertEqual(Canonical( [ 2*a+b==5, a+b==4 ]       ).constraints(), [ a==1, b==3 ] )
+        self.assertEqual(Canonical( [ a==1, a==1 ]             ).constraints(), [ a==1 ] )
+        self.assertEqual(Canonical( [ 3*a==3, 7*a==7 ]         ).constraints(), [ a==1 ] )
+        self.assertEqual(Canonical( [ 2*a+2*c==6, 3*a+3*b==6 ] ).constraints(), [ a+c==3, b-c==-1 ] )
+        self.assertEqual(Canonical( [ a+b+c+d==1, a+b-c-d==2 ] ).constraints(), [ a+b==1.5, c+d==-0.5 ] )
+        self.assertEqual(Canonical( [ a+b+c+d==1,-a+b-c+d==2 ] ).constraints(), [ c+a==-0.5, d+b==1.5 ] )
+        self.assertRaises( pylogram.Contradiction, Canonical, [ a==1, a==2 ]        )
+        self.assertRaises( pylogram.Contradiction, Canonical, [ a==b, a==-b, a==1 ] )
 
 class TestHelpers(unittest.TestCase):
     def setUp(self):
@@ -424,7 +424,7 @@ class TestPylogram(unittest.TestCase):
         self.assertEqual( equ.solve_for_var(a), 5 )
         self.assertEqual( (a==5).mod(7).solve_for_var(a), 5 )
         self.assertEqual( (a==12).mod(7).solve_for_var(a), 5 )
-        self.assertEqual( list( canonical([ (a*2==3).mod(5) ]) ), [(6*a==9).mod(5)] )
+        self.assertEqual( list( Canonical([ (a*2==3).mod(5) ]) ), [(6*a==9).mod(5)] )
         self.assertEqual( (a==1).mod(3), (a==1).mod(3) )
         self.assertNotEqual( a==1, (a==1).mod(3) )
         pylogram.constrain( a*2==3 , mod=5 )
@@ -434,7 +434,7 @@ class TestPylogram(unittest.TestCase):
         vars = pylogram.Varset()
         equ1 =  (   vars.a + 5*vars.b == 22 ).mod(17)
         equ2 =  ( 2*vars.a +   vars.b == -5 ).mod(17)
-        cncl = canonical( [equ1,equ2] 
+        cncl = Canonical( [equ1,equ2] 
             # ,print_steps = print
             )
         a_val, b_val = cncl.values()

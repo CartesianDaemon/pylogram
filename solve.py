@@ -2,7 +2,7 @@
 from helpers import *
 from exceptions import *
 
-class canonical:
+class Canonical:
     def __init__(self,orig_constraints, print_steps=ignore, undef=None):
         self._orig_constraints = orig_constraints
         self._print_steps = print_steps

@@ -4,7 +4,7 @@ from fractions import Fraction
 
 # Pylogram libraries
 from helpers import *
-from solve import canonical
+from solve import Canonical
 from exceptions import *
 
 # WARNING: Changed to primarily use global a[:]=b instead of system.constrain( a==b )
@@ -323,9 +323,9 @@ class EquZero:
 def Equ(lhs,rhs):
     return EquZero(lhs-rhs)
 
-class System:
+class System(Canonical):
     def __init__(self, *constraints):
-        self._canonical = canonical( constraints, undef = _Undefined() )
+        super().__init__( constraints, undef = _Undefined() )
         self._orig_constraints = list(constraints)
         
     def try_constrain(self,equ):
@@ -334,21 +334,12 @@ class System:
     def constrain(self,*args, mod=None):
         for equ in args:
             assert is_equ(equ)
+            self.add_constraint(equ.mod(mod))
             self._orig_constraints.append(equ.mod(mod))
-            self._canonical.add_constraint(equ.mod(mod))
-    
-    def constraints(self):
-        return self._canonical.constraints()
-        
-    def solved(self):
-        return self._canonical.solved()
-    
-    def variables(self):
-        return self._canonical.variables()
     
     def evaluate(self,evaluand):
         if is_var(evaluand):
-            return self._canonical.var_value( evaluand )
+            return self.var_value( evaluand )
         elif is_bool(evaluand) or is_undef(evaluand) or is_num(evaluand):
             return evaluand
         elif is_expr(evaluand) or is_equ(evaluand):
