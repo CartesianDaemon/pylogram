@@ -87,11 +87,10 @@ class Obj:
             arg = self.reduce_subobj( subobj, subfunc, arg )
         return arg
 
-class Array(Obj):
-    def __init__(self,N,Type,name=""):
-        # TODO: Do we want to support non-var use, eg. arr1 = Array(N); arr1.first = 1; arr1.each = arr1.prev*2
-        self.N = N
-        self._arr = [ Type() for idx in range(N) ]
+class InitorArray(Obj):
+    def __init__(self,Type,*args_of_args, name=""):
+        self._arr = [ Type(*args) for args in args_of_args ]
+        self.N = len(self._arr)
         self.set_name(name)
         self.first = self._arr[0]
         self.last = self._arr[-1]
@@ -133,4 +132,9 @@ class Array(Obj):
         
     def draw(self, canvas):
         return self.reduce_subobjs('draw',canvas)
-
+        
+        
+class Array(InitorArray):
+    def __init__(self,N,Type,name=""):
+        # TODO: Do we want to support non-var use, eg. arr1 = Array(N); arr1.first = 1; arr1.each = arr1.prev*2
+        super().__init__(Type, *(() for _ in range(N)), name=name )
