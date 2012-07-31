@@ -29,7 +29,6 @@ def is_def(val): return not is_undef(val)
 def is_num(term):  return isinstance(term,Number) # Any built-in constant type, eg. int, float or frac, but not Var instances
 def is_evaluatable(term): return is_equ(term) or is_expr(term)
 def is_frac(term): return isinstance(term,Fraction)
-def is_tribool(val): return isinstance(val,bool) or is_undef(val)
 def is_bool(val): return isinstance(val,bool)
 
 class Var:
@@ -38,7 +37,7 @@ class Var:
         self._name = name or "var_" + str(Var._next_var_idx)
         self._idx = Var._next_var_idx
         Var._next_var_idx +=1
-        self._cached_val_str = "" # Used for debug repr only
+        self._cached_val = { default_sys() : "" } # Used for debug repr only
 
     def __eq__         (self,other):  return Expr(self).__eq__           (other) # if not is_var(other) else id(self)==id(other)
     def __setitem__    (self,pos,val):return Expr(self).__setitem__      (pos,val)
@@ -58,7 +57,7 @@ class Var:
 
     def __repr__(self):
         # avoid calculating answer here
-        return "Var<" + self._name + "=" +self._cached_val_str + ">" 
+        return "Var<" + self._name + "=" +str(self._cached_val_str[default_sys()]) + ">" 
 
     def __str__(self):
         return str(self.val())
@@ -78,9 +77,8 @@ class Var:
     def evaluate(self, system = None):
         if system is None:
             system = default_sys()
-        if system is default_sys():
-            self._cached_val_str = str( system._evaluate_var(self) )
-        return system._evaluate_var(self)
+        self._cached_val[system] = system.evaluate(self)
+        return self._cached_val[system]
 
 class Varset():
     def __init__(self):
@@ -332,30 +330,18 @@ class System:
         
     def try_constrain(self,equ):
         return if_raises(Contradiction, self.constrain, equ)
-        # try:
-        #     self.constrain(equ)
-        #     return True
-        # except Contradiction:
-        #     return False
     
     def constrain(self,*args, mod=None):
         for equ in args:
             assert is_equ(equ)
-            equ = equ.mod(mod)
-            self._orig_constraints.append(equ)
-            self._canonical.add_constraint(equ)
+            self._orig_constraints.append(equ.mod(mod))
+            self._canonical.add_constraint(equ.mod(mod))
     
-    def _calc_solution(self):
-        return canonical( self._constraints, print_steps = _solve_debug_print, undef = _Undefined() )
-        
     def _solution(self):
         return self._canonical
         
     def constraints(self):
         return self._canonical.constraints()
-        
-    def throw_if_contradictions(self):
-        self._solution()
         
     def solved(self):
         return all( is_def(val) for val in self._solution().values() )
@@ -364,17 +350,16 @@ class System:
         return self._solution().variables()
     
     def evaluate(self,evaluand):
-        if is_tribool(evaluand):
-            return evaluand # Enabled sys.evaluate( 1==2 ). Very helpful but I'm worried it'll break something
+        if is_var(evaluand):
+            return self._solution().var_values().get( evaluand, _Undefined() )
+        elif is_bool(evaluand) or is_undef(evaluand):
+            return evaluand
         elif is_num(evaluand):
             # Numbers and Equ must be treated differently, so we need is_num() or is_equ() but not both
             # Everything else can go in either Expr(v).evaluate() or v.evaluate()
             return evaluand 
         else:
             return evaluand.evaluate(self)
-
-    def _evaluate_var(self,var):
-        return self._solution().var_values().get( var, _Undefined() )
 
 def undefined():
     # Note: _Undefined used internally, but we return None or 'undefined' so caller can do "if aa == 'undefined'"
