@@ -520,6 +520,12 @@ class TestPrimitives(unittest.TestCase):
     def test_circ(self):
         pass
         
+    def test_square(self):
+        sq = Square()
+        sq.topleft = Point(0,0)
+        sq.topright.x = 5
+        self.assertEqual(sq.bottomright.y.val(),5)
+        
     def test_undef(self):
         p1 = Point()
         p1.x = 3

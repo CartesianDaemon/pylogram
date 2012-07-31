@@ -157,11 +157,13 @@ class hLine(Line):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.pt1.y = self.pt2.y
+        self.length = self.pt2.x - self.pt1.x
         
 class vLine(Line):
-    def __init__(self, prefix=""):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.pt1.x = self.pt2.x
+        self.length = self.pt2.y - self.pt1.y
 
 class Box(Obj):
     def __init__(self, prefix=""):
@@ -169,4 +171,12 @@ class Box(Obj):
         self.bottom = hLine(prefix="bottom")
         self.left = vLine(self.top.pt1, self.bottom.pt1, prefix="left")
         self.right = vLine(self.top.pt2, self.bottom.pt2, prefix="right")
+        self.topleft = self.top.pt1
+        self.topright = self.top.pt2
+        self.bottomleft = self.bottom.pt1
+        self.bottomright = self.bottom.pt2
         
+class Square(Box):
+    def __init__(self,prefix=""):
+        super().__init__(prefix=prefix)
+        self.top.length = self.left.length
