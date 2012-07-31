@@ -103,9 +103,7 @@ class Array(Obj):
         # assert type(self) == type(Array()) 
         for subobj in self._arr:
             arg = self.reduce_subobj(  subobj, subfunc, arg )
-        for subobj in self._vars.values():
-            arg = self.reduce_subobj(  subobj, subfunc, arg )
-        return arg
+        return super().reduce_subobjs(subfunc, arg)
 
     # TODO: Enable sim_draw() and draw() only if enabled for subobjs
     def sim_draw(self, str=""):
