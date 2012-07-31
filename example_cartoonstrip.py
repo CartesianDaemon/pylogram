@@ -5,6 +5,7 @@ padding = 25
 
 class Stickfigure(Primitive):
     def __init__(self):
+        self.set_name("figure")
         # Primitives
         self.head = Circle()
         self.body = vLine()
@@ -20,7 +21,8 @@ class Stickfigure(Primitive):
         self.legs[0].height = self.legs[1].height = self.head.d * 3
         # Widths
         self.arms.width = self.width
-        self.legs[1].x = self.legs[0].x + self.width/2
+        self.legs[0].x = self.x - self.width/4
+        self.legs[1].x = self.x + self.width/4
         # Edges
         self.x = self.body.x
         self.floor = self.legs[0].pt2.y
@@ -29,18 +31,18 @@ class Stickfigure(Primitive):
 class Panel(Box):
     def __init__(self,*args,stickfigures=0):
         super().__init__(*args)
+        self.set_name("panel")
         self.figure = Stickfigure()
         self.figure.floor = self.bottom.y - self.height/10
         self.figure.x = self.left.x + self.width/2
         self.figure.width = self.width /4
         self.figure.height = self.figure.width * 3
-        self.set_name("panel")
 
 panel = Panel()
 panel.topleft = Point(padding,padding)
 panel.width = panel.height = 100
 print("\n".join( str(expr) for expr in expressions.constraints()))
-print("\n".join( str(expr) for expr in expressions.variables()))
+print("\n".join( expr.name() for expr in expressions.default_sys().variables()))
 display(panel)
 
 class Strip(Array):
