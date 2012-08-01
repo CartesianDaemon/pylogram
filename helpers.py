@@ -78,7 +78,7 @@ class each:
         self.__dict__['_arr'] = arr
     
     def __call__(self,*args):
-        return ( item(*args) for item in self._arr )
+        return each( [ item(*args) for item in self._arr ] )
     
     def __iter__(self):
         for item in self._arr:
@@ -88,7 +88,7 @@ class each:
         if attr=='val':
             return self
         else:
-            return each( getattr(item,attr) for item in self._arr )
+            return each( [ getattr(item,attr) for item in self._arr ] )
             
     def __getitem__(self,idx):
         return self._arr[idx]
