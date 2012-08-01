@@ -101,12 +101,19 @@ class TestHelpers(unittest.TestCase):
         each(self.arr_y).val = each(self.arr_x).val
         self.assertEqual( self.arr_y, [0,1,2,3,4] )
     
-    #@unittest.expectedFailure
     def test_each_double(self):
         each(self.arr_x).__mul__(2)
         each(self.arr_y).val = each(self.arr_x).val * 2
         self.assertEqual( self.arr_y, [0,2,4,6,8] )
-        
+    
+    def test_each_struct(self):
+        class Pt:
+            def __init__(self,x=0,y=0):
+                self.x, self.y = x,y
+        pts = [ Pt(0), Pt(1), Pt(2) ]
+        each(pts).y = each(pts).x ** 2
+        self.assertEqual( tuple(each(pts).y), (0,1,4) ) 
+    
     def test_nonzero_dict(self):
         d = nonzero_dict(); self.assertEqual( len(d), 0 )
         d[5] = d[5] + 1; self.assertEqual( len(d), 1 ); self.assertEqual( d.keys(), {5} )

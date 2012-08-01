@@ -97,6 +97,9 @@ class each:
         if attr=='val':
             for i,val in enumerate(other):
                 self._arr[i] = val
+        else:
+            for i,val in enumerate(other):
+                setattr(self._arr[i],attr,val)
     
     def __mul__(self,other): return self.__getattr__('__mul__')(other)
     def __rmul__(self,other): return self.__getattr__('__rmul__')(other)
@@ -105,3 +108,4 @@ class each:
     def __sub__(self,other): return self.__getattr__('__sub__')(other)
     def __rsub__(self,other): return self.__getattr__('__rsub__')(other)
     def __truediv__(self,other): return self.__getattr__('__truediv__')(other)
+    def __pow__(self,other): return self.__getattr__('__pow__')(other)
