@@ -86,7 +86,7 @@ class each:
             
     def __setattr__(self,attr,other):
         if attr=='val':
-            for i in len(self._arr):
-                self._arr[i] = other[i]
+            for i,val in enumerate(other):
+                self._arr[i] = val
         
         
