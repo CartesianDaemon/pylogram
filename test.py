@@ -120,9 +120,9 @@ class TestHelpers(unittest.TestCase):
         each(pts).y = 1 + each(pts).x * 2
         self.assertEqual( tuple(each(pts).y), (1,3,5) )
 
-    @unittest.expectedFailure
     def test_each_all(self):
         every(self.arr_x).val = 5
+        self.assertEqual( self.arr_x, [5,]*5 )
     
     def test_nonzero_dict(self):
         d = nonzero_dict(); self.assertEqual( len(d), 0 )

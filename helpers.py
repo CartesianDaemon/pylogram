@@ -1,7 +1,7 @@
 # Standard modules
 from numbers import Number
 from collections import defaultdict
-from itertools import zip_longest, chain
+from itertools import zip_longest, chain, repeat
 from fractions import Fraction
 from functools import partial
 class Struct:
@@ -74,12 +74,12 @@ def if_raises( exception, func, *args, **kwargs):
         return False
 
 class _each_base:
-    def __init__(self,arr,enumerate_other=iter):
+    def __init__(self,arr,enumerate_other):
         self.__dict__['_arr'] = arr
         self.__dict__['_enumerate_other'] = enumerate_other
     
     def __call__(self,*args):
-        return type(self)( [ item(*args) for item in self._arr ] )
+        return type(self)( [ item(*args) for item in self._arr ] , enumerate_other = self._enumerate_other )
     
     def __iter__(self):
         for item in self._arr:
@@ -89,7 +89,7 @@ class _each_base:
         if attr=='val':
             return self
         else:
-            return type(self)( [ getattr(item,attr) for item in self._arr ] )
+            return type(self)( [ getattr(item,attr) for item in self._arr ] , enumerate_other = self._enumerate_other )
             
     def __getitem__(self,idx):
         return self._arr[idx]
@@ -111,4 +111,7 @@ class _each_base:
     def __pow__(self,other): return self.__getattr__('__pow__')(other)
 
 def each(arr):
-    return _each_base(arr)
+    return _each_base(arr,enumerate_other=iter)
+    
+def every(arr):
+    return _each_base(arr,enumerate_other=repeat)
