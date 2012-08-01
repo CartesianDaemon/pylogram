@@ -120,9 +120,23 @@ class TestHelpers(unittest.TestCase):
         each(pts).y = 1 + each(pts).x * 2
         self.assertEqual( tuple(each(pts).y), (1,3,5) )
 
-    def test_each_all(self):
+    def test_every(self):
         every(self.arr_x).val = 5
-        self.assertEqual( self.arr_x, [5,]*5 )
+        self.assertEqual( self.arr_x, [5]*5 )
+    
+    def test_prev(self):
+        prev(self.arr_x)
+        each(self.arr_y).val = prev(self.arr_x)
+        self.assertEqual( self.arr_y, [5,0,1,2,3] )
+
+    @unittest.expectedFailure
+    def test_prev_idx(self):
+        self.assertEqual( prev(self.arr_y)[0], [5] )
+
+    @unittest.expectedFailure
+    def test_prev_self(self):
+        each(self.arr_y).val = prev(self.arr_y) * 2
+        self.assertEqual( self.arr_y, [5,10,20,40,80] )
     
     def test_nonzero_dict(self):
         d = nonzero_dict(); self.assertEqual( len(d), 0 )

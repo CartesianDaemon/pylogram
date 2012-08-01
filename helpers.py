@@ -73,17 +73,19 @@ def if_raises( exception, func, *args, **kwargs):
     except exception:
         return False
 
+_outside_bounds = Struct()
+        
 class _each_base:
-    def __init__(self,arr,enumerate_other):
+    def __init__(self,arr,enumerate_other=iter, enumerate_self=iter):
         self.__dict__['_arr'] = arr
         self.__dict__['_enumerate_other'] = enumerate_other
+        self.__dict__['_enumerate_self'] = enumerate_self
     
     def __call__(self,*args):
         return type(self)( [ item(*args) for item in self._arr ] , enumerate_other = self._enumerate_other )
     
     def __iter__(self):
-        for item in self._arr:
-            yield item
+        return self._enumerate_self(self._arr)
     
     def __getattr__(self,attr):
         if attr=='val':
@@ -96,10 +98,11 @@ class _each_base:
             
     def __setattr__(self,attr,other):
         for i,(_,val) in enumerate(zip(self._arr,self._enumerate_other(other))):
-            if attr=='val':
-                self._arr[i] = val
-            else:
-                setattr(self._arr[i],attr,val)
+            if self._arr[i] is not _outside_bounds and val is not _outside_bounds:
+                if attr=='val':
+                    self._arr[i] = val
+                else:
+                    setattr(self._arr[i],attr,val)
     
     def __mul__(self,other): return self.__getattr__('__mul__')(other)
     def __rmul__(self,other): return self.__getattr__('__rmul__')(other)
@@ -111,7 +114,10 @@ class _each_base:
     def __pow__(self,other): return self.__getattr__('__pow__')(other)
 
 def each(arr):
-    return _each_base(arr,enumerate_other=iter)
+    return _each_base(arr)
     
 def every(arr):
     return _each_base(arr,enumerate_other=repeat)
+    
+def prev(arr):
+    return _each_base(arr,enumerate_self= lambda o: chain([_outside_bounds],o) )
