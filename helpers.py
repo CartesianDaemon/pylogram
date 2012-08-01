@@ -73,12 +73,13 @@ def if_raises( exception, func, *args, **kwargs):
     except exception:
         return False
 
-class each:
-    def __init__(self,arr):
+class _each_base:
+    def __init__(self,arr,enumerate_other=iter):
         self.__dict__['_arr'] = arr
+        self.__dict__['_enumerate_other'] = enumerate_other
     
     def __call__(self,*args):
-        return each( [ item(*args) for item in self._arr ] )
+        return type(self)( [ item(*args) for item in self._arr ] )
     
     def __iter__(self):
         for item in self._arr:
@@ -88,17 +89,16 @@ class each:
         if attr=='val':
             return self
         else:
-            return each( [ getattr(item,attr) for item in self._arr ] )
+            return type(self)( [ getattr(item,attr) for item in self._arr ] )
             
     def __getitem__(self,idx):
         return self._arr[idx]
             
     def __setattr__(self,attr,other):
-        if attr=='val':
-            for i,val in enumerate(other):
+        for i,(_,val) in enumerate(zip(self._arr,self._enumerate_other(other))):
+            if attr=='val':
                 self._arr[i] = val
-        else:
-            for i,val in enumerate(other):
+            else:
                 setattr(self._arr[i],attr,val)
     
     def __mul__(self,other): return self.__getattr__('__mul__')(other)
@@ -109,3 +109,6 @@ class each:
     def __rsub__(self,other): return self.__getattr__('__rsub__')(other)
     def __truediv__(self,other): return self.__getattr__('__truediv__')(other)
     def __pow__(self,other): return self.__getattr__('__pow__')(other)
+
+def each(arr):
+    return _each_base(arr)

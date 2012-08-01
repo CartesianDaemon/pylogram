@@ -105,7 +105,6 @@ class TestHelpers(unittest.TestCase):
         each(self.arr_x).__mul__(2)
         each(self.arr_y).val = each(self.arr_x).val * 2
         self.assertEqual( self.arr_y, [0,2,4,6,8] )
-        self.assertTrue(isinstance(each(self.arr_x)*2,each))
     
     def test_each_2x_plus_1(self):
         each(self.arr_y).val = each(self.arr_x) * 2 + 1
@@ -118,8 +117,8 @@ class TestHelpers(unittest.TestCase):
         pts = [ Pt(0), Pt(1), Pt(2) ]
         each(pts).y = each(pts).x ** 2
         self.assertEqual( tuple(each(pts).y), (0,1,4) )
-        # each(pts).y = 1 + each(pts).x * 2
-        # self.assertEqual( tuple(each(pts).y), (1,3,5) )
+        each(pts).y = 1 + each(pts).x * 2
+        self.assertEqual( tuple(each(pts).y), (1,3,5) )
 
     @unittest.expectedFailure
     def test_each_all(self):
