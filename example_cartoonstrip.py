@@ -56,9 +56,8 @@ class Panel(Box):
 # display(panel)
 
 class Strip(Primitive):
-    def __init__(self):
+    def __init__(self, N):
         self.panelwidth = self.panelheight = 200
-        N = 3
         step = 2
         self.panels = InitorArray(Panel,*zip(range(1,step*N+1,step)))
         self.topleft = self.panels.first.topleft = Point(padding,padding)
@@ -71,5 +70,7 @@ class Strip(Primitive):
 #display(Strip(1,300),w=400,h=300)
 #print(Strip(1,300).sim_draw())
         
-#print(Strip().sim_draw())
-display(Strip(),w=650,h=250)
+# display(Strip(3),w=650,h=250)
+
+strip = Strip(2)
+display(strip,w=650,h=250)

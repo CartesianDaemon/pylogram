@@ -1,7 +1,7 @@
 # Standard modules
 from numbers import Number
 from collections import defaultdict
-from itertools import zip_longest
+from itertools import zip_longest, chain
 from fractions import Fraction
 
 class Struct:
@@ -31,8 +31,8 @@ class nonzero_dict( defaultdict ):
     def __bool__(self):
         return bool(self.keys())
 
-def first( it ):
-    return next( iter(it) )
+def first( *its ):
+    return next( chain(*its) )
     
 def count( it ):
     return len(tuple(it))

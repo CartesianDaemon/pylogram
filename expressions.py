@@ -33,12 +33,13 @@ def is_bool(val): return isinstance(val,bool)
 
 class Var:
     _next_var_idx = 0 # Used for debugging to make variables appear in hashes in expected order
-    def __init__(self, name=None):
+    def __init__(self, name=None, prefer=Fraction):
         self._idx = Var._next_var_idx
         self._name = name or "var_" + str(self._idx)
         self._is_anon = name is None
         Var._next_var_idx +=1
         self._cached_val = { default_sys() : "" } # Used for debug repr only
+        self._prefer_type = prefer
         
     # Normally only used immediately after __init__
     def set_name(self, name=None):
@@ -139,14 +140,18 @@ class Expr:
 
     def __add__ (self,term): assert is_term(term); return self.copy()._add_term( term )
     def __mul__ (self,term): assert is_term(term); return self.copy()._mul_term(term)
+    def __truediv__ (self,term): assert is_num(term); return self.copy()._mul_term(self._appropriate_reciprocol(term))
     def __sub__ (self,term): assert is_term(term); return self + -term
     def __rsub__(self,term): assert is_term(term); return -self + term
     def __radd__(self,term): assert is_term(term); return self + term
     def __rmul__(self,term): assert is_term(term); return self * term
-    def __truediv__ (self,term): assert is_num(term); return self * Fraction(1,term)
     def __neg__(self): return -1 * self
     def __pos__(self): return 1 * self
     
+    def _appropriate_reciprocol(self,term):
+        prefer_type = first( ( var._prefer_type for var in self.variables()), (type(self._const),) )
+        return prefer_type(1)/term
+
     def __setitem__(self, emptyslice, rhs):
         # Support "a [:]= b" syntax
         assert emptyslice == slice(None, None, None)
