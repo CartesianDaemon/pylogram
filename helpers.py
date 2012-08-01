@@ -3,7 +3,7 @@ from numbers import Number
 from collections import defaultdict
 from itertools import zip_longest, chain
 from fractions import Fraction
-
+from functools import partial
 class Struct:
     pass
 
@@ -99,3 +99,9 @@ class each:
                 self._arr[i] = val
     
     def __mul__(self,other): return self.__getattr__('__mul__')(other)
+    def __rmul__(self,other): return self.__getattr__('__rmul__')(other)
+    def __add__(self,other): return self.__getattr__('__add__')(other)
+    def __radd__(self,other): return self.__getattr__('__radd__')(other)
+    def __sub__(self,other): return self.__getattr__('__sub__')(other)
+    def __rsub__(self,other): return self.__getattr__('__rsub__')(other)
+    def __truediv__(self,other): return self.__getattr__('__truediv__')(other)
