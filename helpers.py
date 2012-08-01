@@ -72,3 +72,21 @@ def if_raises( exception, func, *args, **kwargs):
         return True
     except exception:
         return False
+
+class each:
+    def __init__(self,arr):
+        self.__dict__['_arr'] = arr
+        
+    def __getattr__(self,attr):
+        if attr=='val':
+            return self
+            
+    def __getitem__(self,idx):
+        return self._arr[idx]
+            
+    def __setattr__(self,attr,other):
+        if attr=='val':
+            for i in len(self._arr):
+                self._arr[i] = other[i]
+        
+        

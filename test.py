@@ -90,6 +90,21 @@ class TestMatrixSolve(unittest.TestCase):
 class TestHelpers(unittest.TestCase):
     def setUp(self):
         expressions.reset_internals()
+        self.arr_y = list(range(5,10))
+        self.arr_x = list(range(5))
+        
+    def test_each_passthrough(self):
+        self.assertEqual( each(self.arr_y)[2], 7 )
+
+    @unittest.expectedFailure    
+    def test_each_assign(self):
+        each(self.arr_y).val = each(self.arr_x).val
+        self.assertEqual( self.arr_y, [0,1,2,3,4] )
+    
+    @unittest.expectedFailure    
+    def test_each_double(self):
+        each(self.arr_y).val = each(self.arr_x).val * 2
+        self.assertEqual( self.arr_y, [0,2,4,6,8] )
         
     def test_nonzero_dict(self):
         d = nonzero_dict(); self.assertEqual( len(d), 0 )

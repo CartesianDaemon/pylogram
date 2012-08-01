@@ -120,12 +120,22 @@ class Varset():
         return var_iter(self)
 
 class Expr:
-    def __init__(self, *args):
-        self._coeffs = nonzero_dict()
-        self._const = 0
+    def __init__(self, *args, _init_coeff_vars = {}, _init_const = 0):
+        self._make_from(_init_coeff_vars,_init_const)
         for term in args:
             assert is_term( term )
             self._add_term( term )
+
+    def _make_from(self,coeff_vars,const):
+        self._coeffs = nonzero_dict(coeff_vars)
+        self._const = const
+        return self
+    
+    def copy(self):
+        return Expr(_init_coeff_vars=self._coeffs, _init_const=self._const)
+
+    def minus_excluding(self,exclude_var):
+        return Expr( _init_coeff_vars={ var:-coeff for var,coeff in self._coeffs if var is not exclude_var }, _init_const=-self.const )
 
     def __hash__(self):
         return id(self)
@@ -168,17 +178,7 @@ class Expr:
         assert(len(self._coeffs)==1)
         assert(self._const==0)
         return first(self._coeffs.keys())
-    
-    def _make_from(self,coeff_vars,const):
-        expr = Expr()
-        expr._coeffs = nonzero_dict(coeff_vars)
-        expr._const = const
-        return expr
-    
-    def copy(self):
-        # return Expr(self)
-        return self._make_from(self._coeffs, self._const)
-        
+            
     def normalised(self,mod):
         if mod is None:
             return self
@@ -237,9 +237,6 @@ class Expr:
     def is_def(self, system = None):
         return is_def( self.evaluate(system) )
         
-    def minus_excluding(self,exclude_var):
-        return make_from( { var : -coeff for var, coeff in self._coeffs if var is not exclude_var } , -self.const )
-
     def _format_frac(self, frac, var_name = None):
         num_str = self._format_num(frac.numerator, var_name)
         den_str = "" if frac.denominator==1 else "/" + str(frac.denominator)
@@ -321,6 +318,7 @@ class EquZero:
     
     def solve_for_var(self, var, undef=None):
         coeff = self._zero_expr.coefficient(var)
+        #soln = self._zero_expr.minus_excluding(var) * self._inverse(coeff)
         soln = (coeff*var-self._zero_expr) * self._inverse(coeff)
         if self._zero_expr.is_unique():
             return soln.normalised(self._mod).evaluate()
