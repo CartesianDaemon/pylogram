@@ -41,7 +41,7 @@ class Panel(Box):
         for idx,figure in enumerate(self.figures):
             figure.floor = self.bottom.y - self.height/10
             figure.height = figure.width * 7/3
-        padding = self.width/8
+        padding = self.width/3 if n_figures==1 else self.width/8
         spacing = self.width/10
         for a,b in self.figures.adj_objs():
             b.left = a.right + spacing
@@ -49,25 +49,27 @@ class Panel(Box):
         self.figures[0].left = self.left.x + padding
         self.figures[-1].right = self.right.x - padding
 
-panel = Panel(2)
-panel.topleft = Point(padding,padding)
-panel.width = panel.height = 200
-print(panel.sim_draw())
-display(panel)
+# panel = Panel(2)
+# panel.topleft = Point(padding,padding)
+# panel.width = panel.height = 200
+# print(panel.sim_draw())
+# display(panel)
 
-class Strip(Array):
-    def __init__(self, N, width = 200, height=200):
-        super().__init__(N,Panel)
-        self.topleft = self.first.topleft = Point(padding,padding)
-        self.width = width * N
-        for panel in self:
-            self.panelwidth = panel.width
-            self.height = panel.height = height
-        for a,b in self.adj_objs():
+class Strip(Primitive):
+    def __init__(self):
+        self.panelwidth = self.panelheight = 200
+        N = 3
+        step = 2
+        self.panels = InitorArray(Panel,*zip(range(1,step*N+1,step)))
+        self.topleft = self.panels.first.topleft = Point(padding,padding)
+        for panel in self.panels:
+            panel.width = self.panelwidth
+            panel.height= self.panelheight
+        for a,b in self.panels.adj_objs():
             a.right = b.left
 
 #display(Strip(1,300),w=400,h=300)
 #print(Strip(1,300).sim_draw())
         
-# display(Strip(3,600, 200),w=650,h=250)
-
+#print(Strip().sim_draw())
+display(Strip(),w=650,h=250)

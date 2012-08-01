@@ -13,6 +13,9 @@ class Primitive(Obj):
         
     def draw(self, canvas):
         return self.reduce_subobjs('draw',canvas)
+        
+    def dump_undefined(self):
+        pass
 
 class Point(Primitive):
     def __init__(self, *args, name=""):
