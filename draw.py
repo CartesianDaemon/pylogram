@@ -20,8 +20,8 @@ class Primitive(Obj):
 class Point(Primitive):
     def __init__(self, *args, name=""):
         if len(args)==0:
-            self.x = Var(name+'.x')
-            self.y = Var(name+'.y')
+            self.x = Var(name+'.x',prefer=float)
+            self.y = Var(name+'.y',prefer=float)
         elif len(args)==1:
             assert isinstance(args[0],str)
             self.__init__(name=args[0])
@@ -69,7 +69,7 @@ class Line(Primitive):
         
 class Circle(Primitive):
     def __init__(self, name=""):
-        self.r = Var(name+'.r')
+        self.r = Var(name+'.r',prefer=float)
         self.d = self.r * 2
         self.c = Point(name=name+'.c')
         self.bottom = self.c + Point(0, self.r)

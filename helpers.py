@@ -10,8 +10,8 @@ class Struct:
 DefaultArg = Struct
         
 class nonzero_dict( defaultdict ):
-    def __init__(self):
-        super().__init__(int)
+    def __init__(self, *args):
+        super().__init__(int, *args)
         
     def keys(self):
         return { k for k,v in super().items() if v }

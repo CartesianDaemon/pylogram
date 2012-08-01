@@ -35,7 +35,7 @@ class Obj:
 
     default_arg = DefaultArg()
     def make_var(self,attr, val = default_arg):
-        self._vars[attr] = val if val is not self.default_arg else Var()
+        self._vars[attr] = val if val is not self.default_arg else Var(prefer=float)
         name = (self._name+ "."*bool(self._name))+attr
         set_name(self._vars[attr],name,overwrite=False)
         return self._vars[attr]

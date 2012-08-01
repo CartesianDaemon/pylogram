@@ -140,7 +140,7 @@ class Expr:
 
     def __add__ (self,term): assert is_term(term); return self.copy()._add_term( term )
     def __mul__ (self,term): assert is_term(term); return self.copy()._mul_term(term)
-    def __truediv__ (self,term): assert is_num(term); return self.copy()._mul_term(self._appropriate_reciprocol(term))
+    def __truediv__ (self,term): assert is_num(term); return self.copy()._mul_term(self._inverse(term))
     def __sub__ (self,term): assert is_term(term); return self + -term
     def __rsub__(self,term): assert is_term(term); return -self + term
     def __radd__(self,term): assert is_term(term); return self + term
@@ -148,9 +148,12 @@ class Expr:
     def __neg__(self): return -1 * self
     def __pos__(self): return 1 * self
     
-    def _appropriate_reciprocol(self,term):
-        prefer_type = first( ( var._prefer_type for var in self.variables()), (type(self._const),) )
-        return prefer_type(1)/term
+    def _inverse(self,val, mod = None):
+        if mod is not None:
+            return inverse_mod_n(val,mod)
+        else:
+            prefer_type = first( ( var._prefer_type for var in self.variables()), (type(self._const),) )
+            return prefer_type(1)/val
 
     def __setitem__(self, emptyslice, rhs):
         # Support "a [:]= b" syntax
@@ -166,8 +169,15 @@ class Expr:
         assert(self._const==0)
         return first(self._coeffs.keys())
     
+    def _make_from(self,coeff_vars,const):
+        expr = Expr()
+        expr._coeffs = nonzero_dict(coeff_vars)
+        expr._const = const
+        return expr
+    
     def copy(self):
-        return Expr(self)
+        # return Expr(self)
+        return self._make_from(self._coeffs, self._const)
         
     def normalised(self,mod):
         if mod is None:
@@ -226,6 +236,9 @@ class Expr:
 
     def is_def(self, system = None):
         return is_def( self.evaluate(system) )
+        
+    def minus_excluding(self,exclude_var):
+        return make_from( { var : -coeff for var, coeff in self._coeffs if var is not exclude_var } , -self.const )
 
     def _format_frac(self, frac, var_name = None):
         num_str = self._format_num(frac.numerator, var_name)
@@ -281,7 +294,7 @@ class EquZero:
     def __sub__ (self, other): assert is_equ(other); return EquZero(self._zero_expr-other._zero_expr, mod=self._z(self._mod,other._mod))
     def __mul__ (self, other): assert is_equ(other); return EquZero(self._zero_expr*other, mod=self._mod)
     def __rmul__(self, other): assert is_num(other); return EquZero(self._zero_expr*other, mod=self._mod)
-    def __truediv__ (self, other): assert is_num(other); return EquZero( self._zero_expr*inverse_mod_n(other,self._mod), mod=self._mod)
+    def __truediv__ (self, other): assert is_num(other); return EquZero( self._zero_expr*self._inverse(other), mod=self._mod)
     def __or__(self,other): return self.evaluate() | other
     def __ror__(self,other): return other | self.evaluate()
     def __and__(self,other): return self.evaluate() & evaluate(other)
@@ -292,6 +305,9 @@ class EquZero:
         # ie. (a==2) == (a==2) regardless of which systems a is defined in but (a==2) != (-a==-2)
         # Used list.remove(equ) and in [equ1, equ2] == [equ1, equ2]
         return is_equ(other) and self._mod==other._mod and (self._zero_expr-other._zero_expr).is_null()
+    
+    def _inverse(self, val):
+        return self._zero_expr._inverse(val,mod=self._mod)
     
     def mod(self,n):
         assert self._mod is None
@@ -305,7 +321,7 @@ class EquZero:
     
     def solve_for_var(self, var, undef=None):
         coeff = self._zero_expr.coefficient(var)
-        soln = (coeff*var-self._zero_expr) * inverse_mod_n(coeff,self._mod)
+        soln = (coeff*var-self._zero_expr) * self._inverse(coeff)
         if self._zero_expr.is_unique():
             return soln.normalised(self._mod).evaluate()
         else:
