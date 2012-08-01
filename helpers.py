@@ -76,10 +76,19 @@ def if_raises( exception, func, *args, **kwargs):
 class each:
     def __init__(self,arr):
         self.__dict__['_arr'] = arr
-        
+    
+    def __call__(self,*args):
+        return ( item(*args) for item in self._arr )
+    
+    def __iter__(self):
+        for item in self._arr:
+            yield item
+    
     def __getattr__(self,attr):
         if attr=='val':
             return self
+        else:
+            return each( getattr(item,attr) for item in self._arr )
             
     def __getitem__(self,idx):
         return self._arr[idx]
@@ -88,5 +97,5 @@ class each:
         if attr=='val':
             for i,val in enumerate(other):
                 self._arr[i] = val
-        
-        
+    
+    def __mul__(self,other): return self.__getattr__('__mul__')(other)

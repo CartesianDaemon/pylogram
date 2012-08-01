@@ -95,14 +95,15 @@ class TestHelpers(unittest.TestCase):
         
     def test_each_passthrough(self):
         self.assertEqual( each(self.arr_y)[2], 7 )
+        self.assertEqual( each(self.arr_y).val[2], 7 )
 
-    #@unittest.expectedFailure    
     def test_each_assign(self):
         each(self.arr_y).val = each(self.arr_x).val
         self.assertEqual( self.arr_y, [0,1,2,3,4] )
     
-    @unittest.expectedFailure    
+    #@unittest.expectedFailure
     def test_each_double(self):
+        each(self.arr_x).__mul__(2)
         each(self.arr_y).val = each(self.arr_x).val * 2
         self.assertEqual( self.arr_y, [0,2,4,6,8] )
         
