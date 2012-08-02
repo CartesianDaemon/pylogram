@@ -37,19 +37,20 @@ class Canonical:
     def constraints(self):
         return list(self._cncl_dict.values())
     
-    def add_constraint(self, new_constraint):
+    def add_constraint(self, orig_new_constraint):
         print_steps = self._print_steps
+        new_constraint = orig_new_constraint
         for var, equ in self._cncl_dict.items():
             new_constraint = reduce_constraint_by_equ_for_var( new_constraint, equ, var)
         assert not new_constraint.variables() & self.reduced_vars()
         if new_constraint.is_tautology():
             return
         if new_constraint.is_contradiction():
-            raise Contradiction
+            raise Contradiction("New constraint",orig_new_constraint,"is reduced to contradiction",new_constraint)
         self._variables |= new_constraint.variables()
         new_var = first(new_constraint.variables())
         print_steps("\nSolving",new_constraint,"for", new_var.name(), ":")
-        new_constraint = normalised_constraint_for( new_constraint, new_var)
+        new_constraint = new_constraint.normalised_for(new_var)
         for var, constraint in self._cncl_dict.items():
             self._set_solved_constraint(var,reduce_constraint_by_equ_for_var(constraint,new_constraint,new_var))
         self._set_solved_constraint(new_var, new_constraint)
@@ -60,11 +61,8 @@ class Canonical:
     
     def _solve_var_value(self, var):
         return self._cncl_dict[var].solve_for_var(var, undef=self._undef)
-        
-def normalised_constraint_for(equ, var):
-    return equ / equ.coefficient(var)
-    
+            
 def reduce_constraint_by_equ_for_var(constraint,equ,var):
-    assert 1 == equ.coefficient(var)
+    assert 1 == equ.coefficient(var), str.join(' ',("Expected 1 as coeff of ",repr(var),"in",repr(equ)))
     return constraint - constraint.coefficient(var) * equ
     

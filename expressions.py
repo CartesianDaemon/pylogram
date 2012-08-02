@@ -120,22 +120,32 @@ class Varset():
         return var_iter(self)
 
 class Expr:
-    def __init__(self, *args, _init_coeff_vars = {}, _init_const = 0):
-        self._make_from(_init_coeff_vars,_init_const)
+    def __init__(self, *args, _init_coeff_vars = {}, _init_const = 0, mod=None):
+        self._make_from(_init_coeff_vars,_init_const,mod)
         for term in args:
             assert is_term( term )
             self._add_term( term )
+        self._normalise_self()
 
-    def _make_from(self,coeff_vars,const):
+    def _make_from(self,coeff_vars,const,mod):
         self._coeffs = nonzero_dict(coeff_vars)
         self._const = const
+        self._mod = mod
         return self
+        
+    def mod(self,n):
+        return Expr(_init_coeff_vars=self._coeffs, _init_const=self._const, mod = n)
     
     def copy(self):
-        return Expr(_init_coeff_vars=self._coeffs, _init_const=self._const)
+        return Expr(_init_coeff_vars=self._coeffs, _init_const=self._const, mod = self._mod)
+
+    def normalised_for(self,n_var):
+        inv = self._inverse(self.coefficient(n_var), self._mod)
+        init_coeff_vars = { var : (1 if var is n_var else coeff*inv) for var,coeff in self._coeffs.items() }
+        return Expr( _init_coeff_vars=init_coeff_vars, _init_const= self._const * inv, mod= self._mod) 
 
     def minus_excluding(self,exclude_var):
-        return Expr( _init_coeff_vars={ var:-coeff for var,coeff in self._coeffs if var is not exclude_var }, _init_const=-self.const )
+        return Expr( _init_coeff_vars={ var:-coeff for var,coeff in self._coeffs if var is not exclude_var.items() }, _init_const=-self._const , mod = self._mod)
 
     def __hash__(self):
         return id(self)
@@ -159,8 +169,9 @@ class Expr:
     def __pos__(self): return 1 * self
     
     def _inverse(self,val, mod = None):
-        if mod is not None:
-            return inverse_mod_n(val,mod)
+        assert mod == self._mod
+        if self._mod is not None:
+            return inverse_mod_n(val,self._mod)
         else:
             prefer_type = first( ( var._prefer_type for var in self.variables()), (type(self._const),) )
             return prefer_type(1)/val
@@ -178,12 +189,17 @@ class Expr:
         assert(len(self._coeffs)==1)
         assert(self._const==0)
         return first(self._coeffs.keys())
-            
+    
+    def _normalise_self(self):
+        if self._mod is not None:
+            for var,coeff in self._coeffs.items():
+                self._coeffs[var] = mod_n(coeff, self._mod)
+            self._const = mod_n(self._const,self._mod)
+        return self
+    
     def normalised(self,mod):
-        if mod is None:
-            return self
-        else:
-            return Expr( * ( mod_n(coeff, mod) * var for var, coeff in self._coeffs.items() ) ) + mod_n(self._const,mod)
+        assert mod==self._mod
+        return self.copy().mod(mod)._normalise_self()
 
     def const(self):
         return self._const;
@@ -215,13 +231,17 @@ class Expr:
             self._coeffs[var] *= val;
         self._const *= val
         return self
+        
+    def _add_var_times_coeff(self,var,coeff):
+        self._coeffs[var] += coeff
+        return self
 
     def _add_term(self, term, coeff=1):
         assert self.is_wellformed()
         if is_num(term):
             self._const += term * coeff
         elif is_var(term):
-            self._coeffs[term] += coeff
+            self._add_var_times_coeff(term,coeff)
         elif is_expr(term):
             for subterm,subcoeff in term._coeffs.items():
                 self._add_term( subterm, subcoeff )
@@ -264,10 +284,15 @@ class Expr:
         return ("-" if str[0]=='-' else "") + str.strip('+ -')
         
 class EquZero:
-    def __init__( self, lhs, mod = None ):
-        assert not is_equ(lhs)
-        self._mod = mod
-        self._zero_expr = Expr(lhs).normalised(mod)
+    def __init__( self, lhs, mod = None, _init_zero_expr=None ):
+        if _init_zero_expr is None:
+            assert not is_equ(lhs)
+            self._mod = mod
+            self._zero_expr = Expr(lhs,mod=mod).normalised(mod)
+        else:
+            self._mod = mod
+            self._zero_expr = _init_zero_expr
+            self._zero_expr._mod = mod
         
     def __bool__(self):
         # For constraints applied to the global default system eg. "a[:]=2", can be used directly eg. "a==2" is True
@@ -306,9 +331,12 @@ class EquZero:
     def _inverse(self, val):
         return self._zero_expr._inverse(val,mod=self._mod)
     
+    def normalised_for(self,n_var):
+        return EquZero(None,mod=self._mod,_init_zero_expr=self._zero_expr.normalised_for(n_var))
+    
     def mod(self,n):
         assert self._mod is None
-        return EquZero(self._zero_expr.copy(), mod=n)
+        return EquZero(self._zero_expr.mod(n), mod=n)
     
     def is_tautology(self):
         return self._zero_expr.is_null()
@@ -319,7 +347,7 @@ class EquZero:
     def solve_for_var(self, var, undef=None):
         coeff = self._zero_expr.coefficient(var)
         #soln = self._zero_expr.minus_excluding(var) * self._inverse(coeff)
-        soln = (coeff*var-self._zero_expr) * self._inverse(coeff)
+        soln = Expr(coeff*var-self._zero_expr,mod=self._mod) * self._inverse(coeff)
         if self._zero_expr.is_unique():
             return soln.normalised(self._mod).evaluate()
         else:

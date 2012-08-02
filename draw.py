@@ -17,11 +17,13 @@ class Primitive(Obj):
     def dump_undefined(self):
         pass
 
+default_coord_type = Fraction
+        
 class Point(Primitive):
     def __init__(self, *args, name=""):
         if len(args)==0:
-            self.x = Var(name+'.x',prefer=float)
-            self.y = Var(name+'.y',prefer=float)
+            self.x = Var(name+'.x',prefer=default_coord_type)
+            self.y = Var(name+'.y',prefer=default_coord_type)
         elif len(args)==1:
             assert isinstance(args[0],str)
             self.__init__(name=args[0])
@@ -72,7 +74,7 @@ class Line(Primitive):
         
 class Circle(Primitive):
     def __init__(self, name=""):
-        self.r = Var(name+'.r',prefer=float)
+        self.r = Var(name+'.r',prefer=default_coord_type)
         self.d = self.r * 2
         self.c = Point(name=name+'.c')
         self.bottom = self.c + Point(0, self.r)

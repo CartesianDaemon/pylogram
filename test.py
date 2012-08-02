@@ -58,8 +58,8 @@ class TestMatrixSolve(unittest.TestCase):
     def test_normalised_constraint(self):
         a = expressions.Var('a')
         b = expressions.Var('b')
-        self.assertEqual( solve.normalised_constraint_for( 2*a + 6*b , a ), a + 3*b )
-        self.assertEqual( solve.normalised_constraint_for( 6*b - 2*a , a ), a - 3*b )
+        self.assertEqual( ( 2*a + 6*b ).normalised_for(a), a + 3*b )
+        self.assertEqual( ( 6*b - 2*a ).normalised_for(a), a - 3*b )
 
     def test_reduce_constraint_by_equ_at_var(self):
         a = expressions.Var('a')
@@ -473,9 +473,19 @@ class TestPylogram(unittest.TestCase):
         a == 2 
         system.constrain( b == a * 2 )
         
+    def test_expr_mod(self):
+        a = expressions.Var('a')
+        expr = (a*2).mod(7)
+        self.assertEqual(expr._mod,7)
+        self.assertEqual(expr.copy()._mod,7)
+        equ = expressions.EquZero(expr,mod=11)
+        self.assertEqual(equ._mod,11)
+        self.assertEqual(equ._zero_expr._mod,11)
+        
     def test_mod_eq1(self):
         a = expressions.Var('a')
         equ = (a*2==3).mod(7)
+        self.assertEqual( equ._mod, equ._zero_expr._mod )
         self.assertEqual( (equ/2).coefficient(a) % 7, 1 )
         self.assertEqual( (equ/2).rhs_constant() % 7, 5 )
         self.assertEqual( equ.solve_for_var(a), 5 )
