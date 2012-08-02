@@ -87,17 +87,25 @@ class _each_base:
         self.__dict__['_enumerate_other'] = enumerate_other
         self.__dict__['_enumerate_self'] = enumerate_self
     
+    def _call_results(self,*args):
+        for item in self:
+            yield item(*args)
+    
     def __call__(self,*args):
-        return type(self)( [ item(*args) for item in self ] , enumerate_other = self._enumerate_other )
+        return type(self)( self._call_results(*args) , enumerate_other = self._enumerate_other )
     
     def __iter__(self):
         return self._enumerate_self(self._arr)
+    
+    def _getattr_result(self,attr):
+        for item in self:
+            yield getattr(item,attr)
     
     def __getattr__(self,attr):
         if attr=='val':
             return self
         else:
-            return type(self)( [ getattr(item,attr) for item in self ] , enumerate_other = self._enumerate_other )
+            return type(self)( self._getattr_result(attr), enumerate_other = self._enumerate_other )
             
     def __getitem__(self,idx):
         return self._arr[idx]
