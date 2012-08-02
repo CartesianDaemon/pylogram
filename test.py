@@ -533,6 +533,61 @@ class TestArray(unittest.TestCase):
         Array(3,Point)
         Array(3,Primitive)
         
+    def test_each_array(self):
+        arr = Array(3,Point)
+        each(arr).y = each(arr).x
+        each(arr).x = prev(arr).x+1
+        arr[0].x = 10
+        self.assertEqual(arr[0].x, 10)
+        self.assertEqual(arr[0].y, 10)
+        self.assertEqual(arr[1].x, 11)
+        self.assertEqual(arr[1].y, 11)
+        self.assertEqual(arr[2].x, 12)
+        self.assertEqual(arr[2].y, 12)
+        
+    def test_each_array_eq(self):
+        arr = Array(3,Var)
+        each(arr).val = [1,2,3]
+        self.assertEqual( arr, [1,2,3] )
+    
+    def test_every_array(self):
+        arr = Array(3,Var)
+        every(arr).val = 5
+        self.assertEqual( arr, [5,5,5] )
+        
+    def test_prev_array(self):
+        arr = Array(5,Var)
+        each(arr).val = prev(arr).val + 1
+        arr[0] = 0
+        #print(expressions.constraints())
+        self.assertEqual( arr, [0,1,2,3,4] )
+    
+    @unittest.expectedFailure
+    def test_prev_array_twice(self):
+        arr = Array(5,Var)
+        each(arr).val = prev(arr).val + prev(arr).val
+        arr[0] = 0
+        #print(expressions.constraints())
+        self.assertEqual( arr, [0,2,4,6,8] )
+
+    @unittest.expectedFailure
+    def test_each_array_dbl(self):
+        arr1 = InitorArray(Var,[1],[2],[3])
+        arr2 = Array(3,Var)
+        arr3 = Array(3,Var)
+        each(arr2).val = each(arr1).val * 2
+        self.assertEqual( arr2[2], 6 )
+        each(arr3).val = each(arr1).val * 2 + 1
+        self.assertEqual( arr2[2], 7 )
+        
+    @unittest.expectedFailure
+    def test_each_array_tri(self):
+        pts = Array(5,Point)
+        each(pts).x = prev(pts).x + 1
+        each(pts).y = prev(pts).y + prev(pts).x
+        pts.first = Point(0,0)
+        self.assertEqual( pts, [Point(0,0),Point(1,0),Point(2,2),Point(3,4),Point(4,7)] )
+        
 class TestObj(unittest.TestCase):
     def setUp(self):
         expressions.reset_internals()

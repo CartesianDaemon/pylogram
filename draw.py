@@ -38,6 +38,9 @@ class Point(Primitive):
         
     def sim_draw(self, str=""):
         return str
+        
+    def __repr__(self):
+        return "<Point " + repr(self.x) + "," + repr(self.y) + ">"
     
 class Line(Primitive):
     def __init__(self, *args, name=""):

@@ -87,12 +87,16 @@ class _each_base:
         self.__dict__['_enumerate_other'] = enumerate_other
         self.__dict__['_enumerate_self'] = enumerate_self
     
-    def _call_results(self,*args):
-        for item in self:
-            yield item(*args)
+    def _call_results(self,other_iter):
+        for item, arg in zip(self,other_iter):
+            yield item(arg) if arg is not _outside_bounds else _outside_bounds
     
-    def __call__(self,*args):
-        return type(self)( self._call_results(*args) , enumerate_other = self._enumerate_other )
+    def __call__(self,arg):
+        if is_each(arg):
+            other_iter = arg
+        else:
+            other_iter = repeat(arg)
+        return type(self)( self._call_results(other_iter) , enumerate_other = self._enumerate_other )
     
     def __iter__(self):
         return self._enumerate_self(self._arr)
@@ -127,6 +131,9 @@ class _each_base:
     def __truediv__(self,other): return self.__getattr__('__truediv__')(other)
     def __pow__(self,other): return self.__getattr__('__pow__')(other)
 
+def is_each(var):
+    return isinstance(var,_each_base) # TODO: accept any iterable
+    
 def each(arr):
     return _each_base(arr)
     
