@@ -10,17 +10,24 @@ class Struct:
 DefaultArg = Struct
         
 class nonzero_dict( defaultdict ):
-    def __init__(self, *args):
+    def __init__(self, *args,delta=0):
         super().__init__(int, *args)
+        self._delta = delta
+    
+    def _is_zero(self,v):
+        return abs(v)<=self._delta
+
+    def _is_nonzero(self,v):
+        return not self._is_zero(v)
         
     def keys(self):
-        return { k for k,v in super().items() if v }
+        return { k for k,v in super().items() if self._is_nonzero(v) }
 
     def items(self):
-        return { (k,v) for k,v in super().items() if v }
+        return { (k,v) for k,v in super().items() if self._is_nonzero(v) }
     
     def values(self):
-        return { v for v in super().values() if v }
+        return { v for v in super().values() if self._is_nonzero(v) }
     
     def __len__(self):
         return count(self.keys())

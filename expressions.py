@@ -128,7 +128,7 @@ class Expr:
         self._normalise_self()
 
     def _make_from(self,coeff_vars,const,mod):
-        self._coeffs = nonzero_dict(coeff_vars)
+        self._coeffs = nonzero_dict(coeff_vars, delta=0.001)
         self._const = const
         self._mod = mod
         return self
@@ -215,10 +215,10 @@ class Expr:
         return set(self._coeffs.keys())
         
     def is_nonnull(self):
-        return not self._coeffs and self._const != 0
+        return not self._coeffs and self._coeffs._is_nonzero(self._const)
 
     def is_null(self):
-        return not self._coeffs and self._const == 0
+        return not self._coeffs and self._coeffs._is_zero(self._const)
         
     def is_unique(self):
         return len(self._coeffs)==1

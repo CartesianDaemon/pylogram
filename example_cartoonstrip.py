@@ -73,5 +73,5 @@ class Strip(Primitive):
 # display(Strip(3),w=650,h=250)
 
 strip = Strip(2)
-print(strip.sim_draw())
-#display(strip,w=650,h=250)
+#print(strip.sim_draw())
+display(strip,w=650,h=250)
