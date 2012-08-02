@@ -73,7 +73,13 @@ def if_raises( exception, func, *args, **kwargs):
     except exception:
         return False
 
-_outside_bounds = Struct()
+class OutsideBounds:
+    def __getattr__(self,attr):
+        return self
+    def __call__(self,*args):
+        return self
+    
+_outside_bounds = OutsideBounds()
         
 class _each_base:
     def __init__(self,arr,enumerate_other=iter, enumerate_self=iter):
@@ -82,7 +88,7 @@ class _each_base:
         self.__dict__['_enumerate_self'] = enumerate_self
     
     def __call__(self,*args):
-        return type(self)( [ item(*args) for item in self._arr ] , enumerate_other = self._enumerate_other )
+        return type(self)( [ item(*args) for item in self ] , enumerate_other = self._enumerate_other )
     
     def __iter__(self):
         return self._enumerate_self(self._arr)
@@ -91,7 +97,7 @@ class _each_base:
         if attr=='val':
             return self
         else:
-            return type(self)( [ getattr(item,attr) for item in self._arr ] , enumerate_other = self._enumerate_other )
+            return type(self)( [ getattr(item,attr) for item in self ] , enumerate_other = self._enumerate_other )
             
     def __getitem__(self,idx):
         return self._arr[idx]
@@ -120,4 +126,4 @@ def every(arr):
     return _each_base(arr,enumerate_other=repeat)
     
 def prev(arr):
-    return _each_base(arr,enumerate_self= lambda o: chain([_outside_bounds],o) )
+    return _each_base( [_outside_bounds]+arr[:-1] )

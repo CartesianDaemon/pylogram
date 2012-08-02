@@ -129,15 +129,25 @@ class TestHelpers(unittest.TestCase):
         each(self.arr_y).val = prev(self.arr_x)
         self.assertEqual( self.arr_y, [5,0,1,2,3] )
 
+    def test_prev_mul(self):
+        prev(self.arr_x)
+        each(self.arr_y).val = prev(self.arr_x) * 2
+        self.assertEqual( self.arr_y, [5,0,2,4,6] )
+
+    @unittest.expectedFailure
+    def test_prev_self(self):
+        each(self.arr_y).val = prev(self.arr_y)
+        self.assertEqual( self.arr_y, [5,5,5,5,5] )
+    
+    @unittest.expectedFailure
+    def test_prev_self_mul(self):
+        each(self.arr_y).val = prev(self.arr_y) * 2
+        self.assertEqual( self.arr_y, [5,10,20,40,80] )
+    
     @unittest.expectedFailure
     def test_prev_idx(self):
         self.assertEqual( prev(self.arr_y)[0], [5] )
 
-    @unittest.expectedFailure
-    def test_prev_self(self):
-        each(self.arr_y).val = prev(self.arr_y) * 2
-        self.assertEqual( self.arr_y, [5,10,20,40,80] )
-    
     def test_nonzero_dict(self):
         d = nonzero_dict(); self.assertEqual( len(d), 0 )
         d[5] = d[5] + 1; self.assertEqual( len(d), 1 ); self.assertEqual( d.keys(), {5} )
