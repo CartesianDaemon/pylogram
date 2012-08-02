@@ -64,8 +64,8 @@ class TestMatrixSolve(unittest.TestCase):
     def test_reduce_constraint_by_equ_at_var(self):
         a = expressions.Var('a')
         b = expressions.Var('b')
-        self.assertEqual( solve.reduce_constraint_by_equ_for_var( (2*a+b==0), (b==-1), b ), (2*a==1) )
-        self.assertEqual( solve.reduce_constraint_by_equ_for_var( (b==-1), (a+b==0), a ), (b==-1) )
+        self.assertEqual( (2*a+b==0).reduce_by_equ_for_var( (b==-1), b ), (2*a==1) )
+        self.assertEqual( (b==-1).reduce_by_equ_for_var( (a+b==0), a ), (b==-1) )
         
     def test_canonical(self):
         a = expressions.Var('a')

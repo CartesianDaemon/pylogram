@@ -133,6 +133,10 @@ class Expr:
         self._mod = mod
         return self
         
+    def set_coeff(self,var,coeff):
+        self._coeffs[var] = coeff
+        return self
+
     def mod(self,n):
         return Expr(_init_coeff_vars=self._coeffs, _init_const=self._const, mod = n)
     
@@ -307,6 +311,14 @@ class EquZero:
             return self.evaluate()
             # return False
             
+    def reduce_by_equ_for_var(self,equ,var):
+        assert 1 == equ.coefficient(var), str.join(' ',("Expected 1 as coeff of ",repr(var),"in",repr(equ)))
+        return (self - self.coefficient(var) * equ).set_coeff(var,0)
+    
+    def set_coeff(self,var,coeff):
+        self._zero_expr.set_coeff(var,coeff)
+        return self
+    
     @staticmethod
     def _z(a,b):
         assert a==b # Solver should work combining equ with different mods, but not confirmed
