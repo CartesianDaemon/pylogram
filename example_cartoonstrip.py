@@ -34,10 +34,11 @@ class Stickfigure(Primitive):
         self.floor = self.head.bottom.y + self.head.d * 4
 
 class Panel(Box):
-    def __init__(self,n_figures=1):
+    def __init__(self,n_figures=1,*conversation):
         super().__init__()
         self.set_name("panel")
         self.figures = Array(n_figures, Stickfigure)
+        self.bubbles
         for idx,figure in enumerate(self.figures):
             figure.floor = self.bottom.y - self.height/10
             figure.height = figure.width * 7/3
@@ -72,6 +73,12 @@ class Strip(Primitive):
         
 # display(Strip(3),w=650,h=250)
 
-strip = Strip(2)
+#strip = Strip(2)
 #print(strip.sim_draw())
-display(strip,w=650,h=250)
+#display(strip,w=650,h=250)
+
+panel1 = Panel(1,"Hello world!")
+panel1.topleft = Point(padding,padding)
+panel1.width = 200
+panel1.height = 200
+print(panel1.sim_draw())

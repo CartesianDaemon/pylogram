@@ -43,7 +43,42 @@ class Point(Primitive):
         
     def __repr__(self):
         return "<Point " + repr(self.x) + "," + repr(self.y) + ">"
-    
+ 
+class Circle(Primitive):
+    def __init__(self, name=""):
+        self.r = Var(name+'.r',prefer=default_coord_type)
+        self.d = self.r * 2
+        self.c = Point(name=name+'.c')
+        self.bottom = self.c + Point(0, self.r)
+        self.top    = self.c + Point(0,-self.r)
+        self.left   = self.c + Point(-self.r, 0)
+        self.right  = self.c + Point( self.r, 0)
+
+    def draw(self, canvas):
+        canvas.create_oval(int(evaluate(self.c.x))-int(evaluate(self.r)),
+                           int(evaluate(self.c.y))-int(evaluate(self.r)),
+                           int(evaluate(self.c.x))+int(evaluate(self.r)),
+                           int(evaluate(self.c.y))+int(evaluate(self.r)))  
+        return canvas
+
+    def sim_draw(self, str=""):
+        return str + " >> Drawing circle about {:},{:} with radius {:}\n".format(int(evaluate(self.c.x)),int(evaluate(self.c.y)),int(evaluate(self.r)))
+
+class Text(Primitive):
+    def __init__(self,text="",anchor='SW'):
+        self._text = text
+        self.pt = Point()
+        self._anchor = anchor
+        
+    def sim_draw(self, str=""):
+        if self._text:
+            return str + ' >> "'+self._text+'" at {:},{:}"'.format(int(evaluate(self.pt.x)),int(evaluate(self.pt.y)))
+        
+    def draw(self,canvas):
+        if self._text:
+            canvas.create_text(int(self.pt.x),int(self.pt.y),text=self._text,anchor=self._anchor)
+        return canvas
+
 class Line(Primitive):
     def __init__(self, *args, name=""):
         if len(args)==0:
@@ -70,29 +105,9 @@ class Line(Primitive):
         return canvas
         
     def sim_draw(self, str=""):
-        return str + " >> Drawing line from {:},{:} to {:},{:}\n".format(self.pt1.x,self.pt1.y,self.pt2.x,self.pt2.y)
+        return str + " >> Drawing line from {:},{:} to {:},{:}\n".format(int(evaluate(self.pt1.x)),int(evaluate(self.pt1.y)),
+                                                                         int(evaluate(self.pt2.x)),int(evaluate(self.pt2.y)))
         
-class Circle(Primitive):
-    def __init__(self, name=""):
-        self.r = Var(name+'.r',prefer=default_coord_type)
-        self.d = self.r * 2
-        self.c = Point(name=name+'.c')
-        self.bottom = self.c + Point(0, self.r)
-        self.top    = self.c + Point(0,-self.r)
-        self.left   = self.c + Point(-self.r, 0)
-        self.right  = self.c + Point( self.r, 0)
-
-    def draw(self, canvas):
-        canvas.create_oval(int(evaluate(self.c.x))-int(evaluate(self.r)),
-                           int(evaluate(self.c.y))-int(evaluate(self.r)),
-                           int(evaluate(self.c.x))+int(evaluate(self.r)),
-                           int(evaluate(self.c.y))+int(evaluate(self.r)))  
-        return canvas
-
-    def sim_draw(self, str=""):
-        return str + " >> Drawing circle about {:},{:} with radius {:}\n".format(self.c.x,self.c.y,self.r)
-
-
 class hLine(Line):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -120,6 +135,13 @@ class Square(Box):
     def __init__(self,name=""):
         super().__init__(name=name)
         self.width = self.height
+
+class SpeechBubble(Primitive):
+    def __init__(self,text="",pack='W'):
+        self.textbox = Text(text=text,anchor='S'+pack)
+        self.line = vLine()
+        self.headtop = self.line.pt2
+        self.line.pt1.y = self.textbox.pt.y
         
 def display(*objs, w=300,h=300):
     master = tkinter.Tk()
