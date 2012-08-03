@@ -76,8 +76,21 @@ class Obj:
         assert emptyslice == slice(None, None, None)
         self.constrain_equal(rhs)
     
-    def items(self):
+    def members(self):
         return self._vars.values()
+    
+    def vars(self):
+        for x in self.members():
+            if is_var(x):
+                yield x
+            elif is_obj(x):
+                for y in x.vars():
+                    yield y
+    
+    def free_vars(self):
+        for x in self.vars():
+            if is_undef(evaluate(x)):
+                yield x
     
     def reduce_subobj(self, subobj, subfunc, arg):
         # TODO: Use try/except.
@@ -90,7 +103,7 @@ class Obj:
     
     def reduce_subobjs(self, subfunc, arg):
         assert type(self) != type(Obj()) # Should be derived class, not Obj itself, else will recurse
-        for subobj in self.items():
+        for subobj in self.members():
             arg = self.reduce_subobj( subobj, subfunc, arg )
         return arg
 
