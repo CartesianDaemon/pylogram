@@ -108,4 +108,4 @@ panel1.topleft = Point(padding,padding)
 panel1.width = 200
 panel2 = Panel(2,"Good morning!","Hello programs!")
 panel2.topleft = Point(padding,padding) + Point(200,0)
-display(panel2)
+display(panel1)

@@ -1,6 +1,7 @@
 # Pylogram libraries
 from expressions import constrain, Contradiction, Var, Expr, is_expr, is_var, is_num
 from helpers import *
+from itertools import chain
 
 def is_obj(obj):
     return isinstance(obj,Obj)
@@ -39,6 +40,9 @@ class Obj:
         name = (self._name+ "."*bool(self._name))+attr
         set_name(self._vars[attr],name,overwrite=False)
         return self._vars[attr]
+        
+    def free_vars(self):
+        return self._vars
             
     def __getattr__(self,attr):
         self._require_init()
@@ -72,6 +76,9 @@ class Obj:
         assert emptyslice == slice(None, None, None)
         self.constrain_equal(rhs)
     
+    def items(self):
+        return self._vars.values()
+    
     def reduce_subobj(self, subobj, subfunc, arg):
         # TODO: Use try/except.
         if is_obj(subobj):
@@ -83,7 +90,7 @@ class Obj:
     
     def reduce_subobjs(self, subfunc, arg):
         assert type(self) != type(Obj()) # Should be derived class, not Obj itself, else will recurse
-        for subobj in self._vars.values():
+        for subobj in self.items():
             arg = self.reduce_subobj( subobj, subfunc, arg )
         return arg
 
@@ -120,12 +127,9 @@ class InitorArray(Obj):
     def __eq__(self,other):
         return undef_eq( self, other )
 
-    def reduce_subobjs(self, subfunc, arg):
-        # assert type(self) == type(Array()) 
-        for subobj in self._arr:
-            arg = self.reduce_subobj(  subobj, subfunc, arg )
-        return super().reduce_subobjs(subfunc, arg)
-
+    def items(self):
+        return chain(self._arr, super().items())
+        
     # TODO: Enable sim_draw() and draw() only if enabled for subobjs
     def sim_draw(self, str=""):
         return self.reduce_subobjs('sim_draw', str)
