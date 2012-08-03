@@ -39,7 +39,12 @@ class SpeechBubble(Primitive):
         self.line = vLine()
         self.line.pt1.y = self.textbox.pt.y + 10
         self.headtop = self.line.pt2 + Point(0,10)
-        self.align_x = self.line.x = self.textbox.pt.x
+        if pack=='':
+            self.textbox.pt.x = self.line.x
+        elif pack=='w':
+            self.textbox.pt.x = self.left+20
+        elif pack=='e':
+            self.textbox.pt.x = self.right-20
         self.align_y = self.textbox.pt.y-20
         
 class Panel(Box):
@@ -63,6 +68,14 @@ class Panel(Box):
             self.speech = SpeechBubble(conversation[0])
             self.speech.headtop = self.figures[0].head.top
             self.speech.align_y = self.top.y + 20
+        elif n_figures==2:
+            self.speeches = InitorArray(SpeechBubble,*zip(conversation,"ww"))
+            each(self.speeches).headtop = each(self.figures).head.top
+            self.speeches[0].align_y = self.top.y + 20
+            self.speeches[1].align_y = self.top.y + 60
+            self.speeches[0].left = self.left.x + 20
+            self.speeches[1].left = self.speeches[0].line.x + 20
+            
 
 # panel = Panel(2)
 # panel.topleft = Point(padding,padding)
@@ -93,5 +106,6 @@ class Strip(Primitive):
 panel1 = Panel(1,"Hello world!")
 panel1.topleft = Point(padding,padding)
 panel1.width = 200
-#print(panel1.sim_draw())
-display(panel1)
+panel2 = Panel(2,"Good morning!","Hello programs!")
+panel2.topleft = Point(padding,padding) + Point(200,0)
+display(panel2)
