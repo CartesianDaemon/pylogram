@@ -1,5 +1,5 @@
 # Pylogram libraries
-from expressions import constrain, Contradiction, Var, Expr, is_expr, is_var, is_num
+from expressions import constrain, Contradiction, Var, Expr, is_expr, is_var, is_num, is_undef, evaluate # TODO: import is_undefed only
 from helpers import *
 from itertools import chain
 

@@ -140,6 +140,8 @@ def display(*objs, w=300,h=300):
     master = tkinter.Tk()
     canvas = tkinter.Canvas(master, width=w, height=h)
     for obj in objs:
+        if obj.free_vars():
+            print(set(obj.free_vars()))
         obj.draw(canvas)
     canvas.pack()
     tkinter.mainloop()
