@@ -32,7 +32,16 @@ class Stickfigure(Primitive):
         self.right = self.arms.pt2.x
         self.x = self.head.bottom.x
         self.floor = self.head.bottom.y + self.head.d * 4
-
+        
+class SpeechBubble(Primitive):
+    def __init__(self,text="",pack=''):
+        self.textbox = Text(text=text,anchor='s'+pack)
+        self.line = vLine()
+        self.line.pt1.y = self.textbox.pt.y + 10
+        self.headtop = self.line.pt2 + Point(0,10)
+        self.align_x = self.line.x = self.textbox.pt.x
+        self.align_y = self.textbox.pt.y-20
+        
 class Panel(Box):
     def __init__(self,n_figures=1,*conversation):
         super().__init__()
@@ -42,13 +51,18 @@ class Panel(Box):
         for idx,figure in enumerate(self.figures):
             figure.floor = self.bottom.y - self.height/10
             figure.height = figure.width * 7/3
-        padding = self.width/3 if n_figures==1 else self.width/8
+        padding = self.width*2/5 if n_figures==1 else self.width/8
         spacing = self.width/10
         for a,b in self.figures.adj_objs():
             b.left = a.right + spacing
             b.width = a.width
         self.figures[0].left = self.left.x + padding
         self.figures[-1].right = self.right.x - padding
+        self.height = self.width
+        if n_figures==1:
+            self.speech = SpeechBubble(conversation[0])
+            self.speech.headtop = self.figures[0].head.top
+            self.speech.align_y = self.top.y + 20
 
 # panel = Panel(2)
 # panel.topleft = Point(padding,padding)
@@ -58,13 +72,12 @@ class Panel(Box):
 
 class Strip(Primitive):
     def __init__(self, N):
-        self.panelwidth = self.panelheight = 200
+        self.panelwidth = 200
         step = 2
         self.panels = InitorArray(Panel,*zip(range(1,step*N+1,step)))
         self.topleft = self.panels.first.topleft = Point(padding,padding)
         for panel in self.panels:
             panel.width = self.panelwidth
-            panel.height= self.panelheight
         for a,b in self.panels.adj_objs():
             a.right = b.left
 
@@ -80,5 +93,5 @@ class Strip(Primitive):
 panel1 = Panel(1,"Hello world!")
 panel1.topleft = Point(padding,padding)
 panel1.width = 200
-panel1.height = 200
-print(panel1.sim_draw())
+#print(panel1.sim_draw())
+display(panel1)

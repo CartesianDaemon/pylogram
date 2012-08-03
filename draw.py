@@ -65,18 +65,18 @@ class Circle(Primitive):
         return str + " >> Drawing circle about {:},{:} with radius {:}\n".format(int(evaluate(self.c.x)),int(evaluate(self.c.y)),int(evaluate(self.r)))
 
 class Text(Primitive):
-    def __init__(self,text="",anchor='SW'):
+    def __init__(self,text="",anchor='sw'):
         self._text = text
         self.pt = Point()
         self._anchor = anchor
         
     def sim_draw(self, str=""):
         if self._text:
-            return str + ' >> "'+self._text+'" at {:},{:}"'.format(int(evaluate(self.pt.x)),int(evaluate(self.pt.y)))
+            return str + ' >> Drawing "'+self._text+'" at {:},{:}\n"'.format(int(evaluate(self.pt.x)),int(evaluate(self.pt.y)))
         
     def draw(self,canvas):
         if self._text:
-            canvas.create_text(int(self.pt.x),int(self.pt.y),text=self._text,anchor=self._anchor)
+            canvas.create_text(int(evaluate(self.pt.x)),int(evaluate(self.pt.y)),text=self._text,anchor=self._anchor)
         return canvas
 
 class Line(Primitive):
@@ -136,13 +136,6 @@ class Square(Box):
         super().__init__(name=name)
         self.width = self.height
 
-class SpeechBubble(Primitive):
-    def __init__(self,text="",pack='W'):
-        self.textbox = Text(text=text,anchor='S'+pack)
-        self.line = vLine()
-        self.headtop = self.line.pt2
-        self.line.pt1.y = self.textbox.pt.y
-        
 def display(*objs, w=300,h=300):
     master = tkinter.Tk()
     canvas = tkinter.Canvas(master, width=w, height=h)
