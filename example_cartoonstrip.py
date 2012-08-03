@@ -36,16 +36,16 @@ class Stickfigure(Primitive):
 class SpeechBubble(Primitive):
     def __init__(self,text="",pack=''):
         self.textbox = Text(text=text,anchor='s'+pack)
-        self.line = vLine()
-        self.line.pt1.y = self.textbox.pt.y + 10
-        self.headtop = self.line.pt2 + Point(0,10)
+        self.line = vLine(col="gray")
+        self.line.pt1.y = self.textbox.pt.y + 5
+        self.headtop = self.line.pt2 + Point(0,5)
         if pack=='':
             self.textbox.pt.x = self.line.x
         elif pack=='w':
             self.textbox.pt.x = self.left+20
         elif pack=='e':
             self.textbox.pt.x = self.right-20
-        self.align_y = self.textbox.pt.y-20
+        self.align_y = self.textbox.pt.y-10
         
 class Panel(Box):
     def __init__(self,n_figures=1,*conversation):
@@ -56,8 +56,8 @@ class Panel(Box):
         for idx,figure in enumerate(self.figures):
             figure.floor = self.bottom.y - self.height/10
             figure.height = figure.width * 7/3
-        padding = self.width*2/5 if n_figures==1 else self.width/8
-        spacing = self.width/10
+        padding = self.width*2/5 if n_figures==1 else self.width/6
+        spacing = self.width/4
         for a,b in self.figures.adj_objs():
             b.left = a.right + spacing
             b.width = a.width
@@ -69,12 +69,12 @@ class Panel(Box):
             self.speech.headtop = self.figures[0].head.top
             self.speech.align_y = self.top.y + 20
         elif n_figures==2:
-            self.speeches = InitorArray(SpeechBubble,*zip(conversation,"ww"))
+            self.speeches = InitorArray(SpeechBubble, *zip(conversation,"ww"))
             each(self.speeches).headtop = each(self.figures).head.top
             self.speeches[0].align_y = self.top.y + 20
-            self.speeches[1].align_y = self.top.y + 60
-            self.speeches[0].left = self.left.x + 20
-            self.speeches[1].left = self.speeches[0].line.x + 20
+            self.speeches[1].align_y = self.top.y + 40
+            self.speeches[0].left = self.left.x + 5
+            self.speeches[1].left = self.speeches[0].line.x + 5
             
 
 # panel = Panel(2)
@@ -104,8 +104,8 @@ class Strip(Primitive):
 #display(strip,w=650,h=250)
 
 panel1 = Panel(1,"Hello world!")
-panel1.topleft = Point(padding,padding)
-panel1.width = 200
 panel2 = Panel(2,"Good morning!","Hello programs!")
-panel2.topleft = Point(padding,padding) + Point(200,0)
-display(panel1)
+panel1.topleft = Point(padding,padding)
+panel1.width = panel2.width = 200
+panel2.topleft = panel1.topright
+display(panel1,panel2,w=500)

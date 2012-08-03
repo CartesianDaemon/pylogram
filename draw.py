@@ -80,7 +80,7 @@ class Text(Primitive):
         return canvas
 
 class Line(Primitive):
-    def __init__(self, *args, name=""):
+    def __init__(self, *args, name="",col="black"):
         if len(args)==0:
             self.pt1 = Point(name=name+".pt1")
             self.pt2 = Point(name=name+".pt2")
@@ -96,12 +96,13 @@ class Line(Primitive):
         self.width = self.pt2.x - self.pt1.x
         self.height= self.pt2.y - self.pt1.y
         self.mid = self.pt1 + Point(self.width/2,self.height/2)
+        self._col = col
 
     def draw(self, canvas):
         canvas.create_line(int(evaluate(self.pt1.x)),
                            int(evaluate(self.pt1.y)),
                            int(evaluate(self.pt2.x)),
-                           int(evaluate(self.pt2.y)))        
+                           int(evaluate(self.pt2.y)), fill = self._col)        
         return canvas
         
     def sim_draw(self, str=""):
