@@ -52,7 +52,8 @@ class Canonical:
         print_steps("\nSolving",new_constraint,"for", new_var.name(), ":")
         new_constraint = new_constraint.normalised_for(new_var)
         for var, constraint in self._cncl_dict.items():
-            self._set_solved_constraint(var,constraint.reduce_by_equ_for_var(new_constraint,new_var))
+            if new_var in constraint.variables():
+                self._set_solved_constraint(var,constraint.reduce_by_equ_for_var(new_constraint,new_var))
         self._set_solved_constraint(new_var, new_constraint)
 
     def _set_solved_constraint(self, new_var, new_constraint):
