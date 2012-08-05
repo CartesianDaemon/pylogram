@@ -41,7 +41,8 @@ class Canonical:
         print_steps = self._print_steps
         new_constraint = orig_new_constraint
         for var, equ in self._cncl_dict.items():
-            new_constraint = new_constraint.reduce_by_equ_for_var(equ, var)
+            if var in new_constraint.variables():
+                new_constraint = new_constraint.reduce_by_equ_for_var(equ, var)
         assert not new_constraint.variables() & self.reduced_vars()
         if new_constraint.is_tautology():
             return
