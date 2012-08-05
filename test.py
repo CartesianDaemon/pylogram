@@ -721,5 +721,27 @@ class TestDraw(unittest.TestCase):
         self.test_lollypop_draw()
         mainloop()
         
+from example_cartoonstrip import *
+
+class TestDrawingSpeed(unittest.TestCase):
+    def setUp(self):
+        pass
+        
+    # def test_draw_three_figures(self):
+    #     # 1.757s
+    #     figures = Array(3, Stickfigure)
+    #     width = height = 200
+    #     for figure in figures:
+    #         figure.floor = 90
+    #         figure.height = figure.width * 7/3
+    #     padding = width/6
+    #     spacing = width/4
+    #     for a,b in figures.adj_objs():
+    #         b.left = a.right + spacing
+    #         b.width = a.width
+    #     figures[0].left = padding
+    #     figures[-1].right = 200
+    #     figures.sim_draw()
+        
 if __name__ == '__main__':
     unittest.main()

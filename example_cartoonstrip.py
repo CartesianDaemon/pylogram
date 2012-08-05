@@ -94,18 +94,22 @@ class Strip(Primitive):
         for a,b in self.panels.adj_objs():
             a.right = b.left
 
-#display(Strip(1,300),w=400,h=300)
-#print(Strip(1,300).sim_draw())
-        
-# display(Strip(3),w=650,h=250)
+def do():
+    #display(Strip(1,300),w=400,h=300)
+    #print(Strip(1,300).sim_draw())
+            
+    # display(Strip(3),w=650,h=250)
+    
+    #strip = Strip(2)
+    #print(strip.sim_draw())
+    #display(strip,w=650,h=250)
+    
+    panel1 = Panel(1,"Hello world!")
+    panel2 = Panel(2,"Good morning!","Hello programs!")
+    panel1.topleft = Point(padding,padding)
+    panel1.width = panel2.width = 200
+    panel2.topleft = panel1.topright
+    display(panel1,panel2,w=500)
 
-#strip = Strip(2)
-#print(strip.sim_draw())
-#display(strip,w=650,h=250)
-
-panel1 = Panel(1,"Hello world!")
-panel2 = Panel(2,"Good morning!","Hello programs!")
-panel1.topleft = Point(padding,padding)
-panel1.width = panel2.width = 200
-panel2.topleft = panel1.topright
-display(panel1,panel2,w=500)
+if __name__ == '__main__':
+    do()
