@@ -55,20 +55,20 @@ class Panel(Box):
         self.bubbles
         for idx,figure in enumerate(self.figures):
             figure.floor = self.bottom.y - self.height/10
-            figure.height = figure.width * 7/3
-        padding = self.width*2/5 if n_figures==1 else self.width/6
-        spacing = self.width/4
+            figure.height = figure.width * 7/3 if n_figures<=2 else 75
+        padding = self.width*2/5 if n_figures==1 else self.width/6 if n_figures==2 else 0
+        spacing = self.width/4 if n_figures<=2 else 0
         for a,b in self.figures.adj_objs():
             b.left = a.right + spacing
             b.width = a.width
         self.figures[0].left = self.left.x + padding
         self.figures[-1].right = self.right.x - padding
         self.height = self.width
-        if n_figures==1:
+        if n_figures==1 and len(conversation)>=1:
             self.speech = SpeechBubble(conversation[0])
             self.speech.headtop = self.figures[0].head.top
             self.speech.align_y = self.top.y + 20
-        elif n_figures==2:
+        elif n_figures==2 and len(conversation)>=1:
             self.speeches = InitorArray(SpeechBubble, *zip(conversation,"ww"))
             each(self.speeches).headtop = each(self.figures).head.top
             self.speeches[0].align_y = self.top.y + 20
@@ -92,13 +92,13 @@ class Strip(Primitive):
         for panel in self.panels:
             panel.width = self.panelwidth
         for a,b in self.panels.adj_objs():
-            a.right = b.left
+            a.topright = b.topleft
 
 def do():
     #display(Strip(1,300),w=400,h=300)
     #print(Strip(1,300).sim_draw())
             
-    # display(Strip(3),w=650,h=250)
+    display(Strip(3),w=650,h=250)
     
     #strip = Strip(2)
     #print(strip.sim_draw())
