@@ -49,7 +49,7 @@ class SpeechBubble(Primitive):
         
 class Panel(Box):
     def __init__(self,n_figures=1,*conversation):
-        super().__init__()
+        super(Panel,self).__init__()
         self.set_name("panel")
         self.figures = Array(n_figures, Stickfigure)
         self.bubbles

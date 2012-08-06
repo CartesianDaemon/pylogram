@@ -1,5 +1,6 @@
 # Pylogram libraries
-from expressions import constrain, Contradiction, Var, Expr, is_expr, is_var, is_num, is_undef, evaluate # TODO: import is_undefed only
+from excpt import *
+from expressions import constrain, Var, Expr, is_expr, is_var, is_num, is_undef, evaluate # TODO: import is_undefed only
 from helpers import *
 from itertools import chain
 
@@ -16,7 +17,7 @@ def set_name(obj,name,overwrite=False):
         assert 0
         
     
-class Obj:
+class Obj(object):
     def _require_init(self):
         if '_vars' not in self.__dict__:
             self.__dict__['_vars'] = {}
@@ -108,7 +109,8 @@ class Obj:
         return arg
 
 class InitorArray(Obj):
-    def __init__(self,Type,*args_of_args, name=""):
+    def __init__(self,Type,*args_of_args, **kwargs):
+        name = kwargs.get('name',"")
         self._arr = [ Type(*args) for args in args_of_args ]
         self.N = len(self._arr)
         self.set_name(name)
@@ -120,7 +122,7 @@ class InitorArray(Obj):
 
     def __setitem__(self,idx,val):
         if idx==slice(None, None, None):
-            super().__setitem__(idx,val)
+            super(InitorArray,self).__setitem__(idx,val)
         else:
             assert 0 <= idx <= self.N
             self._arr[idx].constrain_equal(val)
@@ -141,7 +143,7 @@ class InitorArray(Obj):
         return undef_eq( self, other )
 
     def items(self):
-        return chain(self._arr, super().items())
+        return chain(self._arr, super(InitorArray,self).items())
         
     # TODO: Enable sim_draw() and draw() only if enabled for subobjs
     def sim_draw(self, str=""):
@@ -154,4 +156,4 @@ class InitorArray(Obj):
 class Array(InitorArray):
     def __init__(self,N,Type,name=""):
         # TODO: Do we want to support non-var use, eg. arr1 = Array(N); arr1.first = 1; arr1.each = arr1.prev*2
-        super().__init__(Type, *(() for _ in range(N)), name=name )
+        super(Array,self).__init__(Type, *(() for _ in range(N)), name=name )

@@ -1,8 +1,8 @@
 # Pylogram libraries
 from helpers import *
-from exceptions import *
+from excpt import *
 
-class Canonical:
+class Canonical(object):
     def __init__(self,orig_constraints, print_steps=ignore, undef=None):
         self._orig_constraints = orig_constraints
         self._print_steps = print_steps
@@ -23,7 +23,7 @@ class Canonical:
         return self._variables
         
     def reduced_vars(self):
-        return self._cncl_dict.keys()
+        return set(self._cncl_dict.keys())
         
     def free_vars(self):
         return self.variables() - self.reduced_vars()

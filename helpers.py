@@ -1,7 +1,8 @@
 # Standard modules
 from numbers import Number
 from collections import defaultdict
-from itertools import zip_longest, chain, repeat
+from itertools import izip_longest as zip_longest, chain, repeat
+#from itertools import zip_longest as zip_longest, chain, repeat
 from fractions import Fraction
 from functools import partial
 class Struct:
@@ -10,9 +11,9 @@ class Struct:
 DefaultArg = Struct
         
 class nonzero_dict( defaultdict ):
-    def __init__(self, *args,delta=0):
-        super().__init__(int, *args)
-        self._delta = delta
+    def __init__(self, *args,**kwargs):
+        super(nonzero_dict,self).__init__(int, *args)
+        self._delta = kwargs.get('delta',0)
     
     def _is_zero(self,v):
         return abs(v)<=self._delta
@@ -21,13 +22,13 @@ class nonzero_dict( defaultdict ):
         return not self._is_zero(v)
         
     def keys(self):
-        return { k for k,v in super().items() if self._is_nonzero(v) }
+        return { k for k,v in super(nonzero_dict,self).items() if self._is_nonzero(v) }
 
     def items(self):
-        return { (k,v) for k,v in super().items() if self._is_nonzero(v) }
+        return { (k,v) for k,v in super(nonzero_dict,self).items() if self._is_nonzero(v) }
     
     def values(self):
-        return { v for v in super().values() if self._is_nonzero(v) }
+        return { v for v in super(nonzero_dict,self).values() if self._is_nonzero(v) }
     
     def __len__(self):
         return count(self.keys())
@@ -88,7 +89,7 @@ class OutsideBounds:
     
 _outside_bounds = OutsideBounds()
         
-class _each_base:
+class _each_base(object):
     def __init__(self,arr,enumerate_other=iter, enumerate_self=iter):
         self.__dict__['_arr'] = arr
         self.__dict__['_enumerate_other'] = enumerate_other
@@ -103,7 +104,7 @@ class _each_base:
             other_iter = arg
         else:
             other_iter = repeat(arg)
-        return type(self)( self._call_results(other_iter) , enumerate_other = self._enumerate_other )
+        return _each_base( self._call_results(other_iter) , enumerate_other = self._enumerate_other )
     
     def __iter__(self):
         return self._enumerate_self(self._arr)
@@ -116,7 +117,7 @@ class _each_base:
         if attr=='val':
             return self
         else:
-            return type(self)( self._getattr_result(attr), enumerate_other = self._enumerate_other )
+            return _each_base( self._getattr_result(attr), enumerate_other = self._enumerate_other )
             
     def __getitem__(self,idx):
         return self._arr[idx]

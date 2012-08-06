@@ -1,8 +1,10 @@
 # Pylogram libraries
-from expressions import constrain, Contradiction, Var, evaluate
+from excpt import *
+from expressions import constrain, Var, evaluate
 from object import *
 from helpers import *
-import tkinter
+import Tkinter as tkinter
+#import tkinter
 
 class Primitive(Obj):
     def __init__(self,name=""):
@@ -20,7 +22,8 @@ class Primitive(Obj):
 default_coord_type = Fraction
         
 class Point(Primitive):
-    def __init__(self, *args, name=""):
+    def __init__(self, *args,**kwargs):
+        name = kwargs.get('name',"")
         if len(args)==0:
             self.x = Var(name+'.x',prefer=default_coord_type)
             self.y = Var(name+'.y',prefer=default_coord_type)
@@ -45,7 +48,7 @@ class Point(Primitive):
         return "<Point " + repr(self.x) + "," + repr(self.y) + ">"
  
 class Circle(Primitive):
-    def __init__(self, name=""):
+    def __init__(self,name=""):
         self.r = Var(name+'.r',prefer=default_coord_type)
         self.d = self.r * 2
         self.c = Point(name=name+'.c')
@@ -80,7 +83,9 @@ class Text(Primitive):
         return canvas
 
 class Line(Primitive):
-    def __init__(self, *args, name="",col="black"):
+    def __init__(self, *args, **kwargs):
+        name = kwargs.get('name',"")
+        col = kwargs.get('col',"black")
         if len(args)==0:
             self.pt1 = Point(name=name+".pt1")
             self.pt2 = Point(name=name+".pt2")
@@ -111,12 +116,12 @@ class Line(Primitive):
         
 class hLine(Line):
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super(hLine,self).__init__(*args, **kwargs)
         self.y = self.pt1.y = self.pt2.y
 
 class vLine(Line):
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super(vLine,self).__init__(*args, **kwargs)
         self.x = self.pt1.x = self.pt2.x
 
 class Box(Primitive):
@@ -134,10 +139,12 @@ class Box(Primitive):
         
 class Square(Box):
     def __init__(self,name=""):
-        super().__init__(name=name)
+        super(Square,self).__init__(name=name)
         self.width = self.height
 
-def display(*objs, w=300,h=300):
+def display(*objs, **kwargs):
+    w = kwargs.get('w',300)
+    h = kwargs.get('h',300)
     master = tkinter.Tk()
     canvas = tkinter.Canvas(master, width=w, height=h)
     for obj in objs:

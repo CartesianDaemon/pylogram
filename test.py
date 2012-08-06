@@ -11,8 +11,10 @@ import expressions as pyl
 import solve
 from solve import Canonical
 from helpers import *
+from excpt import *
 
-from tkinter import *
+from Tkinter import *
+#from tkinter import *
 
 class TestBuiltins(unittest.TestCase):
     def test_remove(self):
@@ -36,10 +38,10 @@ class TestBuiltins(unittest.TestCase):
                 return "<Foo>"
         self.assertEqual( str(Foo()), "<Foo>" )
 
-    @unittest.skip
-    @unittest.expectedFailure
-    def test_fail(self):
-        self.assertEqual( 1, 2 )
+    #@unittest.skip
+    #@unittest.expectedFailure
+    #def test_fail(self):
+    #    self.assertEqual( 1, 2 )
         
     def test_tk(self):
         # master = Tk()
@@ -84,8 +86,8 @@ class TestMatrixSolve(unittest.TestCase):
         self.assertEqual(Canonical( [ 2*a+2*c==6, 3*a+3*b==6 ] ).constraints(), [ a+c==3, b-c==-1 ] )
         self.assertEqual(Canonical( [ a+b+c+d==1, a+b-c-d==2 ] ).constraints(), [ a+b==1.5, c+d==-0.5 ] )
         self.assertEqual(Canonical( [ a+b+c+d==1,-a+b-c+d==2 ] ).constraints(), [ c+a==-0.5, d+b==1.5 ] )
-        self.assertRaises( expressions.Contradiction, Canonical, [ a==1, a==2 ]        )
-        self.assertRaises( expressions.Contradiction, Canonical, [ a==b, a==-b, a==1 ] )
+        self.assertRaises( Contradiction, Canonical, [ a==1, a==2 ]        )
+        self.assertRaises( Contradiction, Canonical, [ a==b, a==-b, a==1 ] )
 
 class TestHelpers(unittest.TestCase):
     def setUp(self):
@@ -312,7 +314,7 @@ class TestPylogram(unittest.TestCase):
         varset.b [:]= 1
         self._test_evaluates_to( varset.b, 1 )
         self._test_evaluates_to( varset.a, 2 )
-        self.assertRaises( expressions.Contradiction, varset.b.constrain_equal, 2 )
+        self.assertRaises( Contradiction, varset.b.constrain_equal, 2 )
 
     def test_syntax_constrain(self):
         system = expressions.System()
@@ -390,7 +392,7 @@ class TestPylogram(unittest.TestCase):
         a = expressions.Var('a')
         self.assertFalse( system.evaluate( a-a==2 ) )
         self.assertFalse( system.try_constrain(a-a==2) )
-        self.assertRaises( expressions.Contradiction, system.constrain, a-a==2 )
+        self.assertRaises( Contradiction, system.constrain, a-a==2 )
 
     def test_equ(self):
         system = expressions.System()
@@ -716,10 +718,10 @@ class TestDraw(unittest.TestCase):
         lollypop.draw(canvas)
         canvas.pack()
         
-    @unittest.skip
-    def test_display(self):
-        self.test_lollypop_draw()
-        mainloop()
+    #@unittest.skip
+    #def test_display(self):
+    #    self.test_lollypop_draw()
+    #    mainloop()
         
 from example_cartoonstrip import *
 

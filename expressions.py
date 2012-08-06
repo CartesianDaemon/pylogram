@@ -1,3 +1,4 @@
+from __future__ import division
 # Standard libraries
 from numbers import Number
 from fractions import Fraction
@@ -5,7 +6,7 @@ from fractions import Fraction
 # Pylogram libraries
 from helpers import *
 from solve import Canonical
-from exceptions import *
+from excpt import *
 
 # WARNING: Changed to primarily use global a[:]=b instead of system.constrain( a==b )
 # If you use system.constrain( a==b ) and then to print(a) not print(system.evaluate(a)) you will get weird results
@@ -59,6 +60,7 @@ class Var:
     def __radd__       (self,other):   return Expr(self).__radd__   (other)
     def __rmul__       (self,other):   return Expr(self).__rmul__   (other)
     def __truediv__    (self,other):   return Expr(self).__truediv__(other)
+    def __div__        (self,other):   return Expr(self).__div__(other)
     def __neg__        (self):        return Expr(self).__neg__()
     def __pos__        (self):        return Expr(self).__pos__()
 
@@ -113,6 +115,8 @@ class Varset():
                 self._varset, self._n = varset, n
             def __iter__(self):
                 return self
+            def next(self):
+                return self.__next__()
             def __next__(self):
                 if self._n<=0: raise StopIteration
                 self._n -=1;
@@ -120,9 +124,9 @@ class Varset():
         return var_iter(self)
 
 class Expr:
-    def __init__(self, *args, _init_coeff_vars = {}, _init_const = 0, mod=None):
+    def __init__(self, term=None, _init_coeff_vars = {}, _init_const = 0, mod=None):
         self._make_from(_init_coeff_vars,_init_const,mod)
-        for term in args:
+        if term is not None:
             assert is_term( term )
             self._add_term( term )
         self._normalise_self()
@@ -165,6 +169,7 @@ class Expr:
     def __add__ (self,term): assert is_term(term); return self.copy()._add_term( term )
     def __mul__ (self,term): assert is_term(term); return self.copy()._mul_term(term)
     def __truediv__ (self,term): assert is_num(term); return self.copy()._mul_term(self._inverse(term))
+    def __div__ (self,term): return self.__truediv__(term)
     def __sub__ (self,term): assert is_term(term); return self + -term
     def __rsub__(self,term): assert is_term(term); return -self + term
     def __radd__(self,term): assert is_term(term); return self + term
@@ -182,7 +187,7 @@ class Expr:
 
     def __setitem__(self, emptyslice, rhs):
         # Support "a [:]= b" syntax
-        assert emptyslice == slice(None, None, None)
+        # assert emptyslice == slice(None, None, None)
         self.constrain_equal(rhs)
         return Equ(self,rhs)
     
@@ -329,6 +334,7 @@ class EquZero:
     def __mul__ (self, other): assert is_equ(other); return EquZero(self._zero_expr*other, mod=self._mod)
     def __rmul__(self, other): assert is_num(other); return EquZero(self._zero_expr*other, mod=self._mod)
     def __truediv__ (self, other): assert is_num(other); return EquZero( self._zero_expr*self._inverse(other), mod=self._mod)
+    def __div__ (self, other): return self.__truediv__(other)
     def __or__(self,other): return self.evaluate() | other
     def __ror__(self,other): return other | self.evaluate()
     def __and__(self,other): return self.evaluate() & evaluate(other)
@@ -393,13 +399,14 @@ def Equ(lhs,rhs):
 
 class System(Canonical):
     def __init__(self, *constraints):
-        super().__init__( constraints, undef = _Undefined() )
+        super(System, self).__init__( constraints, undef = _Undefined() )
         self._orig_constraints = list(constraints)
         
     def try_constrain(self,equ):
         return if_raises(Contradiction, self.constrain, equ)
     
-    def constrain(self,*args, mod=None):
+    def constrain(self,*args, **kwargs):
+        mod = kwargs.get('mod',None)
         for equ in args:
             assert is_equ(equ)
             self.add_constraint(equ.mod(mod))
