@@ -149,9 +149,11 @@ class InitorArray(Obj):
     def sim_draw(self, str=""):
         return self.reduce_subobjs('sim_draw', str)
         
-    def draw(self, canvas):
-        return self.reduce_subobjs('draw',canvas)
-        
+    def draw_tk(self, canvas):
+        return self.reduce_subobjs('draw_tk',canvas)
+
+    def draw_pil(self, draw):
+        return self.reduce_subobjs('draw_pil',draw)
         
 class Array(InitorArray):
     def __init__(self,N,Type,name=""):

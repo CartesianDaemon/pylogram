@@ -5,6 +5,10 @@ import unittest
 import os
 from fractions import Fraction
 
+# Third party libraries
+from Tkinter import *
+#from tkinter import *
+
 # Pylogram libraries
 import expressions
 import expressions as pyl
@@ -13,8 +17,6 @@ from solve import Canonical
 from helpers import *
 from excpt import *
 
-from Tkinter import *
-#from tkinter import *
 
 class TestBuiltins(unittest.TestCase):
     def test_remove(self):
@@ -709,14 +711,21 @@ class TestDraw(unittest.TestCase):
         self.assertEqual(output.count("line"),1)
         self.assertEqual(output.count("circle"),1)
 
-    def test_lollypop_draw(self):
+    def test_lollypop_draw_tk(self):
         master = Tk()
         lollypop = self.Lollypop()
         lollypop.mid = Point(150,150)
         lollypop.height = 150
         canvas = Canvas(master, width=300, height=300)
-        lollypop.draw(canvas)
+        lollypop.draw_tk(canvas)
         canvas.pack()
+    
+    def test_lollypop_image(self):
+        lollypop = self.Lollypop()
+        lollypop.mid = Point(150,150)
+        lollypop.height = 150
+        img = create_image(lollypop)
+        img.save("test_output_lollypop.png")
         
     #@unittest.skip
     #def test_display(self):
