@@ -3,8 +3,11 @@ from excpt import *
 from expressions import constrain, Var, evaluate
 from object import *
 from helpers import *
-import Tkinter as tkinter
-#import tkinter
+try:
+    import Tkinter as tkinter
+    #import tkinter
+except ImportError:
+    tkinter = None
 import Image, ImageDraw
 
 def conv(expr):

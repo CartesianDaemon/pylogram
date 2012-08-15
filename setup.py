@@ -2,7 +2,7 @@ from distutils.core import setup
 
 setup(
     name='Pylogram',
-    version='0.1.1',
+    version='0.1.2',
     author='Jack Vickeridge',
     author_email='jackv@cantab.net',
     packages=['pylogram'],
